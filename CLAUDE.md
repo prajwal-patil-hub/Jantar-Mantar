@@ -1,0 +1,35 @@
+# CLAUDE.md — Jantar Mantar Sahayata
+
+Protest-support app: offline-first Flutter map of facilities (water/food/shelter/medical/safety) with capacity counts. Crowdsourced updates verified before public display. Groups layer on a canonical public map. Privacy-first, security-first.
+
+## Read these first, in order
+1. `CONTEXT.md` — vision, all locked decisions, constraints (source of truth)
+2. `progress/PROGRESS.md` — last session's log + next tasks
+3. `PROJECT_MANAGEMENT.md` — phase board, epics, definition of done
+4. `ARCHITECTURE.md` — stack, data model, sync rules
+5. `SECURITY.md` — threat model + per-feature checklist (gates every merge)
+6. `DESIGN.md` — UI direction (glassmorphism), theming, open design choices
+7. `DECISIONS.md` — ADR log; add an ADR for every significant choice
+8. Deep reference: `docs/research/ui-ux-spec.md` (every screen, wireframes) and `docs/research/group-architecture.md` (groups, invites, India legal)
+
+## Rules for every session
+- Offline-first is non-negotiable: never block UI on network; local-first reads, queued writes.
+- Security: no secrets in the app binary; assume all URLs public; authz server-side (RLS deny-by-default); TLS + cert pinning; no tokens in URLs; strip EXIF from photos.
+- Privacy: anonymous-by-default auth; coarse location default; minimal group-membership metadata; no phone numbers exposed.
+- Accessibility: every status = color + icon + text (never color alone); 48dp+ touch targets; Hindi + English (Noto Sans / Noto Sans Devanagari).
+- Performance target: low-end Android (<2GB RAM); cold start to usable cached map <3s; glass blur must have cheap fallback.
+- Workflow: pick top "Next up" task from PROJECT_MANAGEMENT.md → build → tick SECURITY.md items → log session in progress/PROGRESS.md → add ADRs.
+- MVP scope is frozen: public verified map only. NO groups, mesh, or worldwide features until Phase 3+.
+
+## Current state (2026-07-24)
+Phase 0. Docs complete. Flutter project NOT yet created.
+**Immediate next tasks:** E1.1 confirm backend (Supabase proposed, ADR-8) → E1.2 `flutter create jantar_mantar_sahayata` with feature-first structure + Riverpod → lints/CI/git.
+Open design choices are listed in DESIGN.md §Open choices.
+
+## Don't
+- Don't add Google Maps SDK (we use flutter_map + OSM + FMTC — ADR-7).
+- Don't make phone-OTP mandatory anywhere (ADR-4).
+- Don't store precise user location server-side.
+- Don't use Firebase Dynamic Links (dead since Aug 2025) — native App Links/Universal Links only.
+- Don't use `qr_code_scanner` (unmaintained) — use `mobile_scanner` + `qr_flutter`.
+- Don't put group-scoping logic only in the UI — enforce with RLS + negative tests.

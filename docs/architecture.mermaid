@@ -1,0 +1,44 @@
+flowchart TB
+    subgraph DEVICE["📱 Flutter App (offline-first)"]
+        UI["UI · Material 3<br/>Map / Submit / Alerts / SOS"]
+        STATE["Riverpod state"]
+        REPO["Repositories<br/>(local-first reads)"]
+        DB[("Drift / SQLite<br/>facilities · submissions · sync queue")]
+        TILES[("FMTC<br/>offline map tiles")]
+        SEC["🔐 flutter_secure_storage<br/>device keypair · tokens"]
+        UI --> STATE --> REPO
+        REPO --> DB
+        UI --> TILES
+        REPO --> SEC
+    end
+
+    SYNC["Sync worker<br/>queued writes · backoff · conflict rules"]
+    DB <--> SYNC
+
+    subgraph NET["🔒 Network layer"]
+        TLS["TLS 1.2+ · certificate pinning<br/>no secrets in URLs · rate limits"]
+    end
+    SYNC --> TLS
+
+    subgraph BACKEND["☁️ Supabase (proposed)"]
+        AUTH["Auth<br/>anonymous · JWT app_metadata roles"]
+        PG[("Postgres<br/>RLS deny-by-default")]
+        RT["Realtime<br/>alerts · verified updates"]
+        EDGE["Edge functions<br/>validation · signed invites (Ed25519)<br/>EXIF strip · audit log"]
+        AUTH --> PG
+        EDGE --> PG
+        RT --> PG
+    end
+    TLS --> AUTH
+    TLS --> EDGE
+    RT -.push verified data.-> SYNC
+
+    OSM["🗺 OSM tile server"] -.cached once.-> TILES
+
+    subgraph FLOW["Verification pipeline"]
+        S1["User submits<br/>(queued if offline)"] --> S2["Pending<br/>visible only to submitter"]
+        S2 --> S3{"Admin review"}
+        S3 -->|approve| S4["✅ Published + verified<br/>TTL 30–60 min starts"]
+        S3 -->|reject + reason| S5["❌ Rejected · logged"]
+        S4 --> S6["⏳ TTL expires →<br/>stale badge → auto-archive"]
+    end
