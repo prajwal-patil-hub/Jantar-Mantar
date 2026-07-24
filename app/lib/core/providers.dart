@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'data/alert_repository.dart';
 import 'data/facility_repository.dart';
+import 'data/remote_pull_service.dart';
 import 'data/remote_sync_api.dart';
 import 'data/sos_repository.dart';
 import 'data/submission_repository.dart';
+import 'data/supabase_remote_api.dart';
 import 'data/sync_worker.dart';
 import 'db/app_database.dart';
 import 'db/dev_seed.dart';
+import 'sync/sync_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase(driftDatabase(name: 'commonground'));
@@ -39,10 +43,16 @@ final sosRepositoryProvider = Provider<SosRepository>(
   (ref) => SosRepository(ref.watch(appDatabaseProvider)),
 );
 
-/// Swaps to the Supabase-backed implementation when E5/E8 land.
-final remoteSyncApiProvider = Provider<RemoteSyncApi>(
-  (ref) => const UnconfiguredRemoteApi(),
-);
+/// Null until `main()` initialises Supabase and overrides this — tests and
+/// unsupported platforms keep null, and everything downstream degrades to
+/// offline-only queueing.
+final supabaseClientProvider = Provider<SupabaseClient?>((ref) => null);
+
+final remoteSyncApiProvider = Provider<RemoteSyncApi>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null) return const UnconfiguredRemoteApi();
+  return SupabaseRemoteApi(ref.watch(appDatabaseProvider), client);
+});
 
 final syncWorkerProvider = Provider<SyncWorker>(
   (ref) => SyncWorker(
@@ -50,3 +60,16 @@ final syncWorkerProvider = Provider<SyncWorker>(
     ref.watch(remoteSyncApiProvider),
   ),
 );
+
+final syncServiceProvider = Provider<SyncService>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  final service = SyncService(
+    client: client,
+    worker: ref.watch(syncWorkerProvider),
+    puller: client == null
+        ? null
+        : RemotePullService(ref.watch(appDatabaseProvider), client),
+  );
+  ref.onDispose(service.stop);
+  return service;
+});

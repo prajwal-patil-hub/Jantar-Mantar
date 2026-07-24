@@ -25,8 +25,8 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 - [ ] CORS locked to our web origin; web fallback pages `noindex`
 
 ## Backend rules
-- [ ] Supabase RLS **deny-by-default** on every table; policies tested with automated negative tests ("member of A cannot read B's pins")
-- [ ] Roles in JWT `app_metadata` (server-set), never client-writable metadata
+- [x] Supabase RLS **deny-by-default** on every table (`supabase/migrations/20260724000001_init.sql`); negative tests written (`supabase/tests/rls_negative_test.sql`) — RUN THEM via `supabase test db` before launch, and wire into CI
+- [x] Roles in JWT `app_metadata` (server-set, granted via SQL only — see `supabase/README.md`), never client-writable metadata
 - [ ] All writes validated server-side (types, bounds, geo-fence sanity); parameterized queries only
 - [ ] Signed invite tokens (Ed25519): payload = group, expiry, uses, nonce; verifiable offline; server re-checks on sync
 - [ ] Append-only AuditLog; admin actions all logged

@@ -2,6 +2,20 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 8 — 2026-07-24 · Phase 1: E5+E8 — Supabase backend, sync, anon auth, admin queue
+**Done:**
+- User created Supabase project (`orsqjucexvrefmexztay`, publishable key committed — public-by-design)
+- **`supabase/` backend-as-code (ADR-14):** `migrations/20260724000001_init.sql` — facilities, capacity_readings, submissions (client_id unique for idempotent retries, facility_ref text), alerts, sos_signals, append-only audit_log; RLS deny-by-default (public reads facilities/capacity/alerts; users insert+read only their own submissions/SOS; admins via `is_admin()` from app_metadata); `approve_submission`/`reject_submission` SECURITY DEFINER RPCs (approve resolves facility_ref, upserts facility, adds capacity reading w/ TTL, audits); pgTAP negative tests in `tests/rls_negative_test.sql`; setup steps in `supabase/README.md`
+- **App sync (E8):** `SupabaseConfig` (public constants), `SupabaseRemoteApi` (push; 23505 duplicate = already-synced success), `RemotePullService` (facilities/capacity/alerts + own submission verdicts back into local rows), `SyncService` (anon sign-in → drain outbox → pull, 60 s timer, starts in HomeShell, no-op with null client so all tests stay offline), providers swap `UnconfiguredRemoteApi` automatically when a client exists
+- **E5 UI:** Profile → Volunteer/admin tile → email/password login (role-gated display; server re-checks) → verification queue: oldest-first pending cards (category, status, capacity, geo, note), Approve / Reject-with-reason (Duplicate/Can't verify/Stale/Inaccurate/Spam)
+- Tests 33 green (row-mapping both directions, SOS/sos_signals mapping, null-client SyncService no-op)
+
+**USER ACTIONS REQUIRED before live sync works:** (1) paste migration into SQL editor, (2) enable Anonymous sign-ins, (3) create admin user + grant role — exact steps in `supabase/README.md`.
+
+**Next session:**
+1. Smoke test on device: submit → queue → approve in admin → pull → verified pin appears
+2. E9 i18n (en/hi) + accessibility pass, or hardening: cert pinning, flutter_secure_storage, RLS tests in CI, alert broadcast UI
+---
 ## Session 7 — 2026-07-24 · Phase 1: E6 alerts feed + E7 SOS (user chose backend-later)
 **Done:**
 - Repo hygiene: confirmed the session branch never existed on the Spotify-extractor remote (stale local tracking ref only, pruned); all project work isolated to Jantar-Mantar repo
