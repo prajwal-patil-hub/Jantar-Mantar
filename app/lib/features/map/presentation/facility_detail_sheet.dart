@@ -4,9 +4,11 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/domain/freshness.dart';
+import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../core/widgets/glass_surface.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
 import 'widgets/facility_visuals.dart';
@@ -31,6 +33,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
     final colors = Theme.of(context).extension<StatusColors>()!;
     final statusColor = facility.status.colorOf(colors);
     final readings =
@@ -90,7 +93,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
                     children: [
                       Icon(Icons.info_outline, size: 18, color: colors.low),
                       const SizedBox(width: 8),
-                      const Expanded(child: Text('This info may be outdated.')),
+                      Expanded(child: Text(l10n.mayBeOutdated)),
                     ],
                   ),
                 ),
@@ -129,7 +132,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(Icons.edit_location_alt),
-                      label: const Text('Update this'),
+                      label: Text(l10n.updateThis),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -140,7 +143,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
                       ),
                       onPressed: () => _reportClosed(context, ref),
                       icon: const Icon(Icons.block),
-                      label: const Text('Report closed'),
+                      label: Text(l10n.reportClosed),
                     ),
                   ),
                 ],
@@ -150,14 +153,14 @@ class _FacilityDetailSheet extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton.icon(
-                    onPressed: () => _stub(context, 'Offline directions'),
+                    onPressed: () => _stub(context, l10n.directions),
                     icon: const Icon(Icons.directions_walk),
-                    label: const Text('Directions'),
+                    label: Text(l10n.directions),
                   ),
                   TextButton.icon(
-                    onPressed: () => _stub(context, 'Sharing'),
+                    onPressed: () => _stub(context, l10n.share),
                     icon: const Icon(Icons.share),
-                    label: const Text('Share'),
+                    label: Text(l10n.share),
                   ),
                 ],
               ),
@@ -169,28 +172,27 @@ class _FacilityDetailSheet extends ConsumerWidget {
   }
 
   void _stub(BuildContext context, String what) {
+    final l10n = AppL10n.of(context);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('$what arrives in a later build.')));
+    ).showSnackBar(SnackBar(content: Text(l10n.featureArrivesLater(what))));
   }
 
   Future<void> _reportClosed(BuildContext context, WidgetRef ref) async {
+    final l10n = AppL10n.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Report ${facility.name} as closed?'),
-        content: const Text(
-          'This goes to the verification queue — the map changes once an '
-          'admin confirms it.',
-        ),
+        title: Text(l10n.reportClosedQuestion(facility.name)),
+        content: Text(l10n.reportClosedBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Report closed'),
+            child: Text(l10n.reportClosed),
           ),
         ],
       ),
@@ -211,9 +213,9 @@ class _FacilityDetailSheet extends ConsumerWidget {
         );
     if (!context.mounted) return;
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Reported — queued for verification.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.reportedQueued)));
   }
 }
 
@@ -237,7 +239,7 @@ class _StatusPill extends StatelessWidget {
           Icon(status.icon, size: 16, color: color),
           const SizedBox(width: 4),
           Text(
-            status.label,
+            status.label(AppL10n.of(context)),
             style: TextStyle(color: color, fontWeight: FontWeight.w600),
           ),
         ],
@@ -275,7 +277,7 @@ class _CapacityTile extends StatelessWidget {
             Icon(icon, size: 20, color: color),
             const SizedBox(width: 4),
             Text(
-              'for ~${reading.forPeople}',
+              AppL10n.of(context).capacityFor(reading.forPeople),
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(color: color),
@@ -284,7 +286,7 @@ class _CapacityTile extends StatelessWidget {
         ),
         if (expired)
           Text(
-            'expired — needs re-check',
+            AppL10n.of(context).expiredRecheck,
             style: TextStyle(color: colors.unverified, fontSize: 12),
           ),
       ],

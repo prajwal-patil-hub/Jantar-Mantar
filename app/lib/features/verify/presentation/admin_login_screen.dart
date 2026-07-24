@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/verify_providers.dart';
 import 'verification_queue_screen.dart';
 
@@ -32,9 +33,10 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
   }
 
   Future<void> _signIn() async {
+    final l10n = AppL10n.of(context);
     final client = ref.read(supabaseClientProvider);
     if (client == null) {
-      setState(() => _error = 'Backend not reachable on this build.');
+      setState(() => _error = l10n.backendUnreachable);
       return;
     }
     setState(() {
@@ -56,16 +58,12 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
           ),
         );
       } else {
-        setState(
-          () => _error =
-              'Signed in, but this account has no admin role. Ask the '
-              'project owner to grant it (see supabase/README.md).',
-        );
+        setState(() => _error = l10n.noAdminRole);
       }
     } on AuthException catch (e) {
       setState(() => _error = e.message);
     } on Object {
-      setState(() => _error = 'Could not reach the server — try again.');
+      setState(() => _error = l10n.serverTryAgain);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -73,33 +71,31 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Volunteer / admin sign in')),
+      appBar: AppBar(title: Text(l10n.adminSignInTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const Text(
-              'Only facility verifiers need an account. Everyone else stays '
-              'anonymous.',
-            ),
+            Text(l10n.adminSignInBlurb),
             const SizedBox(height: 16),
             TextField(
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.email,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _password,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.password,
+                border: const OutlineInputBorder(),
               ),
             ),
             if (_error != null) ...[
@@ -113,7 +109,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
             FilledButton(
               onPressed: _busy ? null : _signIn,
               style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-              child: Text(_busy ? 'Signing in…' : 'Sign in'),
+              child: Text(_busy ? l10n.signingIn : l10n.signIn),
             ),
           ],
         ),

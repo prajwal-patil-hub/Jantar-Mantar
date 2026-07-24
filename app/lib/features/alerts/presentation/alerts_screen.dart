@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/theme/status_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/alerts_providers.dart';
 import 'widgets/alert_visuals.dart';
 
@@ -14,18 +16,15 @@ class AlertsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
     final alerts = ref.watch(activeAlertsProvider).asData?.value ?? const [];
 
     return SafeArea(
       child: alerts.isEmpty
-          ? const Center(
+          ? Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'No active alerts.\nCritical alerts appear here and on the '
-                  'map instantly.',
-                  textAlign: TextAlign.center,
-                ),
+                padding: const EdgeInsets.all(24),
+                child: Text(l10n.noActiveAlerts, textAlign: TextAlign.center),
               ),
             )
           : ListView.builder(
@@ -33,13 +32,12 @@ class AlertsScreen extends ConsumerWidget {
               itemCount: alerts.length + 1,
               itemBuilder: (context, i) {
                 if (i == alerts.length) {
-                  return const Padding(
-                    padding: EdgeInsets.all(12),
+                  return Padding(
+                    padding: const EdgeInsets.all(12),
                     child: Text(
-                      'Shown from local cache — may be outdated while '
-                      'offline.',
+                      l10n.cachedMayBeOutdated,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   );
                 }
@@ -57,6 +55,7 @@ class _AlertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final colors = Theme.of(context).extension<StatusColors>()!;
     final color = alert.severity.colorOf(colors);
 
@@ -76,12 +75,12 @@ class _AlertCard extends StatelessWidget {
                 Icon(alert.severity.icon, color: color),
                 const SizedBox(width: 8),
                 Text(
-                  alert.severity.label,
+                  alert.severity.label(l10n),
                   style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 Text(
-                  relativeTime(alert.createdAt, DateTime.now()),
+                  relativeTimeL10n(l10n, alert.createdAt, DateTime.now()),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -97,12 +96,15 @@ class _AlertCard extends StatelessWidget {
                     child: Chip(
                       visualDensity: VisualDensity.compact,
                       avatar: const Icon(Icons.place_outlined, size: 16),
-                      label: const Text('Area alert'),
+                      label: Text(l10n.areaAlert),
                     ),
                   ),
                 const Icon(Icons.verified_user_outlined, size: 16),
                 const SizedBox(width: 4),
-                const Text('Verified by admin', style: TextStyle(fontSize: 12)),
+                Text(
+                  l10n.verifiedByAdmin,
+                  style: const TextStyle(fontSize: 12),
+                ),
               ],
             ),
           ],

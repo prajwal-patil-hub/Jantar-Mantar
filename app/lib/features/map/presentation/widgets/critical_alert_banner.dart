@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/theme/status_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../alerts/application/alerts_providers.dart';
-import '../../../alerts/presentation/widgets/alert_visuals.dart';
 
 /// Full-width critical-alert banner on the map (ui-ux-spec §1.10). Appears
 /// instantly with NO animation — safety-critical info never waits for
@@ -16,6 +17,7 @@ class CriticalAlertBanner extends ConsumerWidget {
     final alert = ref.watch(criticalAlertProvider);
     if (alert == null) return const SizedBox.shrink();
 
+    final l10n = AppL10n.of(context);
     final colors = Theme.of(context).extension<StatusColors>()!;
     return Container(
       width: double.infinity,
@@ -38,7 +40,7 @@ class CriticalAlertBanner extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            relativeTime(alert.createdAt, DateTime.now()),
+            relativeTimeL10n(l10n, alert.createdAt, DateTime.now()),
             style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ],

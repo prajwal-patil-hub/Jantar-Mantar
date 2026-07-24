@@ -2,6 +2,21 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 9 — 2026-07-24 · Phase 1: E9 — Hindi/English i18n + accessibility baseline (MVP core complete)
+**Done:**
+- **ADR-15: Flutter gen-l10n** — `l10n.yaml` + `lib/l10n/app_en.arb` / `app_hi.arb` (~110 keys each incl. plurals/placeholders), typed `AppL10n`. Every user-facing screen localized: nav shell, map (filters, Report, recenter, Nearby), facility detail sheet (capacity/freshness/stale/actions/report-closed dialog), 5-step submit flow, alerts feed + critical banner, SOS (instructions, call tiles, reset), profile, admin login, verification queue.
+- **Fonts:** bundled Noto Sans + Noto Sans Devanagari (6 TTFs from Google Fonts gstatic, in `assets/fonts/`), Devanagari wired as `fontFamilyFallback` so Hindi renders proper matras/conjuncts. NOT google_fonts runtime fetch (offline-first).
+- **Locale plumbing:** `core/l10n/locale_provider.dart` (SharedPreferences-persisted, defensive on failure, defaults to system); instant Language toggle (English/हिन्दी SegmentedButton) in Profile; MaterialApp wired with delegates + supportedLocales.
+- **Refactor:** domain enum labels moved to context-based `core/l10n/l10n_labels.dart`; `*_visuals.dart` now icons/colors only (removed English `.label` getters to avoid extension-name collision). Status stays color+icon+**localized** text everywhere.
+- Tests 35 green (added `localization_test.dart`: Hindi nav labels render Devanagari; en/hi resolve distinct strings). Shared `test/support/l10n_harness.dart` supplies delegates to widget tests building their own MaterialApp.
+- analyze + custom_lint clean.
+
+**Accessibility pass (baseline):** 48dp+ targets across buttons/tiles; Semantics on markers + SOS; color+icon+text rule holds in both languages; respects system text scale + locale. Full TalkBack/OEM + CVD-simulator sweep deferred to Phase 2 hardening.
+
+**Lesson:** two extensions on the same enum can't both expose a member named `label` (ambiguous) — dropped the English getters and centralized localized labels.
+
+**Next session:** device end-to-end smoke test (submit→approve→verified pin, toggle Hindi mid-flow), then Phase 2 hardening: cert pinning (dio + pin), flutter_secure_storage for the Supabase session, panic-wipe, RLS negative tests in CI, CVD/TalkBack audit; plus alert-broadcast admin UI and the EXIF-strip photo pipeline.
+---
 ## Session 8 — 2026-07-24 · Phase 1: E5+E8 — Supabase backend, sync, anon auth, admin queue
 **Done:**
 - User created Supabase project (`orsqjucexvrefmexztay`, publishable key committed — public-by-design)

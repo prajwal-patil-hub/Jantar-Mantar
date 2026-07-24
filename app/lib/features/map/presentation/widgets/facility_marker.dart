@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/theme/status_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'facility_visuals.dart';
 
 /// Map pin: type icon in a circle whose border carries the status color,
@@ -15,6 +17,7 @@ class FacilityMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final colors = Theme.of(context).extension<StatusColors>()!;
     final statusColor = facility.status.colorOf(colors);
     final surface = Theme.of(context).colorScheme.surface;
@@ -23,8 +26,8 @@ class FacilityMarker extends StatelessWidget {
       onTap: onTap,
       child: Semantics(
         label:
-            '${facility.name}, ${facility.type.label}, '
-            '${facility.status.label}',
+            '${facility.name}, ${facility.type.label(l10n)}, '
+            '${facility.status.label(l10n)}',
         button: true,
         child: Opacity(
           opacity: facility.status == FacilityStatus.closed ? 0.6 : 1,

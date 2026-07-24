@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
 
@@ -14,11 +16,12 @@ class StatusStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'How is it right now?',
+          l10n.stepStatusQuestion,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
@@ -32,7 +35,7 @@ class StatusStep extends StatelessWidget {
               ButtonSegment(
                 value: status,
                 icon: Icon(status.icon),
-                label: Text(status.label),
+                label: Text(status.label(l10n)),
               ),
           ],
           selected: {draft.status},
@@ -44,10 +47,10 @@ class StatusStep extends StatelessWidget {
         const SizedBox(height: 24),
         TextFormField(
           initialValue: draft.note,
-          decoration: const InputDecoration(
-            labelText: 'Note (optional)',
-            hintText: 'e.g. queue is long, tanker refills at 5 PM',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.noteOptional,
+            hintText: l10n.noteHint,
+            border: const OutlineInputBorder(),
           ),
           maxLines: 3,
           onChanged: (text) {
@@ -56,14 +59,11 @@ class StatusStep extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
-        const ListTile(
+        ListTile(
           enabled: false,
-          leading: Icon(Icons.photo_camera_outlined),
-          title: Text('Add photo'),
-          subtitle: Text(
-            'Coming soon — photos are stripped of location data before '
-            'upload.',
-          ),
+          leading: const Icon(Icons.photo_camera_outlined),
+          title: Text(l10n.addPhoto),
+          subtitle: Text(l10n.photoComingSoon),
         ),
       ],
     );

@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
@@ -38,6 +39,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final facilities =
         ref.watch(facilitiesProvider).asData?.value ?? const <Facility>[];
     final pending =
@@ -134,7 +136,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             children: [
               FloatingActionButton.small(
                 heroTag: 'recenter',
-                tooltip: 'Back to Jantar Mantar',
+                tooltip: l10n.recenter,
                 onPressed: () => _mapController.move(
                   MapConfig.jantarMantar,
                   MapConfig.initialZoom,
@@ -152,7 +154,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ),
                 ),
                 icon: const Icon(Icons.add_location_alt),
-                label: const Text('Report'),
+                label: Text(l10n.report),
               ),
             ],
           ),

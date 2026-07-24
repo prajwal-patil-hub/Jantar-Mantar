@@ -43,12 +43,18 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Sync wired: SupabaseRemoteApi push (idempotent client_id), RemotePullService (facilities/capacity/alerts/verdicts), SyncService 60s cycle
 - [ ] flutter_secure_storage session hardening + cert pinning · [ ] panic-wipe
 ### E9. i18n (en/hi) + accessibility pass
+- [x] Flutter gen-l10n: en + hi ARB, every user-facing screen localized (nav, map, submit flow, detail sheet, alerts, SOS, profile, admin/verify)
+- [x] Bundled Noto Sans + Noto Sans Devanagari (Devanagari as font fallback); instant language toggle in Profile, persisted (ADR-15)
+- [x] Accessibility baseline held: status = color+icon+localized-text everywhere; 48dp+ targets; Semantics on pins/SOS; respects system text scale + locale
+- [ ] Full TalkBack/VoiceOver sweep across OEMs + CVD-simulator audit → Phase 2 hardening
 
 ## Board
-**Done:** Research · Doc system · E1–E4 · E6 (user side) · E7 · E5+E8 core (schema+RLS+RPCs, sync push/pull, anon auth, admin queue UI)
+**Done:** Research · Doc system · E1–E9 (offline map · submit · sync · anon auth · admin verify · alerts · SOS · **en/hi i18n + a11y baseline**)
 **In progress:** USER ACTION: apply `supabase/migrations/` in SQL editor · enable Anonymous sign-ins · create + grant admin account (see `supabase/README.md`)
-**Next up:** End-to-end smoke test on a device → then E9 (i18n hi/en + accessibility pass) or hardening follow-ups (cert pinning, secure storage, RLS tests in CI, broadcast authoring UI)
-**Blocked:** Live sync until the dashboard steps above are done. Before store release: app icon, applicationId, tile provider, EXIF-strip pipeline, region bulk-download.
+**Next up:** End-to-end device smoke test → Phase 2 hardening (cert pinning, flutter_secure_storage, panic-wipe, RLS tests in CI, CVD/TalkBack audit) + remaining polish (app icon, applicationId, tile provider, EXIF-strip photo pipeline, alert broadcast UI)
+**Blocked:** Live sync until the dashboard steps above are done.
+
+## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)

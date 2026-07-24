@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/theme/status_colors.dart';
 import '../../../../core/widgets/glass_surface.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../application/map_providers.dart';
 import 'facility_visuals.dart';
 import 'freshness_badge.dart';
@@ -16,6 +18,7 @@ class NearbySheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
     final nearby = ref.watch(nearbyFacilitiesProvider);
     final colors = Theme.of(context).extension<StatusColors>()!;
 
@@ -39,17 +42,16 @@ class NearbySheet extends ConsumerWidget {
                   ),
                 ),
               ),
-              Text('Nearby', style: Theme.of(context).textTheme.titleSmall),
+              Text(l10n.nearby, style: Theme.of(context).textTheme.titleSmall),
               Expanded(
                 child: nearby.isEmpty
                     ? ListView(
                         controller: scrollController,
-                        children: const [
+                        children: [
                           Padding(
-                            padding: EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(24),
                             child: Text(
-                              'No facilities here yet — be the first to '
-                              'report one.',
+                              l10n.beFirstToReport,
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -86,7 +88,7 @@ class NearbySheet extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      f.status.label,
+                                      f.status.label(l10n),
                                       style: TextStyle(color: statusColor),
                                     ),
                                   ],

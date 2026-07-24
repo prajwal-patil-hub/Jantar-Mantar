@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/glass_surface.dart';
+import '../../l10n/app_localizations.dart';
 import '../alerts/presentation/alerts_screen.dart';
 import '../events/presentation/events_screen.dart';
 import '../map/presentation/map_screen.dart';
@@ -27,6 +29,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     super.initState();
     // Background sync loop; a no-op when Supabase isn't configured.
     ref.read(syncServiceProvider).start();
+    // Restore the saved language (one-frame flash to system locale on the
+    // very first launch only; cached thereafter).
+    ref.read(localeProvider.notifier).load();
   }
 
   static const _screens = [
@@ -38,6 +43,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Scaffold(
       extendBody: true,
       body: _screens[_index],
@@ -46,19 +52,22 @@ class _HomeShellState extends ConsumerState<HomeShell> {
           backgroundColor: Colors.transparent,
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.map_outlined), label: 'Map'),
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.event_outlined),
-              label: 'Events',
+              icon: const Icon(Icons.map_outlined),
+              label: l10n.navMap,
             ),
             NavigationDestination(
-              icon: Icon(Icons.notifications_outlined),
-              label: 'Alerts',
+              icon: const Icon(Icons.event_outlined),
+              label: l10n.navEvents,
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              label: 'Profile',
+              icon: const Icon(Icons.notifications_outlined),
+              label: l10n.navAlerts,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline),
+              label: l10n.navProfile,
             ),
           ],
         ),

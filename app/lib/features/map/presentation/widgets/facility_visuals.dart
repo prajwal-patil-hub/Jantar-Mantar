@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/db/app_database.dart';
 import '../../../../core/theme/status_colors.dart';
 
-/// Icon + label per facility type and status. Status is ALWAYS presented as
-/// color + icon + text together (accessibility rule — never color alone).
+/// Icons + status color per facility type/status. Localized text labels live
+/// in core/l10n/l10n_labels.dart; status is ALWAYS color + icon + text
+/// together (accessibility rule — never color alone).
 extension FacilityTypeVisuals on FacilityType {
   IconData get icon => switch (this) {
     FacilityType.water => Icons.water_drop,
@@ -15,16 +16,6 @@ extension FacilityTypeVisuals on FacilityType {
     FacilityType.safeArea => Icons.shield,
     FacilityType.danger => Icons.warning,
   };
-
-  String get label => switch (this) {
-    FacilityType.water => 'Water',
-    FacilityType.food => 'Food',
-    FacilityType.shelter => 'Shelter',
-    FacilityType.medical => 'Medical',
-    FacilityType.toilet => 'Toilets',
-    FacilityType.safeArea => 'Safe area',
-    FacilityType.danger => 'Danger',
-  };
 }
 
 extension FacilityStatusVisuals on FacilityStatus {
@@ -33,13 +24,6 @@ extension FacilityStatusVisuals on FacilityStatus {
     FacilityStatus.low => Icons.error,
     FacilityStatus.out => Icons.cancel,
     FacilityStatus.closed => Icons.block,
-  };
-
-  String get label => switch (this) {
-    FacilityStatus.good => 'Good',
-    FacilityStatus.low => 'Low',
-    FacilityStatus.out => 'Out',
-    FacilityStatus.closed => 'Closed',
   };
 
   Color colorOf(StatusColors colors) => switch (this) {

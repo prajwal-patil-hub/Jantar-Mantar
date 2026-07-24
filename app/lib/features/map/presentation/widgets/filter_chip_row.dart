@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../application/map_providers.dart';
 import 'facility_visuals.dart';
 
@@ -11,6 +13,7 @@ class FilterChipRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
     final selected = ref.watch(mapFilterProvider);
 
     return SizedBox(
@@ -22,7 +25,7 @@ class FilterChipRow extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
-              label: const Text('All'),
+              label: Text(l10n.filterAll),
               selected: selected == null,
               onSelected: (_) =>
                   ref.read(mapFilterProvider.notifier).select(null),
@@ -33,7 +36,7 @@ class FilterChipRow extends ConsumerWidget {
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
                 avatar: Icon(type.icon, size: 18),
-                label: Text(type.label),
+                label: Text(type.label(l10n)),
                 selected: selected == type,
                 onSelected: (_) =>
                     ref.read(mapFilterProvider.notifier).select(type),
