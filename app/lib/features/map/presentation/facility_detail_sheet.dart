@@ -1,0 +1,293 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../../../core/db/app_database.dart';
+import '../../../core/domain/freshness.dart';
+import '../../../core/providers.dart';
+import '../../../core/theme/status_colors.dart';
+import '../../../core/widgets/glass_surface.dart';
+import '../../submit/presentation/submit_flow_screen.dart';
+import '../application/map_providers.dart';
+import 'widgets/facility_visuals.dart';
+import 'widgets/freshness_badge.dart';
+
+/// Facility detail bottom sheet (ui-ux-spec §1.5): status pill, capacity
+/// block with large numerals + TTL degrade, freshness, stale banner, and the
+/// Update / Report-closed actions. Photos and offline directions come later.
+Future<void> showFacilityDetailSheet(BuildContext context, Facility facility) {
+  return showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) => _FacilityDetailSheet(facility: facility),
+  );
+}
+
+class _FacilityDetailSheet extends ConsumerWidget {
+  const _FacilityDetailSheet({required this.facility});
+
+  final Facility facility;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).extension<StatusColors>()!;
+    final statusColor = facility.status.colorOf(colors);
+    final readings =
+        ref.watch(capacityReadingsProvider(facility.id)).asData?.value ??
+        const <CapacityReading>[];
+    final now = DateTime.now();
+    final verifiedAt = facility.verifiedAt;
+    final isStale =
+        verifiedAt == null || freshnessAt(verifiedAt, now) == Freshness.stale;
+
+    return GlassSurface(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(facility.type.icon, size: 28, color: statusColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      facility.name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  _StatusPill(status: facility.status, color: statusColor),
+                ],
+              ),
+              const SizedBox(height: 8),
+              FreshnessBadge(verifiedAt: facility.verifiedAt),
+              if (isStale) ...[
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colors.low.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: colors.low),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 18, color: colors.low),
+                      const SizedBox(width: 8),
+                      const Expanded(child: Text('This info may be outdated.')),
+                    ],
+                  ),
+                ),
+              ],
+              if (readings.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    for (final reading in readings)
+                      _CapacityTile(reading: reading, now: now),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => SubmitFlowScreen(
+                              initialLocation: LatLng(
+                                facility.lat,
+                                facility.lng,
+                              ),
+                              prefill: facility,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit_location_alt),
+                      label: const Text('Update this'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                      ),
+                      onPressed: () => _reportClosed(context, ref),
+                      icon: const Icon(Icons.block),
+                      label: const Text('Report closed'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => _stub(context, 'Offline directions'),
+                    icon: const Icon(Icons.directions_walk),
+                    label: const Text('Directions'),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _stub(context, 'Sharing'),
+                    icon: const Icon(Icons.share),
+                    label: const Text('Share'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _stub(BuildContext context, String what) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$what arrives in a later build.')));
+  }
+
+  Future<void> _reportClosed(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Report ${facility.name} as closed?'),
+        content: const Text(
+          'This goes to the verification queue — the map changes once an '
+          'admin confirms it.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Report closed'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await ref
+        .read(submissionRepositoryProvider)
+        .submit(
+          payload: {
+            'category': facility.type.name,
+            'status': FacilityStatus.closed.name,
+            'mode': 'update',
+          },
+          facilityId: facility.id,
+          lat: facility.lat,
+          lng: facility.lng,
+        );
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Reported — queued for verification.')),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.status, required this.color});
+
+  final FacilityStatus status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border.all(color: color, width: 2),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(status.icon, size: 16, color: color),
+          const SizedBox(width: 4),
+          Text(
+            status.label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "💧 Water for ~200" with large numerals; expired readings degrade to grey
+/// (TTL rule — ARCHITECTURE.md verification pipeline).
+class _CapacityTile extends StatelessWidget {
+  const _CapacityTile({required this.reading, required this.now});
+
+  final CapacityReading reading;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<StatusColors>()!;
+    final expired = reading.expiresAt.isBefore(now);
+    final color = expired ? colors.unverified : null;
+
+    final icon = switch (reading.resource) {
+      ResourceType.water => Icons.water_drop,
+      ResourceType.food => Icons.restaurant,
+      ResourceType.shelter => Icons.night_shelter,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 4),
+            Text(
+              'for ~${reading.forPeople}',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: color),
+            ),
+          ],
+        ),
+        if (expired)
+          Text(
+            'expired — needs re-check',
+            style: TextStyle(color: colors.unverified, fontSize: 12),
+          ),
+      ],
+    );
+  }
+}

@@ -97,4 +97,28 @@ Future<void> seedDebugFacilities(AppDatabase db) async {
       ),
     ]),
   );
+
+  await db.batch(
+    (b) => b.insertAll(db.capacityReadings, [
+      CapacityReadingsCompanion.insert(
+        id: 'seed-reading-1',
+        facilityId: 'seed-water-1',
+        resource: ResourceType.water,
+        forPeople: 200,
+        verifiedAt: Value(now.subtract(const Duration(minutes: 3))),
+        expiresAt: now.add(const Duration(minutes: 45)),
+        createdAt: now,
+      ),
+      CapacityReadingsCompanion.insert(
+        id: 'seed-reading-2',
+        facilityId: 'seed-food-1',
+        resource: ResourceType.food,
+        forPeople: 120,
+        verifiedAt: Value(now.subtract(const Duration(minutes: 55))),
+        // Already past TTL — demonstrates the expired degrade in the sheet.
+        expiresAt: now.subtract(const Duration(minutes: 10)),
+        createdAt: now.subtract(const Duration(minutes: 55)),
+      ),
+    ]),
+  );
 }

@@ -2,6 +2,20 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 6 — 2026-07-24 · Phase 1: E4 facility detail + submit flow
+**Done:**
+- **Facility detail sheet** (`features/map/presentation/facility_detail_sheet.dart`, replaces peek): status pill, capacity numerals per resource with TTL degrade ("expired — needs re-check"), FreshnessBadge, stale banner, actions: Update this (prefilled flow) · Report closed (confirm → queued update submission) · Directions/Share stubs
+- **5-step submit flow** (`features/submit/`): category icon grid (auto-advance) → location via drag mini-map starting at MAP CENTER (no GPS/permission; duplicate hint when same-type facility ≤60 m suggests "update instead") → capacity steppers + presets + skip → status segmented + note (photo tile disabled pending EXIF-strip pipeline) → review → submit = pending row + outbox entry in one transaction, snackbar "Saved — will send when connection returns"
+- **Optimistic pending pins**: grey `PendingMarker` with schedule-send badge for own new-facility submissions (updates don't double-pin); Profile shows pending-uploads count badge
+- Dev seed now includes capacity readings (one live, one expired for the TTL demo)
+- Tests 22 green (submit walkthrough writes correct payload/outbox; prefilled update tags facilityId + mode=update; detail sheet TTL degrade + stale banner; report-closed queues submission)
+
+**Lesson:** after `PageController.animateToPage` in widget tests, pump once to start the ticker, then pump(duration) — a single pump(duration) leaves the animation at progress 0.
+
+**Next session:**
+1. E5 verification queue + audit log — FIRST real backend work: create Supabase project, `supabase/` folder with initial migrations (tables per ARCHITECTURE.md + RLS deny-by-default + negative tests), swap `UnconfiguredRemoteApi` for the Supabase client, then admin queue UI
+2. Alternative if backend deferred: E6 alerts feed + E7 SOS (both local-first buildable)
+---
 ## Session 5 — 2026-07-24 · Phase 1: E3 map complete
 **Done:**
 - **ADR-13** (user approved recommendations): glass docked M3 nav bar · standard OSM tiles for MVP · icon deferred to Phase 2

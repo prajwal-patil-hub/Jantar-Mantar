@@ -7,11 +7,13 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
+import 'facility_detail_sheet.dart';
 import 'widgets/facility_marker.dart';
-import 'widgets/facility_peek_sheet.dart';
 import 'widgets/filter_chip_row.dart';
 import 'widgets/nearby_sheet.dart';
+import 'widgets/pending_marker.dart';
 
 /// Home map (ui-ux-spec §1.4): offline-cached OSM tiles, clustered status
 /// pins, filter chips, Nearby sheet. Local-first throughout — everything on
@@ -36,6 +38,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget build(BuildContext context) {
     final facilities =
         ref.watch(facilitiesProvider).asData?.value ?? const <Facility>[];
+    final pending =
+        ref.watch(pendingSubmissionsProvider).asData?.value ??
+        const <Submission>[];
 
     final markers = [
       for (final facility in facilities)
@@ -45,9 +50,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           height: 48,
           child: FacilityMarker(
             facility: facility,
-            onTap: () => showFacilityPeekSheet(context, facility),
+            onTap: () => showFacilityDetailSheet(context, facility),
           ),
         ),
+      // Optimistic "Pending (yours)" pins for new-facility submissions
+      // (updates to existing facilities don't need a second pin).
+      for (final submission in pending)
+        if (submission.state == SubmissionState.pending &&
+            submission.facilityId == null &&
+            submission.lat != null &&
+            submission.lng != null)
+          Marker(
+            point: LatLng(submission.lat!, submission.lng!),
+            width: 48,
+            height: 48,
+            child: PendingMarker(submission: submission),
+          ),
     ];
 
     return Stack(
@@ -120,9 +138,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               const SizedBox(height: 12),
               FloatingActionButton.extended(
                 heroTag: 'report',
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('The 5-step submit flow arrives with E4.'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => SubmitFlowScreen(
+                      initialLocation: ref.read(mapCenterProvider),
+                    ),
                   ),
                 ),
                 icon: const Icon(Icons.add_location_alt),
@@ -146,7 +166,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               LatLng(item.facility.lat, item.facility.lng),
               MapConfig.initialZoom,
             );
-            showFacilityPeekSheet(context, item.facility);
+            showFacilityDetailSheet(context, item.facility);
           },
         ),
       ],

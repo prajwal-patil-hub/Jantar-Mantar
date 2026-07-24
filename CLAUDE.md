@@ -25,7 +25,8 @@ Protest-support app: offline-first Flutter map of facilities (water/food/shelter
 Phase 1. E1–E3 complete. App name = **CommonGround** (ADR-12). Backend = Supabase (ADR-8). Flutter 3.44.8 in `app/`, Riverpod 3, strict lints, CI green, 18 tests.
 Accent = saffron `#FF6D1F`, dark = system (ADR-10); status colors in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme. Nav = glass docked bar, tiles = standard OSM via FMTC (ADR-13).
 Data: Drift schema `core/db/`, repos + sync worker (outbox, backoff) `core/data/`, providers `core/providers.dart`; remote = `UnconfiguredRemoteApi` until Supabase client (E5/E8). Map: `features/map/`, tile provider swappable via `mapTileProviderProvider` (tests stub it). Debug seed pins: `core/db/dev_seed.dart`.
-**Immediate next task:** E4 facility detail + 5-step submit flow (wire to SubmissionRepository, optimistic pending pin).
+E4 done: detail sheet (`features/map/presentation/facility_detail_sheet.dart`), 5-step submit flow (`features/submit/`), pending pins + Profile counter.
+**Immediate next task:** E5 verification queue + audit log — starts the real backend: Supabase project + `supabase/` migrations (RLS deny-by-default + negative tests) + swap `UnconfiguredRemoteApi`. E6/E7 are the no-backend alternatives.
 Testing gotchas: Riverpod 3 StreamProvider needs `container.listen` before `.future` resolves; end widget tests with `pumpWidget(SizedBox())` + flush pump (drift close timer); avoid `pumpAndSettle` with the map mounted.
 Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`. Drift codegen: `dart run build_runner build`.
 

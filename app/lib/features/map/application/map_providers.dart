@@ -37,6 +37,24 @@ class MapCenterNotifier extends Notifier<LatLng> {
   void set(LatLng center) => state = center;
 }
 
+/// Capacity readings for one facility (detail sheet).
+final capacityReadingsProvider =
+    StreamProvider.family<List<CapacityReading>, String>(
+      (ref, facilityId) =>
+          ref.watch(facilityRepositoryProvider).watchCapacity(facilityId),
+    );
+
+/// The submitter's own queued/pending submissions — rendered as grey dashed
+/// "Pending (yours)" pins on the map (optimistic UI, ui-ux-spec §1.8).
+final pendingSubmissionsProvider = StreamProvider<List<Submission>>(
+  (ref) => ref.watch(submissionRepositoryProvider).watchMine(),
+);
+
+/// Count for the Profile pending-uploads tray.
+final pendingCountProvider = StreamProvider<int>(
+  (ref) => ref.watch(submissionRepositoryProvider).watchPendingCount(),
+);
+
 class NearbyFacility {
   const NearbyFacility(this.facility, this.distanceMeters);
 

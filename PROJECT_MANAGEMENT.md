@@ -22,6 +22,9 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] flutter_map 8 + OSM tiles + FMTC 10 offline tile caching (network fallback if FMTC can't start; OSM attribution shown)
 - [x] Clustered pins (status = color + icon + text), filter chips, freshness banding UI (FreshnessBadge), Nearby sheet (map-center distance, no GPS), pin-tap peek sheet, Report FAB + SOS placeholders
 ### E4. Facility detail + submit flow (5-step, queued offline)
+- [x] Facility detail sheet: status pill, capacity numerals with TTL degrade, freshness + stale banner, Update this / Report closed (Directions/Share/photos stubbed)
+- [x] 5-step submit flow: category grid → drag-pin location (map center start, duplicate hint ≤60m) → capacity steppers/presets → status + note (photo deferred to EXIF-strip task) → review → offline submit
+- [x] Optimistic grey "Pending (yours)" pins for new-facility submissions; pending-uploads counter in Profile
 ### E5. Verification queue (admin) + audit log
 ### E6. Alerts feed + broadcast
 ### E7. SOS screen
@@ -29,10 +32,10 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E9. i18n (en/hi) + accessibility pass
 
 ## Board
-**Done:** Research · Doc system · E1 scaffold · E2 offline data layer · E3 map (offline tiles, clustered status pins, filter chips, freshness UI, Nearby sheet) · App name = CommonGround (ADR-12) · Nav/tiles/icon decisions (ADR-13)
+**Done:** Research · Doc system · E1 scaffold · E2 offline data layer · E3 map · E4 facility detail + submit flow (offline-queued, optimistic pending pins)
 **In progress:** —
-**Next up:** E4 facility detail + 5-step submit flow (queued offline, optimistic "Pending (yours)" pin)
-**Blocked:** — (before store release: app icon, Android applicationId, tile provider; region bulk-download for the ~8 MB offline pack lands with onboarding)
+**Next up:** E5 verification queue (admin) + audit log — needs the Supabase project + first RLS migrations (`supabase/`), or E6 alerts feed if backend setup is deferred another session
+**Blocked:** — (before store release: app icon, Android applicationId, tile provider; photo capture waits for the EXIF-strip pipeline; region bulk-download lands with onboarding)
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)
