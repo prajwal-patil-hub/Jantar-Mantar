@@ -26,12 +26,14 @@ _Last updated: 2026-07-24 · Status: direction locked, details open_
 - Typography: Noto Sans + Noto Sans Devanagari; body 16sp; extra line-height for Devanagari.
 - High-contrast Outdoor mode: kills glass entirely, max contrast.
 
+## Answered choices (2026-07-24)
+1. **Accent color: Saffron `#FF6D1F`** (ADR-10). Mitigation for amber proximity: accent never conveys status; status colors live in a `StatusColors` ThemeExtension independent of the seed scheme.
+2. **Dark mode: system-follow** (ADR-10), with manual Light/Dark/High-contrast-Outdoor override in settings.
+
 ## Open choices (answer before E3 map build)
-1. **Accent color** (one bold): options — Saffron `#FF6D1F` · Indigo `#3D5AFE` · Teal `#00BFA5` · Magenta `#D500F9`. (Accent must not clash with status green/amber/red — saffron conflicts slightly with amber; indigo/teal are safest.)
-2. **Dark mode default?** system-follow vs light-default.
-3. **App name + icon** direction.
-4. **Nav bar treatment:** glass floating pill vs standard docked M3 bar.
-5. **Map tile style:** standard OSM vs muted/greyscale custom style (muted suits glass UI, needs style server or pre-rendered tiles).
+3. **App name + icon** direction (working title: full project name "Jantar Mantar Sahayata").
+4. **Nav bar treatment:** glass floating pill vs standard docked M3 bar (scaffold currently uses standard M3 `NavigationBar`; glass treatment TBD).
+5. **Map tile style:** standard OSM vs muted/greyscale custom style (muted suits glass UI, needs style server or pre-rendered tiles) vs in-app desaturation filter (zero infra, needs frame-time check on low-end devices). Note: OSM public tile server usage policy disallows heavy production traffic — a tile provider decision (Stadia/Thunderforest/Protomaps self-host) is needed before real deployment regardless.
 
 ## References
 Full screen-by-screen spec + wireframes: `docs/research/ui-ux-spec.md`

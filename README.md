@@ -19,5 +19,13 @@ Protest-support app: offline-first map of facilities (water/food/shelter/medical
 4. No feature merges without ticking its `SECURITY.md` checklist items.
 
 ## Current status
-**Phase:** 0 — Foundation (docs done, Flutter scaffold next)
-**Next task:** Confirm backend (Supabase recommended) → scaffold Flutter project
+**Phase:** 0 — Foundation (docs done · backend = Supabase (ADR-8) · Flutter scaffold in `app/` with Riverpod, lints, CI)
+**Next task:** E2 offline data layer (Drift schema + repositories + sync worker)
+
+## Repo layout
+```
+/            docs (this hub)
+/app         Flutter app (jantar_mantar_sahayata)
+/supabase    backend-as-code (migrations, RLS, edge functions) — lands with E2/E5
+```
+Checks (from `app/`): `flutter analyze && dart run custom_lint && flutter test`

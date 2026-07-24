@@ -21,10 +21,11 @@ Protest-support app: offline-first Flutter map of facilities (water/food/shelter
 - Workflow: pick top "Next up" task from PROJECT_MANAGEMENT.md → build → tick SECURITY.md items → log session in progress/PROGRESS.md → add ADRs.
 - MVP scope is frozen: public verified map only. NO groups, mesh, or worldwide features until Phase 3+.
 
-## Current state (2026-07-24)
-Phase 0. Docs complete. Flutter project NOT yet created.
-**Immediate next tasks:** E1.1 confirm backend (Supabase proposed, ADR-8) → E1.2 `flutter create jantar_mantar_sahayata` with feature-first structure + Riverpod → lints/CI/git.
-Open design choices are listed in DESIGN.md §Open choices.
+## Current state (2026-07-24, session 3)
+Phase 0, E1 complete. Backend = Supabase (ADR-8 confirmed). Flutter 3.44.8 app lives in `app/` (feature-first + Riverpod 3), lints strict, CI green (`.github/workflows/ci.yml`).
+Accent = saffron `#FF6D1F`, dark mode = system-follow (ADR-10); status colors live in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme.
+**Immediate next tasks:** E2 offline data layer (Drift schema + repositories + sync worker). Before E3: resolve DESIGN.md §Open choices 3–5 with the user (don't assume).
+Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`.
 
 ## Don't
 - Don't add Google Maps SDK (we use flutter_map + OSM + FMTC — ADR-7).

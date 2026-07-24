@@ -12,7 +12,9 @@ An offline-first, privacy-first app that helps people at protest sites find veri
 5. **Auth:** anonymous-by-default (device keypair). Phone-OTP is an optional trust booster, never a gate (OTP fails during SMS jamming).
 6. **Offline-first is a hard requirement:** cached map tiles + data, queued writes, freshness banding (fresh <5m / judgment 5–30m / stale >30m), capacity TTL 30–60 min with auto-expiry.
 7. **Roadmap staging:** MVP = single public verified map (no groups). Stage 1 = groups (minimal set). Stage 2 = CRDT sync hardening, promotion auto-rules, mesh fallback (best-effort only), worldwide expansion.
-8. **UI direction:** minimal + glassmorphism (hero surfaces only, cheap fallback on weak devices), neutral palette + one bold accent (accent TBD), rich fluid animations with battery-first/reduced-motion opt-out. Details + open choices: `DESIGN.md`.
+8. **UI direction:** minimal + glassmorphism (hero surfaces only, cheap fallback on weak devices), neutral palette + saffron `#FF6D1F` accent (ADR-10; accent never conveys status), rich fluid animations with battery-first/reduced-motion opt-out. Dark mode follows system. Details + remaining open choices: `DESIGN.md`.
+9. **Backend:** Supabase (ADR-8 confirmed 2026-07-24) — Postgres RLS deny-by-default, anonymous auth, Realtime, Edge Functions; Mumbai region; self-host escape hatch.
+10. **Repo layout:** monorepo (ADR-11) — docs at root, Flutter app in `app/`, Supabase config in `supabase/` when backend work starts.
 
 ## Constraints
 - Internet shutdowns/jamming are expected at the site — never block on network.

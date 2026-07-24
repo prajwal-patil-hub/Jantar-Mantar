@@ -17,7 +17,7 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 | Secrets extraction from binary | Decompiled APK | **No secrets in the app.** Anon key is public-by-design; all privilege lives in RLS + edge functions; obfuscation (`--obfuscate --split-debug-info`) as speed bump only |
 
 ## Networking rules (hard requirements)
-- [ ] HTTPS everywhere; reject cleartext (`android:usesCleartextTraffic="false"`, ATS on iOS)
+- [x] HTTPS everywhere; reject cleartext (`android:usesCleartextTraffic="false"` set 2026-07-24; iOS ATS default-on, no exceptions added — re-verify at release)
 - [ ] Certificate pinning on API + tile hosts (dio + pinning; ship backup pin + remote pin-rotation plan)
 - [ ] No tokens/keys/IDs in URLs or query strings (headers/body only) — URLs land in logs
 - [ ] Short-lived JWTs; refresh rotation; revoke on logout/panic

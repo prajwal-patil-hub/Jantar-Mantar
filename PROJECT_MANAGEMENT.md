@@ -12,9 +12,9 @@ _Last updated: 2026-07-24 · Phase 0_
 
 ## Epics → tasks (MVP)
 ### E1. Project scaffold
-- [ ] Confirm backend: **Supabase (recommended: Postgres RLS, self-hostable, India region)** vs Firebase
-- [ ] `flutter create` + folder structure (feature-first, Riverpod)
-- [ ] Lint rules, CI (analyze + test), git repo
+- [x] Confirm backend: **Supabase** (ADR-8 confirmed 2026-07-24)
+- [x] `flutter create` + folder structure (feature-first, Riverpod) — `app/`, Flutter 3.44.8, Riverpod 3.1
+- [x] Lint rules, CI (analyze + test), git repo — strict analysis_options + riverpod_lint; GitHub Actions (`.github/workflows/ci.yml`)
 ### E2. Offline data layer
 - [ ] Local DB (Drift) schema: Facility, Submission, Alert, SyncQueue
 - [ ] Repository pattern: local-first read, queued writes, sync worker
@@ -29,10 +29,10 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E9. i18n (en/hi) + accessibility pass
 
 ## Board
-**Done:** Research (features, UX spec, groups) · Doc system (this)
+**Done:** Research (features, UX spec, groups) · Doc system (this) · E1 scaffold (backend confirmed, Flutter app in `app/`, lints + CI)
 **In progress:** —
-**Next up:** E1.1 backend confirmation → E1.2 scaffold
-**Blocked:** —
+**Next up:** E2 offline data layer (Drift schema: Facility, Submission, Alert, SyncQueue → repositories → sync worker)
+**Blocked:** — (open before E3: DESIGN.md choices 3–5 — app name/icon, nav bar treatment, tile style; Android applicationId still `com.example.jantar_mantar_sahayata`, must be finalized before any store release)
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)
