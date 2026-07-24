@@ -12,7 +12,7 @@ class SahayataApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Jantar Mantar Sahayata',
+      title: 'CommonGround',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,

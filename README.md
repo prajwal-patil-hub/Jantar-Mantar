@@ -19,8 +19,9 @@ Protest-support app: offline-first map of facilities (water/food/shelter/medical
 4. No feature merges without ticking its `SECURITY.md` checklist items.
 
 ## Current status
-**Phase:** 0 — Foundation (docs done · backend = Supabase (ADR-8) · Flutter scaffold in `app/` with Riverpod, lints, CI)
-**Next task:** E2 offline data layer (Drift schema + repositories + sync worker)
+**App name:** CommonGround (ADR-12)
+**Phase:** 1 — MVP core. E1 scaffold + E2 offline data layer done (Drift schema, repositories, sync worker with backoff, 15 tests green).
+**Next task:** E3 map (flutter_map + OSM + FMTC) — blocked on DESIGN.md open choices (icon, nav bar, tile style)
 
 ## Repo layout
 ```

@@ -21,10 +21,11 @@ Protest-support app: offline-first Flutter map of facilities (water/food/shelter
 - Workflow: pick top "Next up" task from PROJECT_MANAGEMENT.md → build → tick SECURITY.md items → log session in progress/PROGRESS.md → add ADRs.
 - MVP scope is frozen: public verified map only. NO groups, mesh, or worldwide features until Phase 3+.
 
-## Current state (2026-07-24, session 3)
-Phase 0, E1 complete. Backend = Supabase (ADR-8 confirmed). Flutter 3.44.8 app lives in `app/` (feature-first + Riverpod 3), lints strict, CI green (`.github/workflows/ci.yml`).
+## Current state (2026-07-24, session 4)
+Phase 1 started. E1 + E2 complete. App name = **CommonGround** (ADR-12). Backend = Supabase (ADR-8). Flutter 3.44.8 in `app/`, Riverpod 3, strict lints, CI green.
 Accent = saffron `#FF6D1F`, dark mode = system-follow (ADR-10); status colors live in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme.
-**Immediate next tasks:** E2 offline data layer (Drift schema + repositories + sync worker). Before E3: resolve DESIGN.md §Open choices 3–5 with the user (don't assume).
+Offline data layer: Drift schema `app/lib/core/db/`, repositories + sync worker (outbox, exponential backoff) `app/lib/core/data/`, Riverpod wiring `app/lib/core/providers.dart`. Remote is `UnconfiguredRemoteApi` until the Supabase client lands (E5/E8). Drift codegen: `dart run build_runner build`.
+**Immediate next tasks:** E3 map (flutter_map + OSM + FMTC). BLOCKED on DESIGN.md open choices 3b/4/5 (icon, nav bar, tile style) — ask the user first, don't assume.
 Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`.
 
 ## Don't

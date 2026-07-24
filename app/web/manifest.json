@@ -1,11 +1,11 @@
 {
-    "name": "jantar_mantar_sahayata",
-    "short_name": "jantar_mantar_sahayata",
+    "name": "CommonGround",
+    "short_name": "CommonGround",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FAFAF8",
+    "theme_color": "#FF6D1F",
+    "description": "Offline-first protest-support map: find verified water, food, shelter, medical aid and safety areas.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

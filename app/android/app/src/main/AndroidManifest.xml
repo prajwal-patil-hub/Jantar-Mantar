@@ -2,7 +2,7 @@
     <!-- usesCleartextTraffic=false: SECURITY.md networking rule — reject all
          non-HTTPS traffic regardless of Android version defaults. -->
     <application
-        android:label="Jantar Mantar Sahayata"
+        android:label="CommonGround"
         android:name="${applicationName}"
         android:usesCleartextTraffic="false"
         android:icon="@mipmap/ic_launcher">

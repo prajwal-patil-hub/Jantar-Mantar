@@ -2,6 +2,27 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 4 — 2026-07-24 · Phase 1: E2 offline data layer + app named CommonGround
+**Done:**
+- **ADR-12: app name = CommonGround** (user decision) — applied to Android label, iOS CFBundleDisplayName/CFBundleName, web manifest (+ saffron theme_color) and index.html, MaterialApp title. Package name unchanged.
+- E2 complete:
+  - Domain: enums (FacilityType/Status, ResourceType, AlertSeverity, SubmissionState, SyncState/Op), freshness banding helper (<5m/5–30m/>30m)
+  - Drift schema v1 (`core/db/`): Facilities, CapacityReadings (TTL), Submissions (JSON payload, pending→approved/rejected), Alerts, SyncQueueEntries (outbox: attempts, nextAttemptAt)
+  - Repositories (`core/data/`): FacilityRepository (stream reads, upsert for future remote refresh), SubmissionRepository (submit = pending row + outbox entry in ONE transaction), AlertRepository (active alerts, critical ranked first)
+  - SyncWorker: drains outbox oldest-first, exponential backoff 2s·2^n capped 10min, maxAttempts=12 → `failed` state, `retryFailed()` for the pending-uploads tray; `RemoteSyncApi` interface with `UnconfiguredRemoteApi` stub until Supabase client (E5/E8)
+  - Riverpod providers (`core/providers.dart`); drift_flutter DB file `commonground`
+- Tests: 15 green (freshness bands, atomic submit+outbox, pending count, backoff schedule, max-attempts terminal state, manual retry, repo filters/ordering, alert expiry+severity ranking)
+- `flutter analyze` + `dart run custom_lint` clean
+
+**Decisions this session:** ADR-12 (CommonGround)
+
+**Broke/blocked:** E3 blocked on DESIGN.md open choices 3b/4/5 (icon, nav bar treatment, tile style) — ask user, don't assume.
+
+**Next session:**
+1. Ask user: icon direction, nav bar (glass pill vs docked), tile style → then E3 map (flutter_map + OSM + FMTC, clustered pins, filter chips, freshness banding UI)
+2. Consider wiring pending-uploads count badge into Profile placeholder
+3. Sync scheduling (connectivity listener + periodic drain) when first remote lands
+---
 ## Session 3 — 2026-07-24 · Phase 0: E1 complete (backend confirmed, Flutter scaffold, lints, CI)
 **Done:**
 - Docs imported to GitHub repo (`prajwal-patil-hub/Jantar-Mantar`), monorepo layout locked (ADR-11): docs at root, app in `app/`

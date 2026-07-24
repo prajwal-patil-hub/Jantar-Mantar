@@ -15,6 +15,7 @@ An offline-first, privacy-first app that helps people at protest sites find veri
 8. **UI direction:** minimal + glassmorphism (hero surfaces only, cheap fallback on weak devices), neutral palette + saffron `#FF6D1F` accent (ADR-10; accent never conveys status), rich fluid animations with battery-first/reduced-motion opt-out. Dark mode follows system. Details + remaining open choices: `DESIGN.md`.
 9. **Backend:** Supabase (ADR-8 confirmed 2026-07-24) — Postgres RLS deny-by-default, anonymous auth, Realtime, Edge Functions; Mumbai region; self-host escape hatch.
 10. **Repo layout:** monorepo (ADR-11) — docs at root, Flutter app in `app/`, Supabase config in `supabase/` when backend work starts.
+11. **App name: CommonGround** (ADR-12) — site-neutral so worldwide expansion needs no rename; Dart package stays `jantar_mantar_sahayata`.
 
 ## Constraints
 - Internet shutdowns/jamming are expected at the site — never block on network.
