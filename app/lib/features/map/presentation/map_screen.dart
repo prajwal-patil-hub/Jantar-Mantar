@@ -7,9 +7,11 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
 import 'facility_detail_sheet.dart';
+import 'widgets/critical_alert_banner.dart';
 import 'widgets/facility_marker.dart';
 import 'widgets/filter_chip_row.dart';
 import 'widgets/nearby_sheet.dart';
@@ -117,7 +119,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [const SizedBox(height: 4), const FilterChipRow()],
+            children: const [
+              CriticalAlertBanner(),
+              SizedBox(height: 4),
+              FilterChipRow(),
+            ],
           ),
         ),
         Positioned(
@@ -155,9 +161,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           left: 16,
           bottom: 200,
           child: _SosButton(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('The SOS screen arrives with E7.')),
-            ),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute<void>(builder: (_) => const SosScreen())),
           ),
         ),
         NearbySheet(

@@ -121,4 +121,25 @@ Future<void> seedDebugFacilities(AppDatabase db) async {
       ),
     ]),
   );
+
+  await db.batch(
+    (b) => b.insertAll(db.alerts, [
+      AlertsCompanion.insert(
+        id: 'seed-alert-info',
+        severity: AlertSeverity.info,
+        body: 'Water tankers refill near Gate 1 every 2 hours.',
+        createdAt: now.subtract(const Duration(minutes: 20)),
+        expiresAt: now.add(const Duration(hours: 6)),
+      ),
+      AlertsCompanion.insert(
+        id: 'seed-alert-warn',
+        severity: AlertSeverity.warn,
+        body:
+            'Heavy crowd building at Parliament St crossing — expect '
+            'slow movement.',
+        createdAt: now.subtract(const Duration(minutes: 8)),
+        expiresAt: now.add(const Duration(hours: 2)),
+      ),
+    ]),
+  );
 }

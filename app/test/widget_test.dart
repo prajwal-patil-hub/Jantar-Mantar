@@ -51,7 +51,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('Alerts — E6'), findsOneWidget);
+    expect(
+      find.text(
+        'No active alerts.\nCritical alerts appear here and on '
+        'the map instantly.',
+      ),
+      findsOneWidget,
+    );
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));

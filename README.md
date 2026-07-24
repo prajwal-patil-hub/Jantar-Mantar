@@ -20,8 +20,8 @@ Protest-support app: offline-first map of facilities (water/food/shelter/medical
 
 ## Current status
 **App name:** CommonGround (ADR-12)
-**Phase:** 1 — MVP core. Done: E1 scaffold · E2 offline data layer · E3 map · E4 facility detail + 5-step submit flow (offline-queued, optimistic pending pins). 22 tests green.
-**Next task:** E5 verification queue + audit log (first Supabase backend work)
+**Phase:** 1 — MVP core. Done: E1 scaffold · E2 offline data layer · E3 map · E4 detail + submit flow · E6 alerts feed · E7 SOS. 27 tests green.
+**Next task:** E5 verification queue + audit log — waiting on Supabase project creation (user)
 
 ## Repo layout
 ```

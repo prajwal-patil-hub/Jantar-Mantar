@@ -2,6 +2,20 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 7 — 2026-07-24 · Phase 1: E6 alerts feed + E7 SOS (user chose backend-later)
+**Done:**
+- Repo hygiene: confirmed the session branch never existed on the Spotify-extractor remote (stale local tracking ref only, pruned); all project work isolated to Jantar-Mantar repo
+- **E6 (user side):** alerts feed (`features/alerts/`) — severity cards (info blue `#1976D2` distinct from status amber/red, icon+label+color always together), critical-first ordering, relative timestamps, "Verified by admin" note, offline "may be outdated" footer; `CriticalAlertBanner` on the map: full-width, instant (no animation per DESIGN motion rules), solid red, never glass
+- **E7:** SOS screen (`features/sos/`) — full-screen high-contrast dark (no glass), hold-to-send with 2.5 s radial countdown (release-early cancels), fires a queued `sos` outbox entry via `SosRepository` (no location attached — coarse location is a later per-action opt-in), "I'm safe" reset; direct-call tiles via url_launcher: 112 emergency, 108 ambulance, 15100 NALSA legal aid (constants in `SosScreen`, make site-configurable before new regions); "Nearest medical on map" sets the medical filter and returns
+- Dev seed adds sample info + warning alerts
+- Tests 27 green (alerts ordering + banner, SOS hold-fires-queue, early-release cancels, call tiles present)
+
+**Deferred:** broadcast authoring (needs E5 backend), critical alert sound/vibration (plugin, Phase 2), share-location-with-contact (location opt-in work)
+
+**Next session:**
+1. E5 + E8: user creates Supabase project (Mumbai region) and provides URL + anon key → `supabase/` migrations (RLS deny-by-default + negative tests) → swap `UnconfiguredRemoteApi` → anonymous auth → verification queue UI + audit log
+2. Small follow-ups: sync scheduling (connectivity listener), freshness/connectivity banner on map
+---
 ## Session 6 — 2026-07-24 · Phase 1: E4 facility detail + submit flow
 **Done:**
 - **Facility detail sheet** (`features/map/presentation/facility_detail_sheet.dart`, replaces peek): status pill, capacity numerals per resource with TTL degrade ("expired — needs re-check"), FreshnessBadge, stale banner, actions: Update this (prefilled flow) · Report closed (confirm → queued update submission) · Directions/Share stubs

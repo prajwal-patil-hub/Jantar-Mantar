@@ -27,15 +27,22 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Optimistic grey "Pending (yours)" pins for new-facility submissions; pending-uploads counter in Profile
 ### E5. Verification queue (admin) + audit log
 ### E6. Alerts feed + broadcast
+- [x] Alerts feed: severity-banded cards (icon+label+color; info blue distinct from status colors), critical pinned first, timestamps, verified-by-admin note, offline "may be outdated" footer
+- [x] Full-width critical banner on the map — instant, no animation, never glass
+- [ ] Broadcast authoring (admin) — lands with E5 backend
+- [ ] Sound/vibration for critical alerts — needs plugin, Phase 2
 ### E7. SOS screen
+- [x] Full-screen high-contrast SOS: hold-to-send (2.5s radial countdown), release-early cancel, queued through the outbox, "I'm safe" reset
+- [x] Direct-call tiles (112 emergency · 108 ambulance · 15100 NALSA legal aid) via dialer; "Nearest medical" jumps to map filtered to medical
+- [ ] Share-location-with-trusted-contact — explicit per-use, needs location opt-in work
 ### E8. Auth (anonymous device keypair; role claims)
 ### E9. i18n (en/hi) + accessibility pass
 
 ## Board
-**Done:** Research · Doc system · E1 scaffold · E2 offline data layer · E3 map · E4 facility detail + submit flow (offline-queued, optimistic pending pins)
+**Done:** Research · Doc system · E1 scaffold · E2 offline data layer · E3 map · E4 detail + submit flow · E6 alerts feed (user side) · E7 SOS
 **In progress:** —
-**Next up:** E5 verification queue (admin) + audit log — needs the Supabase project + first RLS migrations (`supabase/`), or E6 alerts feed if backend setup is deferred another session
-**Blocked:** — (before store release: app icon, Android applicationId, tile provider; photo capture waits for the EXIF-strip pipeline; region bulk-download lands with onboarding)
+**Next up:** E5 verification queue + audit log — REQUIRES user-created Supabase project (URL + anon key), then `supabase/` RLS migrations + client swap + admin queue UI. E8 (anon device-keypair auth) rides along.
+**Blocked:** E5 on Supabase project creation (user action). Before store release: app icon, Android applicationId, tile provider; photo capture waits for EXIF-strip pipeline; region bulk-download lands with onboarding.
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)

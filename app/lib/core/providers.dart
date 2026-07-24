@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'data/alert_repository.dart';
 import 'data/facility_repository.dart';
 import 'data/remote_sync_api.dart';
+import 'data/sos_repository.dart';
 import 'data/submission_repository.dart';
 import 'data/sync_worker.dart';
 import 'db/app_database.dart';
@@ -32,6 +33,10 @@ final submissionRepositoryProvider = Provider<SubmissionRepository>(
 
 final alertRepositoryProvider = Provider<AlertRepository>(
   (ref) => AlertRepository(ref.watch(appDatabaseProvider)),
+);
+
+final sosRepositoryProvider = Provider<SosRepository>(
+  (ref) => SosRepository(ref.watch(appDatabaseProvider)),
 );
 
 /// Swaps to the Supabase-backed implementation when E5/E8 land.

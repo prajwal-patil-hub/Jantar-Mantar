@@ -26,7 +26,8 @@ Phase 1. E1–E3 complete. App name = **CommonGround** (ADR-12). Backend = Supab
 Accent = saffron `#FF6D1F`, dark = system (ADR-10); status colors in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme. Nav = glass docked bar, tiles = standard OSM via FMTC (ADR-13).
 Data: Drift schema `core/db/`, repos + sync worker (outbox, backoff) `core/data/`, providers `core/providers.dart`; remote = `UnconfiguredRemoteApi` until Supabase client (E5/E8). Map: `features/map/`, tile provider swappable via `mapTileProviderProvider` (tests stub it). Debug seed pins: `core/db/dev_seed.dart`.
 E4 done: detail sheet (`features/map/presentation/facility_detail_sheet.dart`), 5-step submit flow (`features/submit/`), pending pins + Profile counter.
-**Immediate next task:** E5 verification queue + audit log — starts the real backend: Supabase project + `supabase/` migrations (RLS deny-by-default + negative tests) + swap `UnconfiguredRemoteApi`. E6/E7 are the no-backend alternatives.
+E6 (user side) + E7 done: alerts feed + critical map banner (`features/alerts/`), SOS screen with hold-to-fire + queued outbox entry + direct-call tiles (`features/sos/`, numbers in `SosScreen` constants).
+**Immediate next task:** E5 + E8 — BLOCKED on user creating the Supabase project (Mumbai) and sharing URL + anon key. Then: `supabase/` migrations (RLS deny-by-default + negative tests), swap `UnconfiguredRemoteApi`, anonymous auth, verification queue UI + audit log.
 Testing gotchas: Riverpod 3 StreamProvider needs `container.listen` before `.future` resolves; end widget tests with `pumpWidget(SizedBox())` + flush pump (drift close timer); avoid `pumpAndSettle` with the map mounted.
 Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`. Drift codegen: `dart run build_runner build`.
 
