@@ -21,12 +21,13 @@ Protest-support app: offline-first Flutter map of facilities (water/food/shelter
 - Workflow: pick top "Next up" task from PROJECT_MANAGEMENT.md → build → tick SECURITY.md items → log session in progress/PROGRESS.md → add ADRs.
 - MVP scope is frozen: public verified map only. NO groups, mesh, or worldwide features until Phase 3+.
 
-## Current state (2026-07-24, session 4)
-Phase 1 started. E1 + E2 complete. App name = **CommonGround** (ADR-12). Backend = Supabase (ADR-8). Flutter 3.44.8 in `app/`, Riverpod 3, strict lints, CI green.
-Accent = saffron `#FF6D1F`, dark mode = system-follow (ADR-10); status colors live in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme.
-Offline data layer: Drift schema `app/lib/core/db/`, repositories + sync worker (outbox, exponential backoff) `app/lib/core/data/`, Riverpod wiring `app/lib/core/providers.dart`. Remote is `UnconfiguredRemoteApi` until the Supabase client lands (E5/E8). Drift codegen: `dart run build_runner build`.
-**Immediate next tasks:** E3 map (flutter_map + OSM + FMTC). BLOCKED on DESIGN.md open choices 3b/4/5 (icon, nav bar, tile style) — ask the user first, don't assume.
-Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`.
+## Current state (2026-07-24, session 5)
+Phase 1. E1–E3 complete. App name = **CommonGround** (ADR-12). Backend = Supabase (ADR-8). Flutter 3.44.8 in `app/`, Riverpod 3, strict lints, CI green, 18 tests.
+Accent = saffron `#FF6D1F`, dark = system (ADR-10); status colors in `app/lib/core/theme/status_colors.dart` ThemeExtension — never derive status from the seed scheme. Nav = glass docked bar, tiles = standard OSM via FMTC (ADR-13).
+Data: Drift schema `core/db/`, repos + sync worker (outbox, backoff) `core/data/`, providers `core/providers.dart`; remote = `UnconfiguredRemoteApi` until Supabase client (E5/E8). Map: `features/map/`, tile provider swappable via `mapTileProviderProvider` (tests stub it). Debug seed pins: `core/db/dev_seed.dart`.
+**Immediate next task:** E4 facility detail + 5-step submit flow (wire to SubmissionRepository, optimistic pending pin).
+Testing gotchas: Riverpod 3 StreamProvider needs `container.listen` before `.future` resolves; end widget tests with `pumpWidget(SizedBox())` + flush pump (drift close timer); avoid `pumpAndSettle` with the map mounted.
+Run checks from `app/`: `flutter analyze && dart run custom_lint && flutter test`. Drift codegen: `dart run build_runner build`.
 
 ## Don't
 - Don't add Google Maps SDK (we use flutter_map + OSM + FMTC — ADR-7).

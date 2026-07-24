@@ -2,6 +2,28 @@
 _Newest entry first. One entry per working session._
 
 ---
+## Session 5 — 2026-07-24 · Phase 1: E3 map complete
+**Done:**
+- **ADR-13** (user approved recommendations): glass docked M3 nav bar · standard OSM tiles for MVP · icon deferred to Phase 2
+- E3 complete (`app/lib/features/map/`, `app/lib/core/map/`, `app/lib/core/widgets/`):
+  - flutter_map 8.3 + FMTC 10.1 offline tile cache (ObjectBox); `main()` falls back to network tiles if FMTC can't start — app never blocks on infra; OSM attribution widget; `mapTileProviderProvider` swappable (tests use a stub)
+  - Clustered pins (flutter_map_marker_cluster): FacilityMarker = type icon + status-colored border + status glyph badge + Semantics label (color+icon+text rule)
+  - Filter chips (All + 7 types) → `mapFilterProvider` → Drift-stream-backed `facilitiesProvider`
+  - FreshnessBadge (fresh/judgment/stale bands with color+icon+text); Nearby draggable glass sheet sorted by distance from MAP CENTER (no GPS = no permission needed to browse); pin-tap peek sheet (full detail is E4)
+  - GlassSurface hero-surface widget with opaque fallback (weak device/high-contrast); `glassEnabledProvider` static true until Phase 2 probe; glass nav bar in HomeShell (extendBody)
+  - Recenter FAB, Report FAB (E4 placeholder), 60dp SOS element (E7 placeholder)
+  - Debug-only seed facilities around Jantar Mantar (`core/db/dev_seed.dart`, kDebugMode only)
+- Tests 18 green (map: filter narrowing, nearby distance sort, full map-screen widget test incl. filter interaction)
+
+**Broke/blocked (lessons):**
+- Riverpod 3: `container.read(provider.future)` alone never resolves a StreamProvider — need an active `container.listen` first
+- Drift stream teardown schedules a zero-duration timer → widget tests must end with `pumpWidget(SizedBox())` + a flush pump or fake-async flags a pending timer
+- `pumpAndSettle` hangs (10-min default timeout) with the map mounted — use bounded pumps
+
+**Next session:**
+1. E4: facility detail sheet (capacity numerals, photos, actions) + 5-step submit flow wired to SubmissionRepository (offline-queued, optimistic grey "Pending (yours)" pin)
+2. Later: connectivity/freshness banner (needs connectivity_plus + sync scheduling), region bulk-download at onboarding
+---
 ## Session 4 — 2026-07-24 · Phase 1: E2 offline data layer + app named CommonGround
 **Done:**
 - **ADR-12: app name = CommonGround** (user decision) — applied to Android label, iOS CFBundleDisplayName/CFBundleName, web manifest (+ saffron theme_color) and index.html, MaterialApp title. Package name unchanged.

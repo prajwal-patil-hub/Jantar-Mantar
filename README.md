@@ -20,8 +20,8 @@ Protest-support app: offline-first map of facilities (water/food/shelter/medical
 
 ## Current status
 **App name:** CommonGround (ADR-12)
-**Phase:** 1 — MVP core. E1 scaffold + E2 offline data layer done (Drift schema, repositories, sync worker with backoff, 15 tests green).
-**Next task:** E3 map (flutter_map + OSM + FMTC) — blocked on DESIGN.md open choices (icon, nav bar, tile style)
+**Phase:** 1 — MVP core. Done: E1 scaffold · E2 offline data layer · E3 map (offline tiles, clustered status pins, filter chips, freshness UI). 18 tests green.
+**Next task:** E4 facility detail + 5-step submit flow (offline-queued)
 
 ## Repo layout
 ```

@@ -6,8 +6,8 @@ import 'features/shell/home_shell.dart';
 /// Root widget. Theme follows the system light/dark setting (locked choice);
 /// a manual Light / Dark / High-contrast Outdoor override lands with the
 /// Profile/Settings feature.
-class SahayataApp extends StatelessWidget {
-  const SahayataApp({super.key});
+class CommonGroundApp extends StatelessWidget {
+  const CommonGroundApp({super.key});
 
   @override
   Widget build(BuildContext context) {

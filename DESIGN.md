@@ -30,12 +30,13 @@ _Last updated: 2026-07-24 · Status: direction locked, details open_
 1. **Accent color: Saffron `#FF6D1F`** (ADR-10). Mitigation for amber proximity: accent never conveys status; status colors live in a `StatusColors` ThemeExtension independent of the seed scheme.
 2. **Dark mode: system-follow** (ADR-10), with manual Light/Dark/High-contrast-Outdoor override in settings.
 
-3. **App name: CommonGround** (ADR-12) — applied to Android label, iOS bundle names, web manifest/title. Icon direction still open (see below).
+3. **App name: CommonGround** (ADR-12) — applied to Android label, iOS bundle names, web manifest/title.
+4. **Nav bar: glass docked M3 bar** (ADR-13) — standard `NavigationBar` wrapped in `GlassSurface` (`app/lib/core/widgets/glass_surface.dart`), opaque fallback on weak devices/high-contrast.
+5. **Map tiles: standard OSM for MVP** (ADR-13) — FMTC offline cache; tile-provider + muted-style decision deferred to pre-deployment (OSM public server policy forbids heavy production traffic).
 
-## Open choices (answer before E3 map build)
-3b. **App icon** direction (placeholder Flutter icon still in place).
-4. **Nav bar treatment:** glass floating pill vs standard docked M3 bar (scaffold currently uses standard M3 `NavigationBar`; glass treatment TBD).
-5. **Map tile style:** standard OSM vs muted/greyscale custom style (muted suits glass UI, needs style server or pre-rendered tiles) vs in-app desaturation filter (zero infra, needs frame-time check on low-end devices). Note: OSM public tile server usage policy disallows heavy production traffic — a tile provider decision (Stadia/Thunderforest/Protomaps self-host) is needed before real deployment regardless.
+## Open choices
+- **App icon** direction (default Flutter placeholder still in place — replace in Phase 2; ADR-13 defers it).
+- Glass capability probe: `glassEnabledProvider` is a static `true` today; Phase 2 adds the device-tier/frame-time check.
 
 ## References
 Full screen-by-screen spec + wireframes: `docs/research/ui-ux-spec.md`

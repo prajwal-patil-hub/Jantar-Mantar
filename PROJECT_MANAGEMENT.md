@@ -19,8 +19,8 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Local DB (Drift) schema: Facility, CapacityReading, Submission, Alert, SyncQueue (`app/lib/core/db/`)
 - [x] Repository pattern: local-first read (Drift streams), queued writes (submission + outbox in one transaction), sync worker (exponential backoff 2s→10min cap, maxAttempts→failed, manual retry) — remote API stubbed until Supabase client lands (E5/E8)
 ### E3. Map
-- [ ] flutter_map + OSM tiles + FMTC offline tile caching
-- [ ] Clustered pins, filter chips, freshness banding UI
+- [x] flutter_map 8 + OSM tiles + FMTC 10 offline tile caching (network fallback if FMTC can't start; OSM attribution shown)
+- [x] Clustered pins (status = color + icon + text), filter chips, freshness banding UI (FreshnessBadge), Nearby sheet (map-center distance, no GPS), pin-tap peek sheet, Report FAB + SOS placeholders
 ### E4. Facility detail + submit flow (5-step, queued offline)
 ### E5. Verification queue (admin) + audit log
 ### E6. Alerts feed + broadcast
@@ -29,10 +29,10 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E9. i18n (en/hi) + accessibility pass
 
 ## Board
-**Done:** Research (features, UX spec, groups) · Doc system (this) · E1 scaffold (backend confirmed, Flutter app in `app/`, lints + CI) · E2 offline data layer (Drift schema + repositories + sync worker, 15 tests) · App name = CommonGround (ADR-12)
+**Done:** Research · Doc system · E1 scaffold · E2 offline data layer · E3 map (offline tiles, clustered status pins, filter chips, freshness UI, Nearby sheet) · App name = CommonGround (ADR-12) · Nav/tiles/icon decisions (ADR-13)
 **In progress:** —
-**Next up:** E3 map (flutter_map + OSM + FMTC offline tiles → clustered pins → filter chips → freshness banding UI)
-**Blocked:** E3 needs DESIGN.md open choices answered first: icon (3b), nav bar treatment (4), tile style (5). Android applicationId still `com.example.jantar_mantar_sahayata` — finalize before any store release.
+**Next up:** E4 facility detail + 5-step submit flow (queued offline, optimistic "Pending (yours)" pin)
+**Blocked:** — (before store release: app icon, Android applicationId, tile provider; region bulk-download for the ~8 MB offline pack lands with onboarding)
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)
