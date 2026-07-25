@@ -17,6 +17,19 @@ final authChangesProvider = StreamProvider<AuthState>((ref) {
   return client.auth.onAuthStateChange;
 });
 
+/// Actively ensures an (anonymous) session for Groups and surfaces the real
+/// error if sign-in fails — e.g. "Anonymous sign-ins are disabled", which
+/// points straight at the Supabase dashboard toggle. No credentials needed.
+final ensureSignedInProvider = FutureProvider<bool>((ref) async {
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null) {
+    throw StateError('Backend not configured in this build.');
+  }
+  if (client.auth.currentUser != null) return true;
+  await client.auth.signInAnonymously();
+  return true;
+});
+
 final e2eCryptoProvider = Provider<E2ECrypto>((ref) => E2ECrypto());
 
 final keyStoreProvider = Provider<KeyStore>((ref) => const SecureKeyStore());
