@@ -2,25 +2,10 @@
 -- Security: RLS deny-by-default. Only active members can read a group's rows.
 -- The server stores ONLY public keys, sealed key envelopes, and message
 -- ciphertext — never a group key or plaintext.
-
--- ------------------------------------------------------------- membership helpers
-
-create or replace function public.is_group_member(g uuid)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists(
-    select 1 from public.group_members
-    where group_id = g and user_id = auth.uid() and state = 'active'
-  );
-$$;
-
-create or replace function public.is_group_admin(g uuid)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists(
-    select 1 from public.group_members
-    where group_id = g and user_id = auth.uid()
-      and state = 'active' and role = 'admin'
-  );
-$$;
+--
+-- Order matters: tables first, then the `language sql` helper functions
+-- (validated at creation time, so they must see the tables), then RLS
+-- policies (which call the helpers).
 
 -- ------------------------------------------------------------------------ tables
 
@@ -104,6 +89,26 @@ create table public.group_messages (
   created_at timestamptz not null default now()
 );
 create index group_messages_group_idx on public.group_messages(group_id, created_at);
+
+-- ------------------------------------------------------------- membership helpers
+-- Created after the tables they read (language sql = validated at creation).
+
+create or replace function public.is_group_member(g uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists(
+    select 1 from public.group_members
+    where group_id = g and user_id = auth.uid() and state = 'active'
+  );
+$$;
+
+create or replace function public.is_group_admin(g uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists(
+    select 1 from public.group_members
+    where group_id = g and user_id = auth.uid()
+      and state = 'active' and role = 'admin'
+  );
+$$;
 
 -- --------------------------------------------------------------------------- RLS
 
