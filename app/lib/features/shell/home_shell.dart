@@ -7,6 +7,7 @@ import '../../core/widgets/glass_surface.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/presentation/alerts_screen.dart';
 import '../events/presentation/events_screen.dart';
+import '../groups/presentation/groups_screen.dart';
 import '../map/presentation/map_screen.dart';
 import '../profile/presentation/profile_screen.dart';
 
@@ -37,6 +38,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   static const _screens = [
     MapScreen(),
     EventsScreen(),
+    GroupsScreen(),
     AlertsScreen(),
     ProfileScreen(),
   ];
@@ -60,6 +62,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             NavigationDestination(
               icon: const Icon(Icons.event_outlined),
               label: l10n.navEvents,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.groups_outlined),
+              label: l10n.navGroups,
             ),
             NavigationDestination(
               icon: const Icon(Icons.notifications_outlined),

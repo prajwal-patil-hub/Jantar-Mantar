@@ -1,6 +1,25 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 10 — 2026-07-25 · Fixes + Phase 3 kickoff: Groups + E2E chat (ADR-16), no mesh (ADR-17)
+**Done:**
+- **Web run fix:** drift needs `web:` DriftWebOptions + `web/sqlite3.wasm` + `web/drift_worker.js` (version-matched) — fixed the "web parameter needs to be set" startup crash; `flutter build web` green.
+- **Nearby sheet fix:** was un-draggable (flutter_map pan gestures vs sheet drag + glass nav bar overlapping the handle). Now a DraggableScrollableController with tap-to-expand header + snap + nav-bar clearance; map test asserts header count.
+- **ADR-17: no in-app Bluetooth mesh chat** (user agreed) — research flags it broken/battery-heavy/"never for sensitive data" and it can't run on web.
+- **ADR-16: Groups (Phase 3) + E2E chat**, sequenced crypto-first:
+  - `core/crypto/`: `E2ECrypto` (X25519 identity, random group key, ECIES sealed-box key delivery, AES-GCM-256 messages), `DeviceIdentityService` (seed in OS keystore via flutter_secure_storage, `KeyStore` abstraction + in-memory for tests). 7 tests incl. non-recipient-can't-open, wrong-key-can't-decrypt, tamper-fails.
+  - `supabase/migrations/20260725000002_groups.sql`: groups/members/key_envelopes/invites/group_pins/group_messages + RLS deny-by-default + `is_group_member`/`is_group_admin`/`resolve_invite`.
+  - `features/groups/`: repository wiring crypto↔Supabase (create→seal-to-self, approve→seal-to-member, send→encrypt, read→decrypt), providers, UI (list, create, join-by-code, detail with E2E Chat/Members/Amenities tabs, admin invite + approval). Groups tab added to nav (now 5 destinations).
+  - New l10n keys (en+hi) for all group strings.
+- 42 tests green; analyze + custom_lint clean; web build green.
+
+**Deps added:** cryptography, flutter_secure_storage.
+
+**USER ACTIONS for groups to work live:** apply BOTH migrations (init + groups) in SQL editor; groups need sign-in (anonymous is fine) — the Groups tab shows a notice until backend + auth are live.
+
+**Known gaps (logged in ADR-16 / board):** key rotation on member removal, local message caching (currently online fetch), group-pin map picker, QR invites, group broadcast + map-layer toggle, RLS negative tests for group tables.
+
+**Next:** wire the above gaps; run the two-device E2E chat smoke test once backend is applied.
 ---
 ## Session 9 — 2026-07-24 · Phase 1: E9 — Hindi/English i18n + accessibility baseline (MVP core complete)
 **Done:**

@@ -440,4 +440,110 @@ class AppL10nHi extends AppL10n {
   String rejectFailed(String error) {
     return 'अस्वीकृति विफल: $error';
   }
+
+  @override
+  String get navGroups => 'समूह';
+
+  @override
+  String get groupsTitle => 'समूह';
+
+  @override
+  String get groupsSignInNeeded =>
+      'समूहों के लिए ऑनलाइन और साइन-इन होना ज़रूरी है। बैकएंड सेटअप पूरा करें, फिर यह टैब दोबारा खोलें।';
+
+  @override
+  String get noGroupsYet => 'अभी कोई समूह नहीं। एक बनाएँ या कोड से जुड़ें।';
+
+  @override
+  String get createGroup => 'समूह बनाएँ';
+
+  @override
+  String get joinWithCode => 'कोड से जुड़ें';
+
+  @override
+  String get groupName => 'समूह का नाम';
+
+  @override
+  String get groupDescription => 'विवरण (वैकल्पिक)';
+
+  @override
+  String get groupVisibility => 'दृश्यता';
+
+  @override
+  String get visibilityHidden => 'छिपा हुआ';
+
+  @override
+  String get visibilityPublic => 'सार्वजनिक';
+
+  @override
+  String get create => 'बनाएँ';
+
+  @override
+  String get join => 'जुड़ें';
+
+  @override
+  String get inviteCode => 'आमंत्रण कोड';
+
+  @override
+  String get pendingApproval =>
+      'अनुरोध भेजा गया — समूह सामग्री देखने से पहले व्यवस्थापक की स्वीकृति ज़रूरी है।';
+
+  @override
+  String get membershipPending => 'स्वीकृति लंबित';
+
+  @override
+  String get tabChat => 'चैट';
+
+  @override
+  String get tabMembers => 'सदस्य';
+
+  @override
+  String get tabPins => 'सुविधाएँ';
+
+  @override
+  String get messageHint => 'संदेश (एंड-टू-एंड एन्क्रिप्टेड)';
+
+  @override
+  String get e2eNotice =>
+      'संदेश एंड-टू-एंड एन्क्रिप्टेड हैं — केवल समूह सदस्य ही पढ़ सकते हैं।';
+
+  @override
+  String get cantDecrypt => 'यह संदेश डिक्रिप्ट नहीं हो सका।';
+
+  @override
+  String get send => 'भेजें';
+
+  @override
+  String get approveMember => 'स्वीकृत करें';
+
+  @override
+  String get admin => 'व्यवस्थापक';
+
+  @override
+  String get member => 'सदस्य';
+
+  @override
+  String get invite => 'आमंत्रण';
+
+  @override
+  String inviteCreated(String code) {
+    return 'आमंत्रण कोड (24 घंटे, 10 उपयोग): $code';
+  }
+
+  @override
+  String get addAmenity => 'सुविधा जोड़ें';
+
+  @override
+  String get amenityLabel => 'नाम';
+
+  @override
+  String get noAmenities => 'अभी कोई समूह सुविधा नहीं।';
+
+  @override
+  String get noMessages => 'अभी कोई संदेश नहीं। नमस्ते कहें।';
+
+  @override
+  String groupActionFailed(String error) {
+    return 'कार्य विफल: $error';
+  }
 }

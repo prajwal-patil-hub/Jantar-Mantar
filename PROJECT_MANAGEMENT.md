@@ -56,6 +56,14 @@ _Last updated: 2026-07-24 · Phase 0_
 
 ## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.
 
+## Phase 3 — Groups + E2E chat (pulled forward per ADR-16, in progress)
+- [x] Nav: **Groups** tab (Map · Events · Groups · Alerts · Profile)
+- [x] E2E crypto core (`core/crypto/`): X25519 identity, ECIES sealed group-key delivery, AES-GCM messages — 7 tests incl. negatives
+- [x] Backend `supabase/migrations/20260725000002_groups.sql`: groups, members, key envelopes, invites, group pins, messages; RLS deny-by-default + member/admin helpers + `resolve_invite`
+- [x] UI: groups list, create, join-by-code, group detail (E2E Chat · Members · Amenities), admin invite + member approval
+- [ ] Next: local message caching (offline), key rotation on member removal, group-pin map picker, QR invites, group broadcast reusing alerts, group map-layer toggle, RLS negative tests for group tables
+- **Bluetooth mesh chat: NOT building** (ADR-17)
+
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)
 2. Relevant SECURITY.md checklist items ticked

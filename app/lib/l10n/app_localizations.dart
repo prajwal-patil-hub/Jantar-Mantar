@@ -834,6 +834,204 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Reject failed: {error}'**
   String rejectFailed(String error);
+
+  /// No description provided for @navGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get navGroups;
+
+  /// No description provided for @groupsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get groupsTitle;
+
+  /// No description provided for @groupsSignInNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups need you to be online and signed in. Complete the backend setup, then reopen this tab.'**
+  String get groupsSignInNeeded;
+
+  /// No description provided for @noGroupsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet. Create one or join with a code.'**
+  String get noGroupsYet;
+
+  /// No description provided for @createGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create group'**
+  String get createGroup;
+
+  /// No description provided for @joinWithCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Join with code'**
+  String get joinWithCode;
+
+  /// No description provided for @groupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get groupName;
+
+  /// No description provided for @groupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get groupDescription;
+
+  /// No description provided for @groupVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility'**
+  String get groupVisibility;
+
+  /// No description provided for @visibilityHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get visibilityHidden;
+
+  /// No description provided for @visibilityPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get visibilityPublic;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get join;
+
+  /// No description provided for @inviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code'**
+  String get inviteCode;
+
+  /// No description provided for @pendingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent — an admin must approve you before you see group content.'**
+  String get pendingApproval;
+
+  /// No description provided for @membershipPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending approval'**
+  String get membershipPending;
+
+  /// No description provided for @tabChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get tabChat;
+
+  /// No description provided for @tabMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get tabMembers;
+
+  /// No description provided for @tabPins.
+  ///
+  /// In en, this message translates to:
+  /// **'Amenities'**
+  String get tabPins;
+
+  /// No description provided for @messageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message (end-to-end encrypted)'**
+  String get messageHint;
+
+  /// No description provided for @e2eNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages are end-to-end encrypted — only group members can read them.'**
+  String get e2eNotice;
+
+  /// No description provided for @cantDecrypt.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t decrypt this message.'**
+  String get cantDecrypt;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @approveMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveMember;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @member.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get member;
+
+  /// No description provided for @invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get invite;
+
+  /// No description provided for @inviteCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code (24h, 10 uses): {code}'**
+  String inviteCreated(String code);
+
+  /// No description provided for @addAmenity.
+  ///
+  /// In en, this message translates to:
+  /// **'Add amenity'**
+  String get addAmenity;
+
+  /// No description provided for @amenityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get amenityLabel;
+
+  /// No description provided for @noAmenities.
+  ///
+  /// In en, this message translates to:
+  /// **'No group amenities yet.'**
+  String get noAmenities;
+
+  /// No description provided for @noMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Say hello.'**
+  String get noMessages;
+
+  /// No description provided for @groupActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed: {error}'**
+  String groupActionFailed(String error);
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

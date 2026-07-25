@@ -440,4 +440,110 @@ class AppL10nEn extends AppL10n {
   String rejectFailed(String error) {
     return 'Reject failed: $error';
   }
+
+  @override
+  String get navGroups => 'Groups';
+
+  @override
+  String get groupsTitle => 'Groups';
+
+  @override
+  String get groupsSignInNeeded =>
+      'Groups need you to be online and signed in. Complete the backend setup, then reopen this tab.';
+
+  @override
+  String get noGroupsYet => 'No groups yet. Create one or join with a code.';
+
+  @override
+  String get createGroup => 'Create group';
+
+  @override
+  String get joinWithCode => 'Join with code';
+
+  @override
+  String get groupName => 'Group name';
+
+  @override
+  String get groupDescription => 'Description (optional)';
+
+  @override
+  String get groupVisibility => 'Visibility';
+
+  @override
+  String get visibilityHidden => 'Hidden';
+
+  @override
+  String get visibilityPublic => 'Public';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get inviteCode => 'Invite code';
+
+  @override
+  String get pendingApproval =>
+      'Request sent — an admin must approve you before you see group content.';
+
+  @override
+  String get membershipPending => 'Pending approval';
+
+  @override
+  String get tabChat => 'Chat';
+
+  @override
+  String get tabMembers => 'Members';
+
+  @override
+  String get tabPins => 'Amenities';
+
+  @override
+  String get messageHint => 'Message (end-to-end encrypted)';
+
+  @override
+  String get e2eNotice =>
+      'Messages are end-to-end encrypted — only group members can read them.';
+
+  @override
+  String get cantDecrypt => 'Can\'t decrypt this message.';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get approveMember => 'Approve';
+
+  @override
+  String get admin => 'Admin';
+
+  @override
+  String get member => 'Member';
+
+  @override
+  String get invite => 'Invite';
+
+  @override
+  String inviteCreated(String code) {
+    return 'Invite code (24h, 10 uses): $code';
+  }
+
+  @override
+  String get addAmenity => 'Add amenity';
+
+  @override
+  String get amenityLabel => 'Label';
+
+  @override
+  String get noAmenities => 'No group amenities yet.';
+
+  @override
+  String get noMessages => 'No messages yet. Say hello.';
+
+  @override
+  String groupActionFailed(String error) {
+    return 'Action failed: $error';
+  }
 }

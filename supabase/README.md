@@ -7,8 +7,9 @@ publishable key.
 ## One-time setup (dashboard) — DO THESE NOW
 
 1. **Apply the schema:** Dashboard → SQL Editor → paste the full contents of
-   `migrations/20260724000001_init.sql` → Run. (Or `supabase db push` with the
-   CLI if you link the project.)
+   `migrations/20260724000001_init.sql` → Run, then do the same with
+   `migrations/20260725000002_groups.sql` (groups + E2E chat). Apply them in
+   filename order. (Or `supabase db push` with the CLI if you link the project.)
 2. **Enable anonymous sign-ins:** Dashboard → Authentication → Sign In /
    Up → enable **Anonymous sign-ins** (ADR-4: anonymous-by-default; the app
    signs in anonymously in the background).
