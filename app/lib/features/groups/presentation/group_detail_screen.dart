@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -95,25 +97,48 @@ class _ChatTab extends ConsumerStatefulWidget {
 
 class _ChatTabState extends ConsumerState<_ChatTab> {
   final _controller = TextEditingController();
-  late Future<List<GroupMessage>> _future;
+  List<GroupMessage>? _messages;
+  Timer? _poll;
   bool _sending = false;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _future = _load();
+    _refresh();
+    // Live updates: poll while the chat is open (simple + reliable; Realtime
+    // is a later optimisation). Held state avoids spinner flicker.
+    _poll = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => _refresh(silent: true),
+    );
   }
 
   @override
   void dispose() {
+    _poll?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<List<GroupMessage>> _load() =>
-      ref.read(groupsRepositoryProvider)!.messages(widget.group.id);
-
-  Future<void> _refresh() async => setState(() => _future = _load());
+  Future<void> _refresh({bool silent = false}) async {
+    if (_loading) return;
+    _loading = true;
+    try {
+      final list = await ref
+          .read(groupsRepositoryProvider)!
+          .messages(widget.group.id);
+      if (mounted) setState(() => _messages = list);
+    } on Object catch (e) {
+      if (!silent && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppL10n.of(context).groupActionFailed('$e'))),
+        );
+      }
+    } finally {
+      _loading = false;
+    }
+  }
 
   Future<void> _send() async {
     final text = _controller.text.trim();
@@ -139,6 +164,7 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
+    final messages = _messages;
     return Column(
       children: [
         Container(
@@ -159,25 +185,17 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
           ),
         ),
         Expanded(
-          child: FutureBuilder<List<GroupMessage>>(
-            future: _future,
-            builder: (context, snap) {
-              if (!snap.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final messages = snap.data!;
-              if (messages.isEmpty) {
-                return Center(child: Text(l10n.noMessages));
-              }
-              return RefreshIndicator(
-                onRefresh: _refresh,
-                child: ListView.builder(
-                  itemCount: messages.length,
-                  itemBuilder: (context, i) => _bubble(context, messages[i]),
+          child: messages == null
+              ? const Center(child: CircularProgressIndicator())
+              : messages.isEmpty
+              ? Center(child: Text(l10n.noMessages))
+              : RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: (context, i) => _bubble(context, messages[i]),
+                  ),
                 ),
-              );
-            },
-          ),
         ),
         SafeArea(
           top: false,
@@ -249,16 +267,39 @@ class _MembersTab extends ConsumerStatefulWidget {
 }
 
 class _MembersTabState extends ConsumerState<_MembersTab> {
-  late Future<List<GroupMember>> _future;
+  List<GroupMember>? _members;
+  Timer? _poll;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _future = _load();
+    _refresh();
+    // Poll so an admin sees new join requests appear live (held list avoids
+    // spinner flicker).
+    _poll = Timer.periodic(const Duration(seconds: 4), (_) => _refresh());
   }
 
-  Future<List<GroupMember>> _load() =>
-      ref.read(groupsRepositoryProvider)!.members(widget.group.id);
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    if (_loading) return;
+    _loading = true;
+    try {
+      final list = await ref
+          .read(groupsRepositoryProvider)!
+          .members(widget.group.id);
+      if (mounted) setState(() => _members = list);
+    } on Object {
+      // Transient; next poll retries.
+    } finally {
+      _loading = false;
+    }
+  }
 
   Future<void> _approve(String userId) async {
     final l10n = AppL10n.of(context);
@@ -266,7 +307,7 @@ class _MembersTabState extends ConsumerState<_MembersTab> {
       await ref
           .read(groupsRepositoryProvider)!
           .approveMember(widget.group.id, userId);
-      setState(() => _future = _load());
+      await _refresh();
     } on Object catch (e) {
       widget.onError(l10n.groupActionFailed('$e'));
     }
@@ -275,39 +316,31 @@ class _MembersTabState extends ConsumerState<_MembersTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
-    return FutureBuilder<List<GroupMember>>(
-      future: _future,
-      builder: (context, snap) {
-        if (!snap.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final members = snap.data!;
-        return ListView(
-          children: [
-            for (final m in members)
-              ListTile(
-                leading: Icon(
-                  m.role == GroupRole.admin
-                      ? Icons.shield
-                      : Icons.person_outline,
-                ),
-                title: Text(m.displayName ?? m.userId.substring(0, 8)),
-                subtitle: Text(
-                  m.role == GroupRole.admin ? l10n.admin : l10n.member,
-                ),
-                trailing:
-                    (widget.group.isAdmin && m.state == MemberState.pending)
-                    ? FilledButton(
-                        onPressed: () => _approve(m.userId),
-                        child: Text(l10n.approveMember),
-                      )
-                    : (m.state == MemberState.pending
-                          ? Text(l10n.membershipPending)
-                          : null),
-              ),
-          ],
-        );
-      },
+    final members = _members;
+    if (members == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView(
+      children: [
+        for (final m in members)
+          ListTile(
+            leading: Icon(
+              m.role == GroupRole.admin ? Icons.shield : Icons.person_outline,
+            ),
+            title: Text(m.displayName ?? m.userId.substring(0, 8)),
+            subtitle: Text(
+              m.role == GroupRole.admin ? l10n.admin : l10n.member,
+            ),
+            trailing: (widget.group.isAdmin && m.state == MemberState.pending)
+                ? FilledButton(
+                    onPressed: () => _approve(m.userId),
+                    child: Text(l10n.approveMember),
+                  )
+                : (m.state == MemberState.pending
+                      ? Text(l10n.membershipPending)
+                      : null),
+          ),
+      ],
     );
   }
 }

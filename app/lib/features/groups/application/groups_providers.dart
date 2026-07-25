@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/crypto/device_identity_service.dart';
 import '../../../core/crypto/e2e_crypto.dart';
@@ -6,6 +7,15 @@ import '../../../core/crypto/key_store.dart';
 import '../../../core/providers.dart';
 import '../data/groups_repository.dart';
 import '../domain/group_models.dart';
+
+/// Emits on every Supabase auth change (incl. the background anonymous
+/// sign-in), so the groups repository becomes available the moment a session
+/// exists — no app restart needed.
+final authChangesProvider = StreamProvider<AuthState>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null) return const Stream.empty();
+  return client.auth.onAuthStateChange;
+});
 
 final e2eCryptoProvider = Provider<E2ECrypto>((ref) => E2ECrypto());
 
@@ -22,6 +32,8 @@ final deviceIdentityServiceProvider = Provider<DeviceIdentityService>(
 /// groups are inherently server-backed, so the UI shows a sign-in/offline
 /// notice in that case.
 final groupsRepositoryProvider = Provider<GroupsRepository?>((ref) {
+  // Rebuild when auth state changes (e.g. anonymous sign-in completes).
+  ref.watch(authChangesProvider);
   final client = ref.watch(supabaseClientProvider);
   if (client == null || client.auth.currentUser == null) return null;
   return GroupsRepository(
