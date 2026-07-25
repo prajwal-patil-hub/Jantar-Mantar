@@ -11,38 +11,91 @@ import 'freshness_badge.dart';
 
 /// Non-modal "Nearby" sheet (ui-ux-spec §1.4): nearest facilities to the map
 /// center as cards. Glass hero surface with the standard fallback.
-class NearbySheet extends ConsumerWidget {
+///
+/// The header is BOTH draggable and tappable: tapping toggles collapsed ⇄
+/// expanded via the controller, so it works even where flutter_map's own pan
+/// gestures would otherwise compete with a drag started over the map.
+class NearbySheet extends ConsumerStatefulWidget {
   const NearbySheet({required this.onFacilityTap, super.key});
 
   final void Function(NearbyFacility) onFacilityTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NearbySheet> createState() => _NearbySheetState();
+}
+
+class _NearbySheetState extends ConsumerState<NearbySheet> {
+  final _controller = DraggableScrollableController();
+
+  static const _collapsed = 0.16;
+  static const _expanded = 0.5;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    if (!_controller.isAttached) return;
+    final target = _controller.size > (_collapsed + _expanded) / 2
+        ? _collapsed
+        : _expanded;
+    _controller.animateTo(
+      target,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final nearby = ref.watch(nearbyFacilitiesProvider);
     final colors = Theme.of(context).extension<StatusColors>()!;
+    // Clear the glass nav bar (extendBody) + the device's bottom inset so the
+    // list doesn't hide behind it.
+    final bottomInset = MediaQuery.of(context).padding.bottom + 72;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.22,
-      minChildSize: 0.1,
-      maxChildSize: 0.55,
+      controller: _controller,
+      initialChildSize: _collapsed,
+      minChildSize: _collapsed,
+      maxChildSize: _expanded,
+      snap: true,
+      snapSizes: const [_collapsed, _expanded],
       builder: (context, scrollController) {
         return GlassSurface(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+              // Tappable + draggable header.
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _toggle,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        nearby.isEmpty
+                            ? l10n.nearby
+                            : '${l10n.nearby} · ${nearby.length}',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Text(l10n.nearby, style: Theme.of(context).textTheme.titleSmall),
               Expanded(
                 child: nearby.isEmpty
                     ? ListView(
@@ -59,6 +112,7 @@ class NearbySheet extends ConsumerWidget {
                       )
                     : ListView.builder(
                         controller: scrollController,
+                        padding: EdgeInsets.only(bottom: bottomInset),
                         itemCount: nearby.length,
                         itemBuilder: (context, i) {
                           final item = nearby[i];
@@ -66,7 +120,7 @@ class NearbySheet extends ConsumerWidget {
                           final statusColor = f.status.colorOf(colors);
                           return ListTile(
                             minTileHeight: 56,
-                            onTap: () => onFacilityTap(item),
+                            onTap: () => widget.onFacilityTap(item),
                             leading: Icon(
                               f.type.icon,
                               color: statusColor,
