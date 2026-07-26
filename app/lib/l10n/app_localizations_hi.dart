@@ -575,6 +575,30 @@ class AppL10nHi extends AppL10n {
   String get chatOffline => 'ऑफ़लाइन — सहेजे गए संदेश दिखाए जा रहे हैं';
 
   @override
+  String get broadcast => 'प्रसारण';
+
+  @override
+  String broadcastTitle(String group) {
+    return '$group को प्रसारण';
+  }
+
+  @override
+  String get broadcastHint =>
+      'इस समूह के सभी सदस्य इसे चैट के ऊपर और अलर्ट में देखेंगे।';
+
+  @override
+  String get broadcastSend => 'प्रसारण भेजें';
+
+  @override
+  String get broadcastSeverity => 'तात्कालिकता';
+
+  @override
+  String get groupBroadcasts => 'आपके समूहों से';
+
+  @override
+  String get groupBroadcastNote => 'समूह प्रसारण · केवल सदस्यों के लिए';
+
+  @override
   String get messageSending => 'भेजा जा रहा है…';
 
   @override
@@ -674,6 +698,28 @@ class AppL10nHi extends AppL10n {
   String groupPinFrom(String group, String label) {
     return '$group · $label';
   }
+
+  @override
+  String get scanInvite => 'आमंत्रण QR स्कैन करें';
+
+  @override
+  String get scanInviteHint =>
+      'कैमरे को आमंत्रण QR पर रखें। स्वीकृति फिर भी व्यवस्थापक से लेनी होगी।';
+
+  @override
+  String get scanUnavailable =>
+      'ब्राउज़र में कैमरा स्कैन उपलब्ध नहीं है। कोड माँगकर दर्ज करें।';
+
+  @override
+  String scanFailed(String error) {
+    return 'कैमरा उपलब्ध नहीं ($error)। कोड दर्ज करें।';
+  }
+
+  @override
+  String get enterCodeInstead => 'इसके बजाय कोड दर्ज करें';
+
+  @override
+  String get scan => 'स्कैन';
 
   @override
   String get inviteScanHint =>

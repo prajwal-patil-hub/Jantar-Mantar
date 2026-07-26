@@ -94,6 +94,40 @@ final myGroupsProvider = FutureProvider.autoDispose<List<Group>>((ref) async {
   return repo.myGroups();
 });
 
+/// A broadcast plus the group it came from, for the Alerts feed.
+class GroupBroadcast {
+  const GroupBroadcast(this.message, this.groupName);
+
+  final GroupMessage message;
+  final String groupName;
+}
+
+/// Broadcasts from every group I'm an active member of, newest first.
+///
+/// Reads the **local cache only** (`cachedMessages`), so opening Alerts never
+/// waits on the network and works fully offline — and group content never
+/// touches the public alerts table, which the server can read and non-members
+/// can fetch.
+final groupBroadcastsProvider = FutureProvider<List<GroupBroadcast>>((
+  ref,
+) async {
+  final repo = ref.watch(groupsRepositoryProvider);
+  if (repo == null) return const [];
+  ref.watch(groupsRefreshProvider);
+
+  final out = <GroupBroadcast>[];
+  for (final group in await repo.myGroups()) {
+    if (group.myState != MemberState.active) continue;
+    for (final message in await repo.cachedMessages(group.id)) {
+      if (message.isBroadcast && message.decrypted != null) {
+        out.add(GroupBroadcast(message, group.name));
+      }
+    }
+  }
+  out.sort((a, b) => b.message.createdAt.compareTo(a.message.createdAt));
+  return out;
+});
+
 /// Group amenities across all my active groups, for the map layer.
 class GroupPinOnMap {
   const GroupPinOnMap(this.pin, this.groupName);

@@ -6,6 +6,7 @@ import '../application/groups_providers.dart';
 import '../domain/group_models.dart';
 import 'create_group_screen.dart';
 import 'group_detail_screen.dart';
+import 'scan_invite_screen.dart';
 
 /// Groups tab: your groups, with create / join actions. Server-backed, so it
 /// shows a sign-in notice when the backend isn't reachable yet.
@@ -47,13 +48,28 @@ class GroupsScreen extends ConsumerWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12),
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                    ),
-                    onPressed: () => _joinDialog(context, ref),
-                    icon: const Icon(Icons.qr_code),
-                    label: Text(l10n.joinWithCode),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                          ),
+                          onPressed: () => _joinDialog(context, ref),
+                          icon: const Icon(Icons.keyboard),
+                          label: Text(l10n.joinWithCode),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                        ),
+                        onPressed: () => _scanAndJoin(context, ref),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: Text(l10n.scan),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -115,7 +131,21 @@ class GroupsScreen extends ConsumerWidget {
       ),
     );
     if (code == null || code.isEmpty) return;
+    if (!context.mounted) return;
+    await _join(context, ref, code);
+  }
 
+  Future<void> _scanAndJoin(BuildContext context, WidgetRef ref) async {
+    final code = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(builder: (_) => const ScanInviteScreen()),
+    );
+    if (code == null || code.isEmpty) return;
+    if (!context.mounted) return;
+    await _join(context, ref, code);
+  }
+
+  Future<void> _join(BuildContext context, WidgetRef ref, String code) async {
+    final l10n = AppL10n.of(context);
     final repo = ref.read(groupsRepositoryProvider);
     if (repo == null) return;
     try {

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../../core/db/app_database.dart' show AlertSeverity;
 import '../domain/group_models.dart';
 import 'groups_repo.dart';
 
@@ -138,6 +139,17 @@ class DemoGroupsRepository implements GroupsRepo {
       ),
     ];
     _messages['demo-water'] = [
+      // A broadcast, so the alerts treatment is visible in the demo.
+      GroupMessage(
+        id: 'w0',
+        senderId: 'demo-vikram',
+        createdAt: now.subtract(const Duration(minutes: 45)),
+        decrypted:
+            'Water tanker delayed by 40 minutes. Ration the Gate 1 supply '
+            'until it arrives.',
+        mine: false,
+        broadcastSeverity: AlertSeverity.warn,
+      ),
       GroupMessage(
         id: 'w1',
         senderId: 'demo-vikram',
@@ -268,7 +280,21 @@ class DemoGroupsRepository implements GroupsRepo {
       List.unmodifiable(_messages[groupId] ?? const []);
 
   @override
-  Future<void> sendMessage(String groupId, String text) async {
+  Future<void> sendMessage(String groupId, String text) =>
+      _append(groupId, text, null);
+
+  @override
+  Future<void> sendBroadcast(
+    String groupId,
+    String body,
+    AlertSeverity severity,
+  ) => _append(groupId, body, severity);
+
+  Future<void> _append(
+    String groupId,
+    String text,
+    AlertSeverity? severity,
+  ) async {
     final list = [...?_messages[groupId]];
     list.add(
       GroupMessage(
@@ -277,6 +303,7 @@ class DemoGroupsRepository implements GroupsRepo {
         createdAt: DateTime.now(),
         decrypted: text,
         mine: true,
+        broadcastSeverity: severity,
       ),
     );
     _messages[groupId] = list;

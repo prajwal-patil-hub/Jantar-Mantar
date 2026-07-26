@@ -575,6 +575,30 @@ class AppL10nEn extends AppL10n {
   String get chatOffline => 'Offline — showing saved messages';
 
   @override
+  String get broadcast => 'Broadcast';
+
+  @override
+  String broadcastTitle(String group) {
+    return 'Broadcast to $group';
+  }
+
+  @override
+  String get broadcastHint =>
+      'Everyone in this group sees this at the top of the chat and in Alerts.';
+
+  @override
+  String get broadcastSend => 'Send broadcast';
+
+  @override
+  String get broadcastSeverity => 'Urgency';
+
+  @override
+  String get groupBroadcasts => 'From your groups';
+
+  @override
+  String get groupBroadcastNote => 'Group broadcast · members only';
+
+  @override
   String get messageSending => 'Sending…';
 
   @override
@@ -674,6 +698,28 @@ class AppL10nEn extends AppL10n {
   String groupPinFrom(String group, String label) {
     return '$group · $label';
   }
+
+  @override
+  String get scanInvite => 'Scan invite QR';
+
+  @override
+  String get scanInviteHint =>
+      'Point the camera at the invite QR. You will still need admin approval.';
+
+  @override
+  String get scanUnavailable =>
+      'Camera scanning is not available in the browser. Ask for the code and enter it instead.';
+
+  @override
+  String scanFailed(String error) {
+    return 'Camera unavailable ($error). Enter the code instead.';
+  }
+
+  @override
+  String get enterCodeInstead => 'Enter code instead';
+
+  @override
+  String get scan => 'Scan';
 
   @override
   String get inviteScanHint =>

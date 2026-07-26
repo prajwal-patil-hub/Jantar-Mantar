@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:jantar_mantar_sahayata/core/db/app_database.dart'
+    show AlertSeverity;
 import 'package:jantar_mantar_sahayata/features/groups/application/groups_providers.dart';
 import 'package:jantar_mantar_sahayata/features/groups/data/groups_repo.dart';
 import 'package:jantar_mantar_sahayata/features/groups/domain/group_models.dart';
@@ -58,6 +60,12 @@ class _OfflineRepo implements GroupsRepo {
   Future<void> approveMember(String groupId, String userId) async {}
   @override
   Future<int> removeMember(String groupId, String userId) async => 0;
+  @override
+  Future<void> sendBroadcast(
+    String groupId,
+    String body,
+    AlertSeverity severity,
+  ) async {}
   @override
   Future<void> addPin({
     required String groupId,

@@ -60,31 +60,34 @@ void main() {
     );
   });
 
-  test('old epochs stay readable, so history is not lost on rotation', () async {
-    final epoch1 = crypto.generateGroupKey();
-    final epoch2 = crypto.generateGroupKey();
+  test(
+    'old epochs stay readable, so history is not lost on rotation',
+    () async {
+      final epoch1 = crypto.generateGroupKey();
+      final epoch2 = crypto.generateGroupKey();
 
-    final old = await crypto.encryptMessage(
-      groupKey: epoch1,
-      plaintext: 'Bandages low at Gate 2',
-    );
-    final fresh = await crypto.encryptMessage(
-      groupKey: epoch2,
-      plaintext: 'Resupplied',
-    );
+      final old = await crypto.encryptMessage(
+        groupKey: epoch1,
+        plaintext: 'Bandages low at Gate 2',
+      );
+      final fresh = await crypto.encryptMessage(
+        groupKey: epoch2,
+        plaintext: 'Resupplied',
+      );
 
-    // A device that kept both keys reads the whole conversation — which is
-    // why the cache stores the epoch alongside each ciphertext.
-    final keys = {1: epoch1, 2: epoch2};
-    expect(
-      await crypto.decryptMessage(groupKey: keys[1]!, packed: old),
-      'Bandages low at Gate 2',
-    );
-    expect(
-      await crypto.decryptMessage(groupKey: keys[2]!, packed: fresh),
-      'Resupplied',
-    );
-  });
+      // A device that kept both keys reads the whole conversation — which is
+      // why the cache stores the epoch alongside each ciphertext.
+      final keys = {1: epoch1, 2: epoch2};
+      expect(
+        await crypto.decryptMessage(groupKey: keys[1]!, packed: old),
+        'Bandages low at Gate 2',
+      );
+      expect(
+        await crypto.decryptMessage(groupKey: keys[2]!, packed: fresh),
+        'Resupplied',
+      );
+    },
+  );
 
   test('re-sealing a queued message moves it to the current epoch', () async {
     final epoch1 = crypto.generateGroupKey();

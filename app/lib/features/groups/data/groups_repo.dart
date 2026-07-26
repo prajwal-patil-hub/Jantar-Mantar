@@ -1,3 +1,4 @@
+import '../../../core/db/app_database.dart' show AlertSeverity;
 import '../domain/group_models.dart';
 
 /// Interface the Groups UI talks to, so a real Supabase-backed repository and
@@ -16,6 +17,7 @@ abstract interface class GroupsRepo {
   /// readable by them. Returns how many remaining members could not be
   /// re-keyed (no published device key) so the caller can warn about them.
   Future<int> removeMember(String groupId, String userId);
+
   /// Local-first read: whatever chat is cached on this device, with no network
   /// call at all. Returns instantly (possibly empty) so a chat renders before
   /// any request is made and stays readable offline.
@@ -29,6 +31,16 @@ abstract interface class GroupsRepo {
   /// Encrypts and stores the message locally first, then tries to send. A send
   /// with no network stays queued and does NOT throw.
   Future<void> sendMessage(String groupId, String text);
+
+  /// An admin announcement to the group. Travels the same encrypted path as a
+  /// chat message — the "broadcast" flag lives inside the ciphertext, so the
+  /// server cannot tell announcements from chatter — but renders with the
+  /// alerts treatment in both the chat and the Alerts feed.
+  Future<void> sendBroadcast(
+    String groupId,
+    String body,
+    AlertSeverity severity,
+  );
   Future<List<GroupPin>> pins(String groupId);
   Future<void> addPin({
     required String groupId,

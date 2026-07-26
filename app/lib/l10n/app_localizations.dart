@@ -1063,6 +1063,48 @@ abstract class AppL10n {
   /// **'Offline — showing saved messages'**
   String get chatOffline;
 
+  /// No description provided for @broadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast'**
+  String get broadcast;
+
+  /// No description provided for @broadcastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast to {group}'**
+  String broadcastTitle(String group);
+
+  /// No description provided for @broadcastHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in this group sees this at the top of the chat and in Alerts.'**
+  String get broadcastHint;
+
+  /// No description provided for @broadcastSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send broadcast'**
+  String get broadcastSend;
+
+  /// No description provided for @broadcastSeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgency'**
+  String get broadcastSeverity;
+
+  /// No description provided for @groupBroadcasts.
+  ///
+  /// In en, this message translates to:
+  /// **'From your groups'**
+  String get groupBroadcasts;
+
+  /// No description provided for @groupBroadcastNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Group broadcast · members only'**
+  String get groupBroadcastNote;
+
   /// No description provided for @messageSending.
   ///
   /// In en, this message translates to:
@@ -1242,6 +1284,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'{group} · {label}'**
   String groupPinFrom(String group, String label);
+
+  /// No description provided for @scanInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan invite QR'**
+  String get scanInvite;
+
+  /// No description provided for @scanInviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the invite QR. You will still need admin approval.'**
+  String get scanInviteHint;
+
+  /// No description provided for @scanUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera scanning is not available in the browser. Ask for the code and enter it instead.'**
+  String get scanUnavailable;
+
+  /// No description provided for @scanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable ({error}). Enter the code instead.'**
+  String scanFailed(String error);
+
+  /// No description provided for @enterCodeInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter code instead'**
+  String get enterCodeInstead;
+
+  /// No description provided for @scan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scan;
 
   /// No description provided for @inviteScanHint.
   ///

@@ -5,7 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:latlong2/latlong.dart';
 
+import '../../../core/db/app_database.dart' show AlertSeverity;
+import '../../../core/l10n/l10n_labels.dart';
+import '../../../core/theme/status_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../alerts/presentation/widgets/alert_visuals.dart';
 import '../application/groups_providers.dart';
 import '../data/groups_repo.dart';
 import '../domain/group_models.dart';
@@ -37,6 +41,18 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     }
   }
 
+  Future<void> _broadcast() async {
+    final l10n = AppL10n.of(context);
+    final result = await showBroadcastComposer(context, widget.group.name);
+    if (result == null) return;
+    try {
+      await _repo.sendBroadcast(widget.group.id, result.body, result.severity);
+      ref.invalidate(groupBroadcastsProvider);
+    } on Object catch (e) {
+      _snack(l10n.groupActionFailed('$e'));
+    }
+  }
+
   void _snack(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
@@ -51,12 +67,18 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         appBar: AppBar(
           title: Text(widget.group.name),
           actions: [
-            if (widget.group.isAdmin)
+            if (widget.group.isAdmin) ...[
+              IconButton(
+                icon: const Icon(Icons.campaign_outlined),
+                tooltip: l10n.broadcast,
+                onPressed: _broadcast,
+              ),
               IconButton(
                 icon: const Icon(Icons.person_add_alt),
                 tooltip: l10n.invite,
                 onPressed: _invite,
               ),
+            ],
           ],
           bottom: TabBar(
             tabs: [
@@ -284,6 +306,9 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
   Widget _bubble(BuildContext context, GroupMessage m) {
     final l10n = AppL10n.of(context);
     final scheme = Theme.of(context).colorScheme;
+    if (m.isBroadcast && m.decrypted != null) {
+      return _BroadcastCard(message: m);
+    }
     return Align(
       alignment: m.mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -325,6 +350,122 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
       ),
     );
   }
+}
+
+/// A broadcast inside the chat: same severity treatment as the Alerts feed
+/// (icon + label + colour + text), full width so it cannot read as chatter.
+class _BroadcastCard extends StatelessWidget {
+  const _BroadcastCard({required this.message});
+
+  final GroupMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final colors = Theme.of(context).extension<StatusColors>()!;
+    final severity = message.broadcastSeverity!;
+    final color = severity.colorOf(colors);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color, width: 1.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(severity.icon, color: color, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  '${l10n.broadcast} · ${severity.label(l10n)}',
+                  style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              message.decrypted!,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Composer for an admin broadcast. Returns the body + severity, or null.
+Future<({String body, AlertSeverity severity})?> showBroadcastComposer(
+  BuildContext context,
+  String groupName,
+) {
+  final controller = TextEditingController();
+  var severity = AlertSeverity.warn;
+
+  return showDialog<({String body, AlertSeverity severity})>(
+    context: context,
+    builder: (context) {
+      final l10n = AppL10n.of(context);
+      final colors = Theme.of(context).extension<StatusColors>()!;
+      return StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(l10n.broadcastTitle(groupName)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.broadcastHint,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 12),
+              Text(l10n.broadcastSeverity),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final s in AlertSeverity.values)
+                    ChoiceChip(
+                      selected: severity == s,
+                      onSelected: (_) => setState(() => severity = s),
+                      avatar: Icon(s.icon, size: 18, color: s.colorOf(colors)),
+                      label: Text(s.label(l10n)),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final body = controller.text.trim();
+                if (body.isEmpty) return;
+                Navigator.of(context).pop((body: body, severity: severity));
+              },
+              child: Text(l10n.broadcastSend),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 // --------------------------------------------------------------- members

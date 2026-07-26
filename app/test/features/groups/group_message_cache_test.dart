@@ -24,36 +24,40 @@ void main() {
         createdAt: t0.add(Duration(minutes: minute)),
       );
 
-  test('server messages are upserted, scoped by group, and time-ordered',
-      () async {
-    await cache.saveServerMessages([
-      server('b', minute: 2),
-      server('a', minute: 1),
-      CachedGroupMessagesCompanion.insert(
-        id: 'other',
-        groupId: 'g2',
-        senderId: 'u9',
-        ciphertext: 'CIPHER-other',
-        createdAt: t0,
-      ),
-    ]);
+  test(
+    'server messages are upserted, scoped by group, and time-ordered',
+    () async {
+      await cache.saveServerMessages([
+        server('b', minute: 2),
+        server('a', minute: 1),
+        CachedGroupMessagesCompanion.insert(
+          id: 'other',
+          groupId: 'g2',
+          senderId: 'u9',
+          ciphertext: 'CIPHER-other',
+          createdAt: t0,
+        ),
+      ]);
 
-    expect((await cache.load('g1')).map((m) => m.id), ['a', 'b']);
-    expect((await cache.load('g2')).map((m) => m.id), ['other']);
+      expect((await cache.load('g1')).map((m) => m.id), ['a', 'b']);
+      expect((await cache.load('g2')).map((m) => m.id), ['other']);
 
-    // Re-fetching the same rows must not duplicate them.
-    await cache.saveServerMessages([server('a', minute: 1)]);
-    expect(await cache.load('g1'), hasLength(2));
-  });
+      // Re-fetching the same rows must not duplicate them.
+      await cache.saveServerMessages([server('a', minute: 1)]);
+      expect(await cache.load('g1'), hasLength(2));
+    },
+  );
 
-  test('only ciphertext is persisted — a dumped DB leaks no plaintext',
-      () async {
-    await cache.saveServerMessages([server('a')]);
-    final row = (await cache.load('g1')).single;
-    // The row carries no plaintext column at all; ciphertext is all we keep.
-    expect(row.ciphertext, 'CIPHER-a');
-    expect(row.toJson().values.join(' '), isNot(contains('hello')));
-  });
+  test(
+    'only ciphertext is persisted — a dumped DB leaks no plaintext',
+    () async {
+      await cache.saveServerMessages([server('a')]);
+      final row = (await cache.load('g1')).single;
+      // The row carries no plaintext column at all; ciphertext is all we keep.
+      expect(row.ciphertext, 'CIPHER-a');
+      expect(row.toJson().values.join(' '), isNot(contains('hello')));
+    },
+  );
 
   test('queued outgoing messages are pending until the server acks', () async {
     await cache.queueOutgoing(

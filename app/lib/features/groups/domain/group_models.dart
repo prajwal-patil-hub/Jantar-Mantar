@@ -1,3 +1,5 @@
+import '../../../core/db/app_database.dart' show AlertSeverity;
+
 /// Plain models for the groups feature (server-backed; Phase 3).
 enum GroupRole { admin, member }
 
@@ -81,6 +83,7 @@ class GroupMessage {
     required this.decrypted,
     required this.mine,
     this.pending = false,
+    this.broadcastSeverity,
   });
 
   final String id;
@@ -88,6 +91,14 @@ class GroupMessage {
   final DateTime createdAt;
   final String? decrypted;
   final bool mine;
+
+  /// Non-null when an admin sent this as a group broadcast; the chat and the
+  /// alerts feed then render it with the severity treatment instead of as a
+  /// chat bubble. Carried inside the ciphertext, so the server never learns
+  /// which messages are announcements.
+  final AlertSeverity? broadcastSeverity;
+
+  bool get isBroadcast => broadcastSeverity != null;
 
   /// Encrypted and stored locally, but not yet accepted by the server — the
   /// bubble shows a "Sending…" marker (icon + text, never colour alone).

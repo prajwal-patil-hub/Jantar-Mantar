@@ -9,6 +9,7 @@ import '../../../core/crypto/device_identity_service.dart';
 import '../../../core/crypto/e2e_crypto.dart';
 import '../../../core/crypto/key_store.dart';
 import '../../../core/db/app_database.dart';
+import '../domain/group_message_payload.dart';
 import '../domain/group_models.dart';
 import 'group_message_cache.dart';
 import 'groups_repo.dart';
@@ -243,14 +244,17 @@ class GroupsRepository implements GroupsRepo {
     final rows = await _cache.load(groupId);
     final out = <GroupMessage>[];
     for (final row in rows) {
+      final clear = await _tryDecrypt(keys[row.keyEpoch], row.ciphertext);
+      final payload = clear == null ? null : GroupMessagePayload.decode(clear);
       out.add(
         GroupMessage(
           id: row.id,
           senderId: row.senderId,
           createdAt: row.createdAt.toLocal(),
-          decrypted: await _tryDecrypt(keys[row.keyEpoch], row.ciphertext),
+          decrypted: payload?.body,
           mine: row.senderId == _uid,
           pending: row.pending,
+          broadcastSeverity: payload?.broadcastSeverity,
         ),
       );
     }
@@ -292,7 +296,20 @@ class GroupsRepository implements GroupsRepo {
   /// message stays queued and shows as "Sending…" — composing offline is a
   /// first-class case, not an error.
   @override
-  Future<void> sendMessage(String groupId, String text) async {
+  Future<void> sendMessage(String groupId, String text) =>
+      _send(groupId, GroupMessagePayload(body: text));
+
+  @override
+  Future<void> sendBroadcast(
+    String groupId,
+    String body,
+    AlertSeverity severity,
+  ) => _send(
+    groupId,
+    GroupMessagePayload(body: body, broadcastSeverity: severity),
+  );
+
+  Future<void> _send(String groupId, GroupMessagePayload payload) async {
     // Local keys only, so composing offline works; if a rotation happened
     // meanwhile, _flushPending re-seals under the newer epoch before sending.
     var keys = await _localGroupKeys(groupId);
@@ -301,7 +318,7 @@ class GroupsRepository implements GroupsRepo {
     if (epoch == null) throw StateError('No group key available.');
     final ciphertext = await _crypto.encryptMessage(
       groupKey: keys[epoch]!,
-      plaintext: text,
+      plaintext: payload.encode(),
     );
     await _cache.queueOutgoing(
       CachedGroupMessagesCompanion.insert(
