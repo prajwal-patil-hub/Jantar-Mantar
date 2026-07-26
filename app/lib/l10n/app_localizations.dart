@@ -1032,6 +1032,186 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Action failed: {error}'**
   String groupActionFailed(String error);
+
+  /// No description provided for @eventLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get eventLive;
+
+  /// No description provided for @eventToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get eventToday;
+
+  /// No description provided for @eventUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get eventUpcoming;
+
+  /// No description provided for @eventVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get eventVerified;
+
+  /// No description provided for @eventDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get eventDetails;
+
+  /// No description provided for @eventDetailsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} — details arrive with the events build.'**
+  String eventDetailsSoon(String title);
+
+  /// No description provided for @eventMainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Main gathering — Jantar Mantar'**
+  String get eventMainTitle;
+
+  /// No description provided for @eventMainNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak crowd expected until 6 PM. Water points at Gates 1 and 3.'**
+  String get eventMainNote;
+
+  /// No description provided for @eventMainLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Jantar Mantar Road'**
+  String get eventMainLocation;
+
+  /// No description provided for @eventMedicalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical volunteer briefing'**
+  String get eventMedicalTitle;
+
+  /// No description provided for @eventMedicalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift handover and supply check for all first-aid volunteers.'**
+  String get eventMedicalNote;
+
+  /// No description provided for @eventMedicalLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'First-aid tent (main)'**
+  String get eventMedicalLocation;
+
+  /// No description provided for @eventMedicalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts 3:00 PM'**
+  String get eventMedicalTime;
+
+  /// No description provided for @eventLegalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal aid desk hours'**
+  String get eventLegalTitle;
+
+  /// No description provided for @eventLegalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Volunteer lawyers available for detention-related queries.'**
+  String get eventLegalNote;
+
+  /// No description provided for @eventLegalLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Gate 2 pavilion'**
+  String get eventLegalLocation;
+
+  /// No description provided for @eventLegalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts 4:30 PM'**
+  String get eventLegalTime;
+
+  /// No description provided for @eventLangarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community langar'**
+  String get eventLangarTitle;
+
+  /// No description provided for @eventLangarNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Food for ~500 people; volunteers needed from 10 AM.'**
+  String get eventLangarNote;
+
+  /// No description provided for @eventLangarLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Parliament Street corner'**
+  String get eventLangarLocation;
+
+  /// No description provided for @eventLangarTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, 12:00 PM'**
+  String get eventLangarTime;
+
+  /// No description provided for @eventLiveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Live now'**
+  String get eventLiveNow;
+
+  /// No description provided for @pickOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Place on map'**
+  String get pickOnMap;
+
+  /// No description provided for @pickAmenityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag the map to place this amenity, then confirm.'**
+  String get pickAmenityHint;
+
+  /// No description provided for @confirmLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm location'**
+  String get confirmLocation;
+
+  /// No description provided for @showGroupPins.
+  ///
+  /// In en, this message translates to:
+  /// **'Show group amenities'**
+  String get showGroupPins;
+
+  /// No description provided for @groupPinsLayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Group amenities'**
+  String get groupPinsLayer;
+
+  /// No description provided for @groupPinFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{group} · {label}'**
+  String groupPinFrom(String group, String label);
+
+  /// No description provided for @demoMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode'**
+  String get demoMode;
+
+  /// No description provided for @demoModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore every screen with sample data — no backend or login needed. Turn off to use the live backend.'**
+  String get demoModeSubtitle;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
+import 'package:jantar_mantar_sahayata/core/demo/demo_mode.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
+import 'package:jantar_mantar_sahayata/features/groups/application/groups_providers.dart';
 import 'package:jantar_mantar_sahayata/features/groups/data/demo_groups_repository.dart';
 import 'package:jantar_mantar_sahayata/features/groups/domain/group_models.dart';
 import 'package:jantar_mantar_sahayata/features/groups/presentation/groups_screen.dart';
@@ -60,6 +62,23 @@ void main() {
     });
   });
 
+  test('group pins map layer is off by default and collects when on', () async {
+    final container = ProviderContainer(
+      overrides: [demoModeProvider.overrideWith(() => _AlwaysDemo())],
+    );
+    addTearDown(container.dispose);
+
+    // Off by default: the public verified map stays the default view.
+    expect(container.read(showGroupPinsProvider), isFalse);
+    expect(await container.read(groupPinsForMapProvider.future), isEmpty);
+
+    container.read(showGroupPinsProvider.notifier).toggle();
+    final pins = await container.read(groupPinsForMapProvider.future);
+    expect(pins, isNotEmpty);
+    expect(pins.map((p) => p.groupName), contains('Medical Volunteers'));
+    expect(pins.map((p) => p.pin.label), contains('First-aid tent (main)'));
+  });
+
   testWidgets('Groups tab shows demo groups and Create with no backend', (
     tester,
   ) async {
@@ -87,4 +106,9 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
   });
+}
+
+class _AlwaysDemo extends DemoModeNotifier {
+  @override
+  bool build() => true;
 }

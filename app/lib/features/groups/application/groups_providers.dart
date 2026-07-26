@@ -86,3 +86,42 @@ final myGroupsProvider = FutureProvider.autoDispose<List<Group>>((ref) async {
   if (repo == null) return const [];
   return repo.myGroups();
 });
+
+/// Group amenities across all my active groups, for the map layer.
+class GroupPinOnMap {
+  const GroupPinOnMap(this.pin, this.groupName);
+
+  final GroupPin pin;
+  final String groupName;
+}
+
+/// Whether group amenities are drawn on the main map (ui-ux-spec: layer
+/// toggle over the public map). Off by default — the public verified map
+/// stays the default view.
+final showGroupPinsProvider = NotifierProvider<ShowGroupPins, bool>(
+  ShowGroupPins.new,
+);
+
+class ShowGroupPins extends Notifier<bool> {
+  @override
+  bool build() => false;
+  void toggle() => state = !state;
+}
+
+final groupPinsForMapProvider = FutureProvider<List<GroupPinOnMap>>((
+  ref,
+) async {
+  if (!ref.watch(showGroupPinsProvider)) return const [];
+  final repo = ref.watch(groupsRepositoryProvider);
+  if (repo == null) return const [];
+  ref.watch(groupsRefreshProvider);
+
+  final out = <GroupPinOnMap>[];
+  for (final group in await repo.myGroups()) {
+    if (group.myState != MemberState.active) continue;
+    for (final pin in await repo.pins(group.id)) {
+      out.add(GroupPinOnMap(pin, group.name));
+    }
+  }
+  return out;
+});

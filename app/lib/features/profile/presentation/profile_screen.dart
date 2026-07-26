@@ -80,11 +80,8 @@ class ProfileScreen extends ConsumerWidget {
           Card(
             child: SwitchListTile(
               secondary: const Icon(Icons.science_outlined),
-              title: const Text('Demo mode'),
-              subtitle: const Text(
-                'Explore every screen with sample data — no backend or login '
-                'needed. Turn off to use the live Supabase backend.',
-              ),
+              title: Text(l10n.demoMode),
+              subtitle: Text(l10n.demoModeSubtitle),
               value: ref.watch(demoModeProvider),
               onChanged: (v) => ref.read(demoModeProvider.notifier).set(v),
             ),

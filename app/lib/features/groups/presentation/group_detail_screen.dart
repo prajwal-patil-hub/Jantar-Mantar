@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:latlong2/latlong.dart';
+
 import '../../../l10n/app_localizations.dart';
 import '../application/groups_providers.dart';
 import '../data/groups_repo.dart';
 import '../domain/group_models.dart';
+import 'pick_location_screen.dart';
 
 /// Group home: E2E Chat · Members · Amenities. Admins also get Invite and
 /// member-approval actions.
@@ -393,16 +396,22 @@ class _PinsTabState extends ConsumerState<_PinsTab> {
       ),
     );
     if (label == null || label.isEmpty) return;
+    if (!mounted) return;
+    // Place the amenity on the map instead of assuming the site centre.
+    final location = await Navigator.of(context).push<LatLng>(
+      MaterialPageRoute<LatLng>(builder: (_) => const PickLocationScreen()),
+    );
+    if (location == null) return;
+
     try {
-      // Meeting-point amenity at the site centre; map-picker refinement later.
       await ref
           .read(groupsRepositoryProvider)!
           .addPin(
             groupId: widget.group.id,
             type: 'meeting',
             label: label,
-            lat: 28.6271,
-            lng: 77.2166,
+            lat: location.latitude,
+            lng: location.longitude,
           );
       setState(() => _future = _load());
     } on Object catch (e) {

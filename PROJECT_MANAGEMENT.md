@@ -61,7 +61,11 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] E2E crypto core (`core/crypto/`): X25519 identity, ECIES sealed group-key delivery, AES-GCM messages — 7 tests incl. negatives
 - [x] Backend `supabase/migrations/20260725000002_groups.sql`: groups, members, key envelopes, invites, group pins, messages; RLS deny-by-default + member/admin helpers + `resolve_invite`
 - [x] UI: groups list, create, join-by-code, group detail (E2E Chat · Members · Amenities), admin invite + member approval
-- [ ] Next: local message caching (offline), key rotation on member removal, group-pin map picker, QR invites, group broadcast reusing alerts, group map-layer toggle, RLS negative tests for group tables
+- [x] **Demo Mode** (ADR-18): `core/demo/demo_mode.dart` + `DemoGroupsRepository` behind a `GroupsRepo` interface; sample groups/members/chat/amenities, demo verification queue, sample events. Explore everything with no backend/login; toggle in Profile.
+- [x] Group-pin **map picker** (drag-to-place, replaces the hardcoded site centre)
+- [x] Group amenities **map layer + toggle** (off by default; square accent pins, visually distinct from public facility pins)
+- [x] Events screen localized (en+hi) — was English-only
+- [ ] Next: local message caching (offline), key rotation on member removal, QR invites, group broadcast reusing alerts, RLS negative tests for group tables, persist Demo Mode across reloads
 - **Bluetooth mesh chat: NOT building** (ADR-17)
 
 ## Definition of Done (every task)

@@ -546,4 +546,104 @@ class AppL10nEn extends AppL10n {
   String groupActionFailed(String error) {
     return 'Action failed: $error';
   }
+
+  @override
+  String get eventLive => 'Live';
+
+  @override
+  String get eventToday => 'Today';
+
+  @override
+  String get eventUpcoming => 'Upcoming';
+
+  @override
+  String get eventVerified => 'Verified';
+
+  @override
+  String get eventDetails => 'Details';
+
+  @override
+  String eventDetailsSoon(String title) {
+    return '$title — details arrive with the events build.';
+  }
+
+  @override
+  String get eventMainTitle => 'Main gathering — Jantar Mantar';
+
+  @override
+  String get eventMainNote =>
+      'Peak crowd expected until 6 PM. Water points at Gates 1 and 3.';
+
+  @override
+  String get eventMainLocation => 'Jantar Mantar Road';
+
+  @override
+  String get eventMedicalTitle => 'Medical volunteer briefing';
+
+  @override
+  String get eventMedicalNote =>
+      'Shift handover and supply check for all first-aid volunteers.';
+
+  @override
+  String get eventMedicalLocation => 'First-aid tent (main)';
+
+  @override
+  String get eventMedicalTime => 'Starts 3:00 PM';
+
+  @override
+  String get eventLegalTitle => 'Legal aid desk hours';
+
+  @override
+  String get eventLegalNote =>
+      'Volunteer lawyers available for detention-related queries.';
+
+  @override
+  String get eventLegalLocation => 'Gate 2 pavilion';
+
+  @override
+  String get eventLegalTime => 'Starts 4:30 PM';
+
+  @override
+  String get eventLangarTitle => 'Community langar';
+
+  @override
+  String get eventLangarNote =>
+      'Food for ~500 people; volunteers needed from 10 AM.';
+
+  @override
+  String get eventLangarLocation => 'Parliament Street corner';
+
+  @override
+  String get eventLangarTime => 'Tomorrow, 12:00 PM';
+
+  @override
+  String get eventLiveNow => 'Live now';
+
+  @override
+  String get pickOnMap => 'Place on map';
+
+  @override
+  String get pickAmenityHint =>
+      'Drag the map to place this amenity, then confirm.';
+
+  @override
+  String get confirmLocation => 'Confirm location';
+
+  @override
+  String get showGroupPins => 'Show group amenities';
+
+  @override
+  String get groupPinsLayer => 'Group amenities';
+
+  @override
+  String groupPinFrom(String group, String label) {
+    return '$group · $label';
+  }
+
+  @override
+  String get demoMode => 'Demo mode';
+
+  @override
+  String get demoModeSubtitle =>
+      'Explore every screen with sample data — no backend or login needed. Turn off to use the live backend.';
 }

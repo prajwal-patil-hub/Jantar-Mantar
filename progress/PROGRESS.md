@@ -1,6 +1,19 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 11 — 2026-07-25 · Demo Mode (ADR-18) + group map layer, picker, Events i18n
+**Done:**
+- **ADR-18: Demo Mode, default ON** — user could not enable Supabase anonymous sign-in (no dashboard access), leaving Groups unusable. Added `core/demo/demo_mode.dart` and a `GroupsRepo` interface implemented by both the real `GroupsRepository` (E2E) and a new in-memory `DemoGroupsRepository`. Sample data: 3 groups (admin + member roles), members incl. a pending join request, bilingual chat history, group amenities; send/approve/create all work in-session.
+- Verification queue works in demo (sample pending submissions, working approve/reject); `canVerifyProvider` opens the admin screen without a login. Profile gained a Demo mode switch.
+- **Group amenities on the main map** + layers toggle FAB (off by default; square accent pins deliberately distinct from round public-facility pins so private group pins are never mistaken for verified public ones).
+- **Map picker for group amenities** — replaced the hardcoded site-centre coordinate with a drag-to-place screen (same no-GPS approach as the submit flow).
+- **Events screen** rebuilt with real sample events AND localized (en+hi) — it had shipped English-only, breaking the locked bilingual rule.
+- 48 tests green (6 demo/group tests incl. Groups tab rendering with no Supabase client, and the map-layer provider); analyze + custom_lint clean; web build green.
+
+**Honest gaps:** demo data is in-memory (resets on reload); demo chat is not encrypted (nothing leaves the device — the E2E path is the Supabase one); Demo Mode isn't persisted across reloads yet.
+
+**Next:** persist Demo Mode, local message caching, key rotation on member removal, QR invites, group broadcast, RLS negative tests for group tables.
+---
 ## Session 10 — 2026-07-25 · Fixes + Phase 3 kickoff: Groups + E2E chat (ADR-16), no mesh (ADR-17)
 **Done:**
 - **Web run fix:** drift needs `web:` DriftWebOptions + `web/sqlite3.wasm` + `web/drift_worker.js` (version-matched) — fixed the "web parameter needs to be set" startup crash; `flutter build web` green.

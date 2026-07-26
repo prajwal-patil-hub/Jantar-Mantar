@@ -546,4 +546,104 @@ class AppL10nHi extends AppL10n {
   String groupActionFailed(String error) {
     return 'कार्य विफल: $error';
   }
+
+  @override
+  String get eventLive => 'लाइव';
+
+  @override
+  String get eventToday => 'आज';
+
+  @override
+  String get eventUpcoming => 'आगामी';
+
+  @override
+  String get eventVerified => 'सत्यापित';
+
+  @override
+  String get eventDetails => 'विवरण';
+
+  @override
+  String eventDetailsSoon(String title) {
+    return '$title — विवरण इवेंट्स बिल्ड के साथ आएगा।';
+  }
+
+  @override
+  String get eventMainTitle => 'मुख्य सभा — जंतर मंतर';
+
+  @override
+  String get eventMainNote =>
+      'शाम 6 बजे तक अधिक भीड़ रहेगी। गेट 1 और 3 पर पानी उपलब्ध।';
+
+  @override
+  String get eventMainLocation => 'जंतर मंतर रोड';
+
+  @override
+  String get eventMedicalTitle => 'चिकित्सा स्वयंसेवक बैठक';
+
+  @override
+  String get eventMedicalNote =>
+      'सभी प्राथमिक-उपचार स्वयंसेवकों के लिए शिफ्ट और सामान की जाँच।';
+
+  @override
+  String get eventMedicalLocation => 'प्राथमिक उपचार तंबू (मुख्य)';
+
+  @override
+  String get eventMedicalTime => 'दोपहर 3:00 बजे से';
+
+  @override
+  String get eventLegalTitle => 'कानूनी सहायता डेस्क';
+
+  @override
+  String get eventLegalNote =>
+      'हिरासत संबंधी सवालों के लिए स्वयंसेवक वकील उपलब्ध।';
+
+  @override
+  String get eventLegalLocation => 'गेट 2 पवेलियन';
+
+  @override
+  String get eventLegalTime => 'शाम 4:30 बजे से';
+
+  @override
+  String get eventLangarTitle => 'सामुदायिक लंगर';
+
+  @override
+  String get eventLangarNote =>
+      'लगभग 500 लोगों के लिए भोजन; सुबह 10 बजे से स्वयंसेवक चाहिए।';
+
+  @override
+  String get eventLangarLocation => 'पार्लियामेंट स्ट्रीट कोना';
+
+  @override
+  String get eventLangarTime => 'कल, दोपहर 12:00 बजे';
+
+  @override
+  String get eventLiveNow => 'अभी लाइव';
+
+  @override
+  String get pickOnMap => 'नक्शे पर रखें';
+
+  @override
+  String get pickAmenityHint =>
+      'इस सुविधा को रखने के लिए नक्शा खींचें, फिर पुष्टि करें।';
+
+  @override
+  String get confirmLocation => 'स्थान की पुष्टि करें';
+
+  @override
+  String get showGroupPins => 'समूह सुविधाएँ दिखाएँ';
+
+  @override
+  String get groupPinsLayer => 'समूह सुविधाएँ';
+
+  @override
+  String groupPinFrom(String group, String label) {
+    return '$group · $label';
+  }
+
+  @override
+  String get demoMode => 'डेमो मोड';
+
+  @override
+  String get demoModeSubtitle =>
+      'हर स्क्रीन को नमूना डेटा के साथ देखें — बैकएंड या लॉगिन की ज़रूरत नहीं। लाइव बैकएंड के लिए बंद करें।';
 }
