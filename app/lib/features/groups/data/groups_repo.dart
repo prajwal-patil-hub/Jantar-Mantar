@@ -11,6 +11,11 @@ abstract interface class GroupsRepo {
   });
   Future<List<GroupMember>> members(String groupId);
   Future<void> approveMember(String groupId, String userId);
+
+  /// Removes a member and rotates the group key so nothing sent afterwards is
+  /// readable by them. Returns how many remaining members could not be
+  /// re-keyed (no published device key) so the caller can warn about them.
+  Future<int> removeMember(String groupId, String userId);
   /// Local-first read: whatever chat is cached on this device, with no network
   /// call at all. Returns instantly (possibly empty) so a chat renders before
   /// any request is made and stays readable offline.

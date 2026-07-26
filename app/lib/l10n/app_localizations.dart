@@ -991,6 +991,36 @@ abstract class AppL10n {
   /// **'Member'**
   String get member;
 
+  /// No description provided for @removeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String removeMemberTitle(String name);
+
+  /// No description provided for @removeMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They lose access to this group and a new encryption key is issued, so they cannot read anything sent from now on. Messages they already received stay on their device.'**
+  String get removeMemberBody;
+
+  /// No description provided for @memberRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed. New encryption key issued to the group.'**
+  String get memberRemoved;
+
+  /// No description provided for @rekeyWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 member has no device key yet and will not receive the new key until they open the app.} other{{count} members have no device key yet and will not receive the new key until they open the app.}}'**
+  String rekeyWarning(int count);
+
   /// No description provided for @invite.
   ///
   /// In en, this message translates to:

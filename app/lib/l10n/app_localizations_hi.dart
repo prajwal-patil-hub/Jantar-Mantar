@@ -523,6 +523,35 @@ class AppL10nHi extends AppL10n {
   String get member => 'सदस्य';
 
   @override
+  String get removeMember => 'हटाएँ';
+
+  @override
+  String removeMemberTitle(String name) {
+    return '$name को हटाएँ?';
+  }
+
+  @override
+  String get removeMemberBody =>
+      'उनकी इस समूह तक पहुँच समाप्त हो जाएगी और नई एन्क्रिप्शन कुंजी जारी होगी, इसलिए अब से भेजे गए संदेश वे नहीं पढ़ पाएँगे। जो संदेश उन्हें पहले मिल चुके हैं, वे उनके डिवाइस पर बने रहेंगे।';
+
+  @override
+  String get memberRemoved =>
+      'हटा दिया गया। समूह को नई एन्क्रिप्शन कुंजी जारी की गई।';
+
+  @override
+  String rekeyWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count सदस्यों की डिवाइस कुंजी अभी नहीं है; ऐप खोलने तक उन्हें नई कुंजी नहीं मिलेगी।',
+      one:
+          '1 सदस्य की डिवाइस कुंजी अभी नहीं है; ऐप खोलने तक उन्हें नई कुंजी नहीं मिलेगी।',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get invite => 'आमंत्रण';
 
   @override

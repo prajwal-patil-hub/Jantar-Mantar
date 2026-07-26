@@ -523,6 +523,35 @@ class AppL10nEn extends AppL10n {
   String get member => 'Member';
 
   @override
+  String get removeMember => 'Remove';
+
+  @override
+  String removeMemberTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get removeMemberBody =>
+      'They lose access to this group and a new encryption key is issued, so they cannot read anything sent from now on. Messages they already received stay on their device.';
+
+  @override
+  String get memberRemoved =>
+      'Removed. New encryption key issued to the group.';
+
+  @override
+  String rekeyWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count members have no device key yet and will not receive the new key until they open the app.',
+      one:
+          '1 member has no device key yet and will not receive the new key until they open the app.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get invite => 'Invite';
 
   @override

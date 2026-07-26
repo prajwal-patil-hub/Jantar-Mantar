@@ -2847,6 +2847,18 @@ class $CachedGroupMessagesTable extends CachedGroupMessages
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _keyEpochMeta = const VerificationMeta(
+    'keyEpoch',
+  );
+  @override
+  late final GeneratedColumn<int> keyEpoch = GeneratedColumn<int>(
+    'key_epoch',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   static const VerificationMeta _pendingMeta = const VerificationMeta(
     'pending',
   );
@@ -2879,6 +2891,7 @@ class $CachedGroupMessagesTable extends CachedGroupMessages
     groupId,
     senderId,
     ciphertext,
+    keyEpoch,
     pending,
     createdAt,
   ];
@@ -2923,6 +2936,12 @@ class $CachedGroupMessagesTable extends CachedGroupMessages
     } else if (isInserting) {
       context.missing(_ciphertextMeta);
     }
+    if (data.containsKey('key_epoch')) {
+      context.handle(
+        _keyEpochMeta,
+        keyEpoch.isAcceptableOrUnknown(data['key_epoch']!, _keyEpochMeta),
+      );
+    }
     if (data.containsKey('pending')) {
       context.handle(
         _pendingMeta,
@@ -2962,6 +2981,10 @@ class $CachedGroupMessagesTable extends CachedGroupMessages
         DriftSqlType.string,
         data['${effectivePrefix}ciphertext'],
       )!,
+      keyEpoch: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}key_epoch'],
+      )!,
       pending: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}pending'],
@@ -2986,6 +3009,10 @@ class CachedGroupMessage extends DataClass
   final String groupId;
   final String senderId;
   final String ciphertext;
+
+  /// Which group-key epoch this ciphertext was sealed under. Keys rotate when
+  /// a member is removed, and old keys are kept so history stays readable.
+  final int keyEpoch;
   final bool pending;
   final DateTime createdAt;
   const CachedGroupMessage({
@@ -2993,6 +3020,7 @@ class CachedGroupMessage extends DataClass
     required this.groupId,
     required this.senderId,
     required this.ciphertext,
+    required this.keyEpoch,
     required this.pending,
     required this.createdAt,
   });
@@ -3003,6 +3031,7 @@ class CachedGroupMessage extends DataClass
     map['group_id'] = Variable<String>(groupId);
     map['sender_id'] = Variable<String>(senderId);
     map['ciphertext'] = Variable<String>(ciphertext);
+    map['key_epoch'] = Variable<int>(keyEpoch);
     map['pending'] = Variable<bool>(pending);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -3014,6 +3043,7 @@ class CachedGroupMessage extends DataClass
       groupId: Value(groupId),
       senderId: Value(senderId),
       ciphertext: Value(ciphertext),
+      keyEpoch: Value(keyEpoch),
       pending: Value(pending),
       createdAt: Value(createdAt),
     );
@@ -3029,6 +3059,7 @@ class CachedGroupMessage extends DataClass
       groupId: serializer.fromJson<String>(json['groupId']),
       senderId: serializer.fromJson<String>(json['senderId']),
       ciphertext: serializer.fromJson<String>(json['ciphertext']),
+      keyEpoch: serializer.fromJson<int>(json['keyEpoch']),
       pending: serializer.fromJson<bool>(json['pending']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -3041,6 +3072,7 @@ class CachedGroupMessage extends DataClass
       'groupId': serializer.toJson<String>(groupId),
       'senderId': serializer.toJson<String>(senderId),
       'ciphertext': serializer.toJson<String>(ciphertext),
+      'keyEpoch': serializer.toJson<int>(keyEpoch),
       'pending': serializer.toJson<bool>(pending),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -3051,6 +3083,7 @@ class CachedGroupMessage extends DataClass
     String? groupId,
     String? senderId,
     String? ciphertext,
+    int? keyEpoch,
     bool? pending,
     DateTime? createdAt,
   }) => CachedGroupMessage(
@@ -3058,6 +3091,7 @@ class CachedGroupMessage extends DataClass
     groupId: groupId ?? this.groupId,
     senderId: senderId ?? this.senderId,
     ciphertext: ciphertext ?? this.ciphertext,
+    keyEpoch: keyEpoch ?? this.keyEpoch,
     pending: pending ?? this.pending,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -3069,6 +3103,7 @@ class CachedGroupMessage extends DataClass
       ciphertext: data.ciphertext.present
           ? data.ciphertext.value
           : this.ciphertext,
+      keyEpoch: data.keyEpoch.present ? data.keyEpoch.value : this.keyEpoch,
       pending: data.pending.present ? data.pending.value : this.pending,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -3081,6 +3116,7 @@ class CachedGroupMessage extends DataClass
           ..write('groupId: $groupId, ')
           ..write('senderId: $senderId, ')
           ..write('ciphertext: $ciphertext, ')
+          ..write('keyEpoch: $keyEpoch, ')
           ..write('pending: $pending, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -3088,8 +3124,15 @@ class CachedGroupMessage extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, groupId, senderId, ciphertext, pending, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    senderId,
+    ciphertext,
+    keyEpoch,
+    pending,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3098,6 +3141,7 @@ class CachedGroupMessage extends DataClass
           other.groupId == this.groupId &&
           other.senderId == this.senderId &&
           other.ciphertext == this.ciphertext &&
+          other.keyEpoch == this.keyEpoch &&
           other.pending == this.pending &&
           other.createdAt == this.createdAt);
 }
@@ -3107,6 +3151,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
   final Value<String> groupId;
   final Value<String> senderId;
   final Value<String> ciphertext;
+  final Value<int> keyEpoch;
   final Value<bool> pending;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
@@ -3115,6 +3160,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
     this.groupId = const Value.absent(),
     this.senderId = const Value.absent(),
     this.ciphertext = const Value.absent(),
+    this.keyEpoch = const Value.absent(),
     this.pending = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -3124,6 +3170,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
     required String groupId,
     required String senderId,
     required String ciphertext,
+    this.keyEpoch = const Value.absent(),
     this.pending = const Value.absent(),
     required DateTime createdAt,
     this.rowid = const Value.absent(),
@@ -3137,6 +3184,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
     Expression<String>? groupId,
     Expression<String>? senderId,
     Expression<String>? ciphertext,
+    Expression<int>? keyEpoch,
     Expression<bool>? pending,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
@@ -3146,6 +3194,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
       if (groupId != null) 'group_id': groupId,
       if (senderId != null) 'sender_id': senderId,
       if (ciphertext != null) 'ciphertext': ciphertext,
+      if (keyEpoch != null) 'key_epoch': keyEpoch,
       if (pending != null) 'pending': pending,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
@@ -3157,6 +3206,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
     Value<String>? groupId,
     Value<String>? senderId,
     Value<String>? ciphertext,
+    Value<int>? keyEpoch,
     Value<bool>? pending,
     Value<DateTime>? createdAt,
     Value<int>? rowid,
@@ -3166,6 +3216,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
       groupId: groupId ?? this.groupId,
       senderId: senderId ?? this.senderId,
       ciphertext: ciphertext ?? this.ciphertext,
+      keyEpoch: keyEpoch ?? this.keyEpoch,
       pending: pending ?? this.pending,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
@@ -3187,6 +3238,9 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
     if (ciphertext.present) {
       map['ciphertext'] = Variable<String>(ciphertext.value);
     }
+    if (keyEpoch.present) {
+      map['key_epoch'] = Variable<int>(keyEpoch.value);
+    }
     if (pending.present) {
       map['pending'] = Variable<bool>(pending.value);
     }
@@ -3206,6 +3260,7 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
           ..write('groupId: $groupId, ')
           ..write('senderId: $senderId, ')
           ..write('ciphertext: $ciphertext, ')
+          ..write('keyEpoch: $keyEpoch, ')
           ..write('pending: $pending, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
@@ -4865,6 +4920,7 @@ typedef $$CachedGroupMessagesTableCreateCompanionBuilder =
       required String groupId,
       required String senderId,
       required String ciphertext,
+      Value<int> keyEpoch,
       Value<bool> pending,
       required DateTime createdAt,
       Value<int> rowid,
@@ -4875,6 +4931,7 @@ typedef $$CachedGroupMessagesTableUpdateCompanionBuilder =
       Value<String> groupId,
       Value<String> senderId,
       Value<String> ciphertext,
+      Value<int> keyEpoch,
       Value<bool> pending,
       Value<DateTime> createdAt,
       Value<int> rowid,
@@ -4906,6 +4963,11 @@ class $$CachedGroupMessagesTableFilterComposer
 
   ColumnFilters<String> get ciphertext => $composableBuilder(
     column: $table.ciphertext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get keyEpoch => $composableBuilder(
+    column: $table.keyEpoch,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4949,6 +5011,11 @@ class $$CachedGroupMessagesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get keyEpoch => $composableBuilder(
+    column: $table.keyEpoch,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get pending => $composableBuilder(
     column: $table.pending,
     builder: (column) => ColumnOrderings(column),
@@ -4982,6 +5049,9 @@ class $$CachedGroupMessagesTableAnnotationComposer
     column: $table.ciphertext,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get keyEpoch =>
+      $composableBuilder(column: $table.keyEpoch, builder: (column) => column);
 
   GeneratedColumn<bool> get pending =>
       $composableBuilder(column: $table.pending, builder: (column) => column);
@@ -5037,6 +5107,7 @@ class $$CachedGroupMessagesTableTableManager
                 Value<String> groupId = const Value.absent(),
                 Value<String> senderId = const Value.absent(),
                 Value<String> ciphertext = const Value.absent(),
+                Value<int> keyEpoch = const Value.absent(),
                 Value<bool> pending = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -5045,6 +5116,7 @@ class $$CachedGroupMessagesTableTableManager
                 groupId: groupId,
                 senderId: senderId,
                 ciphertext: ciphertext,
+                keyEpoch: keyEpoch,
                 pending: pending,
                 createdAt: createdAt,
                 rowid: rowid,
@@ -5055,6 +5127,7 @@ class $$CachedGroupMessagesTableTableManager
                 required String groupId,
                 required String senderId,
                 required String ciphertext,
+                Value<int> keyEpoch = const Value.absent(),
                 Value<bool> pending = const Value.absent(),
                 required DateTime createdAt,
                 Value<int> rowid = const Value.absent(),
@@ -5063,6 +5136,7 @@ class $$CachedGroupMessagesTableTableManager
                 groupId: groupId,
                 senderId: senderId,
                 ciphertext: ciphertext,
+                keyEpoch: keyEpoch,
                 pending: pending,
                 createdAt: createdAt,
                 rowid: rowid,

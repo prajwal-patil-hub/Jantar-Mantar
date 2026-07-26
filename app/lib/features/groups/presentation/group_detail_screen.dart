@@ -385,6 +385,42 @@ class _MembersTabState extends ConsumerState<_MembersTab> {
     }
   }
 
+  Future<void> _remove(GroupMember member) async {
+    final l10n = AppL10n.of(context);
+    final name = member.displayName ?? member.userId.substring(0, 8);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.removeMemberTitle(name)),
+        // Say plainly what rotation does and does not undo.
+        content: Text(l10n.removeMemberBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.removeMember),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final unkeyed = await ref
+          .read(groupsRepositoryProvider)!
+          .removeMember(widget.group.id, member.userId);
+      await _refresh();
+      widget.onError(
+        unkeyed > 0 ? l10n.rekeyWarning(unkeyed) : l10n.memberRemoved,
+      );
+    } on Object catch (e) {
+      widget.onError(l10n.groupActionFailed('$e'));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
@@ -403,17 +439,30 @@ class _MembersTabState extends ConsumerState<_MembersTab> {
             subtitle: Text(
               m.role == GroupRole.admin ? l10n.admin : l10n.member,
             ),
-            trailing: (widget.group.isAdmin && m.state == MemberState.pending)
-                ? FilledButton(
-                    onPressed: () => _approve(m.userId),
-                    child: Text(l10n.approveMember),
-                  )
-                : (m.state == MemberState.pending
-                      ? Text(l10n.membershipPending)
-                      : null),
+            trailing: _trailing(context, m, l10n),
           ),
       ],
     );
+  }
+
+  /// Admins approve pending members and remove active ones; everyone else
+  /// just sees whether a member is still waiting.
+  Widget? _trailing(BuildContext context, GroupMember m, AppL10n l10n) {
+    if (widget.group.isAdmin && m.state == MemberState.pending) {
+      return FilledButton(
+        onPressed: () => _approve(m.userId),
+        child: Text(l10n.approveMember),
+      );
+    }
+    if (widget.group.isAdmin && !m.isMe && m.state == MemberState.active) {
+      return IconButton(
+        icon: const Icon(Icons.person_remove_outlined),
+        tooltip: l10n.removeMember,
+        onPressed: () => _remove(m),
+      );
+    }
+    if (m.state == MemberState.pending) return Text(l10n.membershipPending);
+    return null;
   }
 }
 

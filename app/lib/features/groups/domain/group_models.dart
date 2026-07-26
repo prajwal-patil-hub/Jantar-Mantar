@@ -46,6 +46,7 @@ class GroupMember {
     required this.role,
     required this.state,
     this.displayName,
+    this.isMe = false,
   });
 
   final String userId;
@@ -53,11 +54,20 @@ class GroupMember {
   final MemberState state;
   final String? displayName;
 
-  factory GroupMember.fromRow(Map<String, Object?> row) => GroupMember(
+  /// Set by the repository, which is the only layer that knows the signed-in
+  /// id. Keeps the UI from having to guess (an admin must be able to remove
+  /// another admin, but never themselves).
+  final bool isMe;
+
+  factory GroupMember.fromRow(
+    Map<String, Object?> row, {
+    required String myUserId,
+  }) => GroupMember(
     userId: row['user_id'] as String,
     role: row['role'] == 'admin' ? GroupRole.admin : GroupRole.member,
     state: MemberState.values.asNameMap()[row['state']] ?? MemberState.pending,
     displayName: row['display_name'] as String?,
+    isMe: row['user_id'] == myUserId,
   );
 }
 

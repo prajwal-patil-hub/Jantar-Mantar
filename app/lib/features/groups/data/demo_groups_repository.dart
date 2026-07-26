@@ -60,6 +60,7 @@ class DemoGroupsRepository implements GroupsRepo {
         role: GroupRole.admin,
         state: MemberState.active,
         displayName: 'You (admin)',
+        isMe: true,
       ),
       GroupMember(
         userId: 'demo-asha',
@@ -93,6 +94,7 @@ class DemoGroupsRepository implements GroupsRepo {
         role: GroupRole.member,
         state: MemberState.active,
         displayName: 'You',
+        isMe: true,
       ),
     ];
     _members['demo-legal'] = const [
@@ -107,6 +109,7 @@ class DemoGroupsRepository implements GroupsRepo {
         role: GroupRole.member,
         state: MemberState.active,
         displayName: 'You',
+        isMe: true,
       ),
     ];
 
@@ -217,6 +220,7 @@ class DemoGroupsRepository implements GroupsRepo {
         role: GroupRole.admin,
         state: MemberState.active,
         displayName: 'You (admin)',
+        isMe: true,
       ),
     ];
     _messages[group.id] = [];
@@ -241,6 +245,16 @@ class DemoGroupsRepository implements GroupsRepo {
       displayName: (m.displayName ?? '').replaceAll(' (wants to join)', ''),
     );
     _members[groupId] = list;
+  }
+
+  /// Demo mode has no crypto, so there is no key to rotate — the member just
+  /// disappears from the roster.
+  @override
+  Future<int> removeMember(String groupId, String userId) async {
+    _members[groupId] = [
+      ...?_members[groupId]?.where((m) => m.userId != userId),
+    ];
+    return 0;
   }
 
   /// Demo data is already local, so the cached and live reads are the same

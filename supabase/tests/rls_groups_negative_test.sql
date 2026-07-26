@@ -5,12 +5,14 @@
 -- Run against a local stack: supabase start && supabase test db
 
 begin;
-select plan(12);
+select plan(15);
 
--- Two unrelated users. A owns a group; B is an outsider.
+-- Three users. A owns a group; B is an outsider; C is an ordinary member,
+-- used for the key-rotation authority tests at the end.
 insert into auth.users (id, aud, role) values
   ('00000000-0000-0000-0000-0000000000a1', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000b1', 'authenticated', 'authenticated');
+  ('00000000-0000-0000-0000-0000000000b1', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000c1', 'authenticated', 'authenticated');
 
 -- Seed as A (owner/admin of a hidden group) -------------------------------
 set local role authenticated;
@@ -132,6 +134,60 @@ select ok(
 select ok(
   (select count(*) from public.group_messages) = 0,
   'pending member cannot read messages before approval'
+);
+
+-- ---------------------------------------------------------- key rotation
+-- Rotation (ADR-19) is only meaningful if the server enforces who may do it
+-- and that a removed member really loses read access.
+
+-- C joins properly: self-inserts a pending row, A approves it.
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{}}';
+insert into public.group_members (group_id, user_id, role, state)
+values ('11111111-1111-1111-1111-111111111111',
+        '00000000-0000-0000-0000-0000000000c1', 'member', 'pending');
+
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated","app_metadata":{}}';
+update public.group_members set state = 'active'
+  where user_id = '00000000-0000-0000-0000-0000000000c1';
+
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{}}';
+
+-- 13. NEGATIVE: an ordinary member cannot mint a new key epoch. Only admins
+--     rotate, otherwise anyone could re-key the group out from under it.
+select throws_ok(
+  $$insert into public.group_key_envelopes (group_id, member_user_id, key_epoch, sealed)
+    values ('11111111-1111-1111-1111-111111111111',
+            '00000000-0000-0000-0000-0000000000c1', 2, 'SEALED-BY-A-MEMBER')$$,
+  '42501', null,
+  'a non-admin member cannot issue key envelopes (cannot rotate)'
+);
+
+-- 14. NEGATIVE: an ordinary member cannot remove anyone — removal is the
+--     admin-only action that triggers rotation. No DELETE policy matches, so
+--     the statement simply affects nothing.
+delete from public.group_members
+  where user_id = '00000000-0000-0000-0000-0000000000a1';
+select ok(
+  (select count(*) from public.group_members
+     where user_id = '00000000-0000-0000-0000-0000000000a1') = 1,
+  'a non-admin member cannot remove another member'
+);
+
+-- 15. NEGATIVE: once an admin removes them, a former member loses read access
+--     to the group''s messages — the server stops serving even the ciphertext.
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated","app_metadata":{}}';
+delete from public.group_members
+  where user_id = '00000000-0000-0000-0000-0000000000c1';
+
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{}}';
+select ok(
+  (select count(*) from public.group_messages) = 0,
+  'a removed member can no longer read group messages'
 );
 
 select * from finish();

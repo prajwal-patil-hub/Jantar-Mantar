@@ -88,6 +88,10 @@ class CachedGroupMessages extends Table {
   TextColumn get groupId => text()();
   TextColumn get senderId => text()();
   TextColumn get ciphertext => text()();
+
+  /// Which group-key epoch this ciphertext was sealed under. Keys rotate when
+  /// a member is removed, and old keys are kept so history stays readable.
+  IntColumn get keyEpoch => integer().withDefault(const Constant(1))();
   BoolColumn get pending => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
 

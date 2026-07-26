@@ -69,7 +69,8 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] **Demo Mode persisted** across launches (SharedPreferences, defensive)
 - [x] **RLS negative tests for group tables** (`supabase/tests/rls_groups_negative_test.sql`, 12 assertions: outsider can't read hidden groups / messages / private pins / roster / invite codes / others' sealed keys; can't post or pin; can't self-approve to active; pending member can't read messages) — SECURITY.md gate for groups. Still to RUN via `supabase test db` + wire into CI.
 - [x] **Offline chat** (ADR-19): Drift v2 `CachedGroupMessages` (ciphertext only) — chat opens instantly from cache, stays readable with no network behind a visible "Offline — showing saved messages" banner, and messages composed offline are encrypted, queued (`Sending…`, icon + text), and drained oldest-first when the network returns
-- [ ] Next: key rotation on member removal, group broadcast reusing alerts, QR scanning on device, run RLS tests in CI
+- [x] **Key rotation on member removal** (ADR-20): admin Remove action → member deleted → new epoch key sealed to everyone who remains; all past epochs kept locally so history survives; offline-queued messages re-sealed under the current epoch before sending; confirm dialog states plainly that it is forward secrecy only. 3 new pgTAP negatives (non-admin cannot issue envelopes or remove members; a removed member loses read access) → **15 group RLS assertions**
+- [ ] Next: group broadcast reusing alerts, QR scanning on device, run RLS tests in CI
 - **Bluetooth mesh chat: NOT building** (ADR-17)
 
 ## Definition of Done (every task)

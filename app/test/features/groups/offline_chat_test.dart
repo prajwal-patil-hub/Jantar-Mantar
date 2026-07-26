@@ -57,6 +57,8 @@ class _OfflineRepo implements GroupsRepo {
   @override
   Future<void> approveMember(String groupId, String userId) async {}
   @override
+  Future<int> removeMember(String groupId, String userId) async => 0;
+  @override
   Future<void> addPin({
     required String groupId,
     required String type,

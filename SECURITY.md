@@ -38,7 +38,8 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 - [ ] Coarse location default; precise only per-action opt-in; never background-tracked
 - [ ] Dependency audit each release (`dart pub outdated`, osv-scanner); lockfiles committed
 - [ ] Root/jailbreak detection = warn-only (protesters may use custom ROMs; don't lock them out)
-- [x] Local group-chat cache stores **ciphertext only** (Drift v2 `CachedGroupMessages`) — no plaintext ever touches the SQLite file; keys stay in the OS keystore (ADR-19)
+- [x] Local group-chat cache stores **ciphertext only** (Drift v3 `CachedGroupMessages`) — no plaintext ever touches the SQLite file; keys stay in the OS keystore (ADR-19)
+- [x] Group key rotates on member removal; new epoch sealed only to remaining active members; offline-queued messages re-sealed before sending. Forward secrecy only — the removed device keeps what it already had, and the UI says so (ADR-20)
 - [ ] Panic action: wipe local keys, hide memberships, sign out — `GroupMessageCache.wipe()` is ready to call from that path
 
 ## Release gates

@@ -53,6 +53,24 @@ void main() {
       expect(priya.state, MemberState.active);
     });
 
+    test('removing a member drops them from the roster', () async {
+      final repo = DemoGroupsRepository();
+      expect(await repo.removeMember('demo-medical', 'demo-rahul'), 0);
+
+      final members = await repo.members('demo-medical');
+      expect(members.any((m) => m.userId == 'demo-rahul'), isFalse);
+      expect(members, hasLength(3));
+    });
+
+    test('exactly one roster row is flagged as me, so I cannot remove myself',
+        () async {
+      final repo = DemoGroupsRepository();
+      for (final group in await repo.myGroups()) {
+        final members = await repo.members(group.id);
+        expect(members.where((m) => m.isMe), hasLength(1));
+      }
+    });
+
     test('creating a group makes you its admin', () async {
       final repo = DemoGroupsRepository();
       final created = await repo.createGroup(name: 'Gate 4 crew');

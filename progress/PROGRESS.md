@@ -14,6 +14,20 @@ _Newest entry first. One entry per working session._
 **Honest gaps:** the v1→v2 migration is written and reviewed but not exercised by a drift schema-migration test (that needs generated schema snapshots — worth adding before the next schema change). Chat is still poll-based, not Realtime. Nothing calls `wipe()` yet because panic-wipe itself is still unbuilt.
 
 **Next:** key rotation on member removal, group broadcast reusing the alerts pipeline, QR scanning on device, RLS tests in CI.
+
+### Same session, part 2 — key rotation on member removal (ADR-20)
+**Done:**
+- **Drift v3**: `key_epoch` on the chat cache (additive migration, exercises the strategy added an hour earlier).
+- **Rotation**: admin Remove → the member row is deleted *first* (rotating while they're still a member would just hand them the new key) → a new random key at `epoch+1` is sealed to every remaining **active** member → cached locally.
+- **All epochs kept.** Keystore now indexes epochs per group (`group_key_epochs_<id>`), with a compat shim for the pre-rotation single-key location. Each message carries its epoch, so rotation gives forward secrecy *without* wiping readable history — the mistake that would have made this feature actively harmful.
+- **Offline-queued messages are re-sealed** under the current epoch before they go out, closing the window where a just-removed member could read something typed a minute before their removal.
+- `approveMember` now seals the *current* epoch, not a hardcoded `1` — a new member gets today's key, never the history predating them.
+- Honest UI: the confirm dialog states that they lose access and a new key is issued, **and** that messages already on their device stay there. If any remaining member has no published device key, `removeMember` returns that count and the UI warns rather than letting them silently go dark.
+- Fixed a bad first attempt: I inferred "is this me" from the admin flag, which would have blocked an admin from removing another admin. Replaced with an explicit `GroupMember.isMe` set by the repository (the only layer that knows the signed-in id).
+- **+3 pgTAP negatives → 15 group RLS assertions**: a non-admin cannot issue key envelopes (cannot rotate), cannot remove another member, and a removed member can no longer read the ciphertext at all.
+- 62 tests green (+5: three crypto-level rotation properties — removed member cannot read post-rotation messages or open the new envelope, old epochs stay readable, re-sealing works — plus demo removal and the isMe invariant). analyze + custom_lint clean; web build green.
+
+**Honest gaps:** rotation is forward-secrecy only, by construction. Neither migration (v1→v2, v2→v3) is covered by a drift schema-migration test — that needs generated schema snapshots and should land before the next schema change. The 15 RLS assertions are still written-but-not-run (needs `supabase start && supabase test db`).
 ---
 ## Session 12 — 2026-07-25 · QR invites, persisted Demo Mode, group RLS negative tests
 **Done:**
