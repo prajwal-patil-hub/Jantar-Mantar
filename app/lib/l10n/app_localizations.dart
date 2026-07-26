@@ -436,8 +436,44 @@ abstract class AppL10n {
   /// No description provided for @photoComingSoon.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon — photos are stripped of location data before upload.'**
+  /// **'Location and camera data are removed before anything is uploaded.'**
   String get photoComingSoon;
+
+  /// No description provided for @photoStripped.
+  ///
+  /// In en, this message translates to:
+  /// **'Location and camera data removed from this photo.'**
+  String get photoStripped;
+
+  /// No description provided for @photoTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get photoTakePhoto;
+
+  /// No description provided for @photoChooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoChooseFromGallery;
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get photoRemove;
+
+  /// No description provided for @photoUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be read as a photo, so it was not attached.'**
+  String get photoUnsupported;
+
+  /// No description provided for @photoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not attach the photo: {error}'**
+  String photoFailed(String error);
 
   /// No description provided for @review.
   ///
@@ -1350,6 +1386,48 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// No description provided for @panicWipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Panic wipe'**
+  String get panicWipe;
+
+  /// No description provided for @panicWipeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase keys, cached chat and local reports from this device, and sign out.'**
+  String get panicWipeSubtitle;
+
+  /// No description provided for @panicWipeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase everything on this device?'**
+  String get panicWipeConfirmTitle;
+
+  /// No description provided for @panicWipeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This deletes your encryption keys, all cached group chat, your queued reports and your session. Group chat you can no longer decrypt is gone for good on this handset.\n\nIt cannot reach the server or other members\' devices: messages already delivered stay delivered, and your group memberships still exist on the server.'**
+  String get panicWipeConfirmBody;
+
+  /// No description provided for @panicWipeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase now'**
+  String get panicWipeConfirm;
+
+  /// No description provided for @panicWipeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Erased. This device holds no keys, chat or reports.'**
+  String get panicWipeDone;
+
+  /// No description provided for @panicWipeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wipe failed: {error}'**
+  String panicWipeFailed(String error);
 
   /// No description provided for @demoMode.
   ///

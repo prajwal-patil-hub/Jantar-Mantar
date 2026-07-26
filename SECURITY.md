@@ -18,7 +18,7 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 
 ## Networking rules (hard requirements)
 - [x] HTTPS everywhere; reject cleartext (`android:usesCleartextTraffic="false"` set 2026-07-24; iOS ATS default-on, no exceptions added — re-verify at release)
-- [ ] Certificate pinning on API + tile hosts (dio + pinning; ship backup pin + remote pin-rotation plan)
+- [~] Certificate pinning: mechanism implemented and fails closed, but **inactive until a pin bundle is committed** — see "Certificate pinning" below for why a guessed pin is worse than none, and how to generate the real one
 - [ ] No tokens/keys/IDs in URLs or query strings (headers/body only) — URLs land in logs
 - [ ] Short-lived JWTs; refresh rotation; revoke on logout/panic
 - [ ] Rate limiting + abuse detection at the edge (per-device, per-IP)
@@ -33,14 +33,42 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 - [ ] Photos: strip EXIF/GPS server-side AND client-side before upload
 
 ## App rules
-- [ ] flutter_secure_storage for keys/tokens (Android Keystore / iOS Keychain) — never SharedPreferences
+- [x] flutter_secure_storage for keys/tokens (Android Keystore / iOS Keychain) — never SharedPreferences (`core/crypto/key_store.dart`; SharedPreferences holds only locale + demo-mode flags)
 - [ ] Screenshot protection (FLAG_SECURE) on group/member screens
 - [ ] Coarse location default; precise only per-action opt-in; never background-tracked
 - [ ] Dependency audit each release (`dart pub outdated`, osv-scanner); lockfiles committed
 - [ ] Root/jailbreak detection = warn-only (protesters may use custom ROMs; don't lock them out)
 - [x] Local group-chat cache stores **ciphertext only** (Drift v3 `CachedGroupMessages`) — no plaintext ever touches the SQLite file; keys stay in the OS keystore (ADR-19)
 - [x] Group key rotates on member removal; new epoch sealed only to remaining active members; offline-queued messages re-sealed before sending. Forward secrecy only — the removed device keeps what it already had, and the UI says so (ADR-20)
-- [ ] Panic action: wipe local keys, hide memberships, sign out — `GroupMessageCache.wipe()` is ready to call from that path
+- [x] Panic action: `PanicWipe` (`core/security/panic_wipe.dart`) — deletes every keystore secret first (so an interrupted wipe still fails safe), then every local table, then signs out locally. Surfaced in Profile behind a confirm dialog that states what it cannot reach: the server and other members' devices.
+
+
+## Certificate pinning
+
+Pinning is implemented and **off until a pin bundle is committed**
+(`app/lib/core/security/certificate_pinning.dart`). Mechanism: a
+`SecurityContext(withTrustedRoots: false)` loaded only with the roots in
+`app/assets/certs/api_roots.pem`, so any chain outside that bundle fails the
+handshake. There is deliberately no `badCertificateCallback` — that is how
+pinning gets accidentally disabled. **Roots** are pinned, not leaves: leaf
+certs rotate every few weeks and would brick released builds.
+
+Threat addressed: a CA the *device* trusts but we do not — a state- or
+employer-installed root, or an interception proxy. Plain TLS accepts those
+silently.
+
+To enable:
+1. Run `./tool/fetch_api_roots.sh <api-host>` **from a trusted network.**
+   Behind a VPN, captive portal, CI sandbox or intercepting proxy you will
+   capture *that proxy's* CA and pin it, which is worse than not pinning.
+2. Verify the printed SHA-256 against the CA's own published fingerprint.
+3. Commit a **backup root** alongside the current one so a CA rotation is not
+   an emergency release.
+4. Add `assets/certs/` to the `flutter: assets:` list in `app/pubspec.yaml`.
+5. Verify against a MITM proxy (release gate below) — confirm requests *fail*.
+
+Debug builds and web are exempt: local Supabase stacks must stay reachable,
+and on web the browser owns TLS.
 
 ## Release gates
 - [ ] `flutter analyze` + tests green · [ ] RLS negative tests green · [ ] pinning verified against test MITM proxy

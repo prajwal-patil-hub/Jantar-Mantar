@@ -196,7 +196,28 @@ class AppL10nHi extends AppL10n {
 
   @override
   String get photoComingSoon =>
-      'जल्द आ रहा है — अपलोड से पहले फ़ोटो से स्थान जानकारी हटा दी जाती है।';
+      'अपलोड से पहले स्थान और कैमरा जानकारी हटा दी जाती है।';
+
+  @override
+  String get photoStripped => 'इस फ़ोटो से स्थान और कैमरा जानकारी हटा दी गई।';
+
+  @override
+  String get photoTakePhoto => 'फ़ोटो लें';
+
+  @override
+  String get photoChooseFromGallery => 'गैलरी से चुनें';
+
+  @override
+  String get photoRemove => 'फ़ोटो हटाएँ';
+
+  @override
+  String get photoUnsupported =>
+      'यह फ़ाइल फ़ोटो के रूप में नहीं पढ़ी जा सकी, इसलिए संलग्न नहीं की गई।';
+
+  @override
+  String photoFailed(String error) {
+    return 'फ़ोटो संलग्न नहीं हो सकी: $error';
+  }
 
   @override
   String get review => 'समीक्षा';
@@ -737,6 +758,32 @@ class AppL10nHi extends AppL10n {
 
   @override
   String get done => 'हो गया';
+
+  @override
+  String get panicWipe => 'आपातकालीन मिटाव';
+
+  @override
+  String get panicWipeSubtitle =>
+      'इस डिवाइस से कुंजियाँ, सहेजी गई चैट और स्थानीय रिपोर्ट मिटाएँ, और साइन आउट करें।';
+
+  @override
+  String get panicWipeConfirmTitle => 'इस डिवाइस से सब कुछ मिटाएँ?';
+
+  @override
+  String get panicWipeConfirmBody =>
+      'यह आपकी एन्क्रिप्शन कुंजियाँ, सहेजी गई समूह चैट, कतार में पड़ी रिपोर्ट और आपका सत्र मिटा देता है। जो चैट आप फिर डिक्रिप्ट नहीं कर पाएँगे, वह इस डिवाइस पर हमेशा के लिए चली जाएगी।\n\nयह सर्वर या दूसरे सदस्यों के डिवाइस तक नहीं पहुँच सकता: पहले पहुँच चुके संदेश वहीं रहेंगे, और सर्वर पर आपकी सदस्यता बनी रहेगी।';
+
+  @override
+  String get panicWipeConfirm => 'अभी मिटाएँ';
+
+  @override
+  String get panicWipeDone =>
+      'मिटा दिया गया। इस डिवाइस पर कोई कुंजी, चैट या रिपोर्ट नहीं है।';
+
+  @override
+  String panicWipeFailed(String error) {
+    return 'मिटाव विफल: $error';
+  }
 
   @override
   String get demoMode => 'डेमो मोड';

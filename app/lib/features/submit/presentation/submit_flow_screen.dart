@@ -98,6 +98,9 @@ class _SubmitFlowScreenState extends ConsumerState<SubmitFlowScreen> {
           facilityId: _draft.existingFacilityId,
           lat: location.latitude,
           lng: location.longitude,
+          // Always the sanitised copy — PhotoPicker never hands back the
+          // camera-roll original.
+          photoPath: _draft.photoPath,
         );
     if (!mounted) return;
     final l10n = AppL10n.of(context);

@@ -7,6 +7,10 @@ abstract interface class KeyStore {
   Future<String?> read(String key);
   Future<void> write(String key, String value);
   Future<void> delete(String key);
+
+  /// Drop every secret this app holds. Used by panic-wipe, where enumerating
+  /// key names would be a way to miss one.
+  Future<void> deleteAll();
 }
 
 class SecureKeyStore implements KeyStore {
@@ -23,6 +27,9 @@ class SecureKeyStore implements KeyStore {
 
   @override
   Future<void> delete(String key) => _storage.delete(key: key);
+
+  @override
+  Future<void> deleteAll() => _storage.deleteAll();
 }
 
 /// In-memory store for tests (no platform channels).
@@ -37,4 +44,7 @@ class InMemoryKeyStore implements KeyStore {
 
   @override
   Future<void> delete(String key) async => _map.remove(key);
+
+  @override
+  Future<void> deleteAll() async => _map.clear();
 }

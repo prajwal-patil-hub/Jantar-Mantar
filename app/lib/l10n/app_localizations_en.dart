@@ -196,7 +196,29 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get photoComingSoon =>
-      'Coming soon — photos are stripped of location data before upload.';
+      'Location and camera data are removed before anything is uploaded.';
+
+  @override
+  String get photoStripped =>
+      'Location and camera data removed from this photo.';
+
+  @override
+  String get photoTakePhoto => 'Take photo';
+
+  @override
+  String get photoChooseFromGallery => 'Choose from gallery';
+
+  @override
+  String get photoRemove => 'Remove photo';
+
+  @override
+  String get photoUnsupported =>
+      'That file could not be read as a photo, so it was not attached.';
+
+  @override
+  String photoFailed(String error) {
+    return 'Could not attach the photo: $error';
+  }
 
   @override
   String get review => 'Review';
@@ -737,6 +759,32 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get panicWipe => 'Panic wipe';
+
+  @override
+  String get panicWipeSubtitle =>
+      'Erase keys, cached chat and local reports from this device, and sign out.';
+
+  @override
+  String get panicWipeConfirmTitle => 'Erase everything on this device?';
+
+  @override
+  String get panicWipeConfirmBody =>
+      'This deletes your encryption keys, all cached group chat, your queued reports and your session. Group chat you can no longer decrypt is gone for good on this handset.\n\nIt cannot reach the server or other members\' devices: messages already delivered stay delivered, and your group memberships still exist on the server.';
+
+  @override
+  String get panicWipeConfirm => 'Erase now';
+
+  @override
+  String get panicWipeDone =>
+      'Erased. This device holds no keys, chat or reports.';
+
+  @override
+  String panicWipeFailed(String error) {
+    return 'Wipe failed: $error';
+  }
 
   @override
   String get demoMode => 'Demo mode';

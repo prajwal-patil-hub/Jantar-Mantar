@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/security/panic_wipe_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
 import '../../verify/application/verify_providers.dart';
@@ -108,6 +109,19 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Card(
+            color: Theme.of(context).colorScheme.errorContainer,
+            child: ListTile(
+              leading: Icon(
+                Icons.delete_forever_outlined,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              title: Text(l10n.panicWipe),
+              subtitle: Text(l10n.panicWipeSubtitle),
+              onTap: () => _confirmPanicWipe(context, ref),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
             child: ListTile(
               enabled: false,
               leading: const Icon(Icons.settings_outlined),
@@ -117,5 +131,45 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Irreversible, so the dialog spells out exactly what goes and — just as
+  /// importantly — what this cannot reach.
+  Future<void> _confirmPanicWipe(BuildContext context, WidgetRef ref) async {
+    final l10n = AppL10n.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber),
+        title: Text(l10n.panicWipeConfirmTitle),
+        content: SingleChildScrollView(child: Text(l10n.panicWipeConfirmBody)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.panicWipeConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(panicWipeProvider).run();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.panicWipeDone)));
+    } on Object catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.panicWipeFailed('$e'))),
+      );
+    }
   }
 }
