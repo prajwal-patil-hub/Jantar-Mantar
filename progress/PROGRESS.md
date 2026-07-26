@@ -1,6 +1,24 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 14 — 2026-07-26 · "Complete everything": broadcasts, QR scan, Phase-2 hardening, real test gates
+**Done:**
+- **Group broadcasts (ADR-21)** — reuse the alerts *presentation*, never the public alerts table (that would make group content server-readable and fetchable by non-members). The broadcast flag lives inside the ciphertext, so the server can't distinguish announcements from chatter. Untagged text stays a plain message → no migration, existing chat decodes unchanged. A test proves a user can't type a string that fakes one.
+- **QR scanning** (`mobile_scanner`) — `inviteCodeFrom()` treats scanned content as attacker input; only a well-formed 8-char code reaches `joinByCode`. Falls back to code-paste on web / no camera / denied permission.
+- **Panic wipe** — keys deleted FIRST so a wipe killed halfway still fails safe, then every table, then local sign-out. The dialog says what it cannot reach (the server, other devices).
+- **Cert pinning** — mechanism complete and fails closed, but shipped INACTIVE. This container's egress proxy terminates TLS, so any pin I derived here would have pinned Anthropic's sandbox CA. Added `tool/fetch_api_roots.sh` (refuses interception chains) + the procedure. A guessed pin is worse than none.
+- **EXIF stripping** — decode+re-encode, so thumbnails/maker notes/XMP can't survive; orientation baked in first. A test caught that `decodeImage` *throws* on malformed input rather than returning null — "fails closed" wasn't actually true until I fixed it.
+- **App icon + applicationId** — `io.github.prajwalpatilhub.commonground` (a namespace the owner actually controls). Icon: two overlapping saffron circles, intersection filled — abstract on purpose, since a recognisable symbol on a protester's home screen is itself a risk.
+
+**Three things that were only *claimed* before, and are now actually true:**
+- **Migration tests found a real bug.** The v2 step called `createTable` but never created the table's index, so every *upgraded* install lost the chat index and would full-scan on each 3s poll — on exactly the low-end devices we target. Fresh installs were fine, which is why nothing surfaced it.
+- **The RLS negatives had never been executed.** They now run in CI against a plain Postgres (shim, no Docker). All 25 pass — and I verified the suite *fails* when `messages_member_read` is weakened to `using (true)`. A suite that has only ever been green proves nothing.
+- **The CVD audit was a recurring ritual nobody ran.** Automated it; it found three genuine contrast failures. Fixed `unverified` (2.61:1 → 6.04:1). Two are accepted and **pinned, not waived**: `low` amber (1.92:1 — every compliant darker amber collapses against red under CVD, and Low-vs-Out is the map's most consequential distinction) and `good`-vs-`out` under protanopia (the only in-family fix makes "good" a teal that collides with info blue). Both are carried by the standing icon+text rule. The test also asserts the saffron accent is indistinguishable from status colours under CVD, giving ADR-10's "never use accent for status" ban teeth.
+
+**100 tests green; analyze + custom_lint clean; web build green.**
+
+**Honest gaps — all need hardware or a trusted network, none are code:** two-device E2E chat smoke test; TalkBack/VoiceOver sweep (checklist in `docs/accessibility-audit.md`, and the SOS hold-to-fire gesture is the one I'd expect trouble on); the TLS pin bundle; a production tile provider (ADR-13). Also: broadcasts are not push notifications — a member sees one when they next open the app.
+---
 ## Session 13 — 2026-07-26 · Offline group chat (ADR-19): local ciphertext cache + outgoing queue
 **Done:**
 - **Drift schema v2** — `CachedGroupMessages(id, group_id, sender_id, ciphertext, pending, created_at)` + index, with a real `MigrationStrategy` (v1 installs get the table on upgrade, no data loss). First migration this project has needed.

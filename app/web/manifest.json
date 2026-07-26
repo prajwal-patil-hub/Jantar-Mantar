@@ -3,7 +3,7 @@
     "short_name": "CommonGround",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FAFAF8",
+    "background_color": "#1A1C21",
     "theme_color": "#FF6D1F",
     "description": "Offline-first protest-support map: find verified water, food, shelter, medical aid and safety areas.",
     "orientation": "portrait-primary",

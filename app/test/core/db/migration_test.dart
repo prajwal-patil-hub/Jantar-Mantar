@@ -83,8 +83,10 @@ void main() {
             createdAt: DateTime.utc(2026, 7, 26),
           ),
         );
-    expect(await migrated.select(migrated.cachedGroupMessages).get(),
-        hasLength(1));
+    expect(
+      await migrated.select(migrated.cachedGroupMessages).get(),
+      hasLength(1),
+    );
   });
 
   test('v2 → v3 keeps cached chat and defaults its epoch to 1', () async {
@@ -109,8 +111,8 @@ void main() {
 
     // Messages written before rotation existed are epoch 1 by definition —
     // if the default were wrong, existing chat would become undecryptable.
-    final row = (await migrated.select(migrated.cachedGroupMessages).get())
-        .single;
+    final row =
+        (await migrated.select(migrated.cachedGroupMessages).get()).single;
     expect(row.ciphertext, 'CIPHER-FROM-V2');
     expect(row.keyEpoch, 1);
   });

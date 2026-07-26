@@ -51,7 +51,8 @@ _Last updated: 2026-07-24 · Phase 0_
 ## Board
 **Done:** Research · Doc system · E1–E9 (offline map · submit · sync · anon auth · admin verify · alerts · SOS · **en/hi i18n + a11y baseline**)
 **In progress:** USER ACTION: apply `supabase/migrations/` in SQL editor · enable Anonymous sign-ins · create + grant admin account (see `supabase/README.md`)
-**Next up:** End-to-end device smoke test → Phase 2 hardening (cert pinning, flutter_secure_storage, panic-wipe, RLS tests in CI, CVD/TalkBack audit) + remaining polish (app icon, applicationId, tile provider, EXIF-strip photo pipeline, alert broadcast UI)
+**Phase 2 hardening — done:** panic-wipe · cert-pinning mechanism (inactive pending a pin bundle) · EXIF-strip photo pipeline · drift migration tests · RLS negatives in CI · automated CVD/contrast audit · app icon · applicationId
+**Next up:** the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
 **Blocked:** Live sync until the dashboard steps above are done.
 
 ## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.
@@ -70,7 +71,10 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] **RLS negative tests for group tables** (`supabase/tests/rls_groups_negative_test.sql`, 12 assertions: outsider can't read hidden groups / messages / private pins / roster / invite codes / others' sealed keys; can't post or pin; can't self-approve to active; pending member can't read messages) — SECURITY.md gate for groups. Still to RUN via `supabase test db` + wire into CI.
 - [x] **Offline chat** (ADR-19): Drift v2 `CachedGroupMessages` (ciphertext only) — chat opens instantly from cache, stays readable with no network behind a visible "Offline — showing saved messages" banner, and messages composed offline are encrypted, queued (`Sending…`, icon + text), and drained oldest-first when the network returns
 - [x] **Key rotation on member removal** (ADR-20): admin Remove action → member deleted → new epoch key sealed to everyone who remains; all past epochs kept locally so history survives; offline-queued messages re-sealed under the current epoch before sending; confirm dialog states plainly that it is forward secrecy only. 3 new pgTAP negatives (non-admin cannot issue envelopes or remove members; a removed member loses read access) → **15 group RLS assertions**
-- [ ] Next: group broadcast reusing alerts, QR scanning on device, run RLS tests in CI
+- [x] **Group broadcasts** (ADR-21) — admin announcement, encrypted like any message, flag carried inside the ciphertext; alerts treatment in chat + an Alerts-feed section, members-only footer
+- [x] **QR scanning** (`mobile_scanner`) — `inviteCodeFrom()` is the parse boundary for attacker-controlled QR content; falls back to code-paste on web/no-camera/denied permission
+- [x] **RLS negative tests RUN and in CI** — all 25 assertions pass; `supabase/tests/run_local.sh` needs no Docker; verified to fail when a policy is weakened
+- [x] Phase-3 group work complete
 - **Bluetooth mesh chat: NOT building** (ADR-17)
 
 ## Definition of Done (every task)
