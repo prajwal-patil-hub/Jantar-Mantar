@@ -25,7 +25,7 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 - [ ] CORS locked to our web origin; web fallback pages `noindex`
 
 ## Backend rules
-- [x] Supabase RLS **deny-by-default** on every table (`supabase/migrations/20260724000001_init.sql`); negative tests written (`supabase/tests/rls_negative_test.sql`) — RUN THEM via `supabase test db` before launch, and wire into CI
+- [x] Supabase RLS **deny-by-default** on every table; **25 negative assertions RUN and passing** (10 public-layer + 15 group), gating every PR in CI (`.github/workflows/ci.yml` → `rls-negative-tests`). `supabase/tests/run_local.sh` runs them against a plain Postgres via a shim; verified to exit 1 when a policy is deliberately weakened. `supabase test db` (Docker) stays the higher-fidelity pre-release run
 - [x] Roles in JWT `app_metadata` (server-set, granted via SQL only — see `supabase/README.md`), never client-writable metadata
 - [ ] All writes validated server-side (types, bounds, geo-fence sanity); parameterized queries only
 - [ ] Signed invite tokens (Ed25519): payload = group, expiry, uses, nonce; verifiable offline; server re-checks on sync
@@ -71,5 +71,5 @@ Debug builds and web are exempt: local Supabase stacks must stay reachable,
 and on web the browser owns TLS.
 
 ## Release gates
-- [ ] `flutter analyze` + tests green · [ ] RLS negative tests green · [ ] pinning verified against test MITM proxy
+- [x] `flutter analyze` + tests green · [x] RLS negative tests green (in CI) · [ ] pinning verified against test MITM proxy (blocked on the pin bundle above)
 - [ ] MASVS-L1 checklist reviewed · [ ] third-party security review + digital-rights consult before public launch

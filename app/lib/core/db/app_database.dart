@@ -28,8 +28,13 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // v2: offline group-chat cache (ciphertext only).
-      if (from < 2) await m.createTable(cachedGroupMessages);
+      // v2: offline group-chat cache (ciphertext only). createTable does NOT
+      // create the table's index — without this the chat query falls back to
+      // a full scan on every poll, on exactly the low-end devices we target.
+      if (from < 2) {
+        await m.createTable(cachedGroupMessages);
+        await m.create(idxCachedGroupMessagesGroup);
+      }
       // v3: group-key epoch, so rotated keys can still decrypt old history.
       if (from == 2) {
         await m.addColumn(cachedGroupMessages, cachedGroupMessages.keyEpoch);
