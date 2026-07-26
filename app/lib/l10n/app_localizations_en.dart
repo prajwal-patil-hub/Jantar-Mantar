@@ -543,6 +543,12 @@ class AppL10nEn extends AppL10n {
   String get noMessages => 'No messages yet. Say hello.';
 
   @override
+  String get chatOffline => 'Offline — showing saved messages';
+
+  @override
+  String get messageSending => 'Sending…';
+
+  @override
   String groupActionFailed(String error) {
     return 'Action failed: $error';
   }

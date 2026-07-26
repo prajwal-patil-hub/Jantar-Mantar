@@ -195,6 +195,8 @@
   "amenityLabel": "Label",
   "noAmenities": "No group amenities yet.",
   "noMessages": "No messages yet. Say hello.",
+  "chatOffline": "Offline — showing saved messages",
+  "messageSending": "Sending…",
   "groupActionFailed": "Action failed: {error}",
   "@groupActionFailed": { "placeholders": { "error": { "type": "String" } } },
 

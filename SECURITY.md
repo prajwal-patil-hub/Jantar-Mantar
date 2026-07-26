@@ -38,7 +38,8 @@ _Last updated: 2026-07-24 · Framework: OWASP MASVS-L1 baseline, selected L2/R c
 - [ ] Coarse location default; precise only per-action opt-in; never background-tracked
 - [ ] Dependency audit each release (`dart pub outdated`, osv-scanner); lockfiles committed
 - [ ] Root/jailbreak detection = warn-only (protesters may use custom ROMs; don't lock them out)
-- [ ] Panic action: wipe local keys, hide memberships, sign out
+- [x] Local group-chat cache stores **ciphertext only** (Drift v2 `CachedGroupMessages`) — no plaintext ever touches the SQLite file; keys stay in the OS keystore (ADR-19)
+- [ ] Panic action: wipe local keys, hide memberships, sign out — `GroupMessageCache.wipe()` is ready to call from that path
 
 ## Release gates
 - [ ] `flutter analyze` + tests green · [ ] RLS negative tests green · [ ] pinning verified against test MITM proxy

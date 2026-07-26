@@ -543,6 +543,12 @@ class AppL10nHi extends AppL10n {
   String get noMessages => 'अभी कोई संदेश नहीं। नमस्ते कहें।';
 
   @override
+  String get chatOffline => 'ऑफ़लाइन — सहेजे गए संदेश दिखाए जा रहे हैं';
+
+  @override
+  String get messageSending => 'भेजा जा रहा है…';
+
+  @override
   String groupActionFailed(String error) {
     return 'कार्य विफल: $error';
   }

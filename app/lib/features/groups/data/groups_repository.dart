@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/crypto/device_identity_service.dart';
 import '../../../core/crypto/e2e_crypto.dart';
 import '../../../core/crypto/key_store.dart';
+import '../../../core/db/app_database.dart';
 import '../domain/group_models.dart';
+import 'group_message_cache.dart';
 import 'groups_repo.dart';
 
 /// Server-backed groups + E2E chat. All encryption happens here on the client;
@@ -18,15 +21,18 @@ class GroupsRepository implements GroupsRepo {
     required E2ECrypto crypto,
     required DeviceIdentityService identity,
     required KeyStore keyStore,
+    required GroupMessageCache cache,
   }) : _client = client,
        _crypto = crypto,
        _identity = identity,
-       _keyStore = keyStore;
+       _keyStore = keyStore,
+       _cache = cache;
 
   final SupabaseClient _client;
   final E2ECrypto _crypto;
   final DeviceIdentityService _identity;
   final KeyStore _keyStore;
+  final GroupMessageCache _cache;
 
   String get _uid => _client.auth.currentUser!.id;
 
@@ -153,41 +159,60 @@ class GroupsRepository implements GroupsRepo {
         .eq('user_id', userId);
   }
 
+  /// Local-first: decrypt what is already on the device. No network, so this
+  /// is what the chat paints before (and instead of) any request.
   @override
-  Future<List<GroupMessage>> messages(String groupId) async {
-    final groupKey = await _groupKey(groupId);
-    final rows = await _client
-        .from('group_messages')
-        .select('id, sender_id, ciphertext, created_at')
-        .eq('group_id', groupId)
-        .order('created_at');
-
+  Future<List<GroupMessage>> cachedMessages(String groupId) async {
+    final groupKey = await _localGroupKey(groupId);
+    final rows = await _cache.load(groupId);
     final out = <GroupMessage>[];
-    for (final row in List<Map<String, Object?>>.from(rows)) {
-      String? clear;
-      if (groupKey != null) {
-        try {
-          clear = await _crypto.decryptMessage(
-            groupKey: groupKey,
-            packed: row['ciphertext'] as String,
-          );
-        } on Object {
-          clear = null; // Tamper / wrong epoch → "can't decrypt" placeholder.
-        }
-      }
+    for (final row in rows) {
       out.add(
         GroupMessage(
-          id: row['id'] as String,
-          senderId: row['sender_id'] as String,
-          createdAt: DateTime.parse(row['created_at'] as String).toLocal(),
-          decrypted: clear,
-          mine: row['sender_id'] == _uid,
+          id: row.id,
+          senderId: row.senderId,
+          createdAt: row.createdAt.toLocal(),
+          decrypted: await _tryDecrypt(groupKey, row.ciphertext),
+          mine: row.senderId == _uid,
+          pending: row.pending,
         ),
       );
     }
     return out;
   }
 
+  @override
+  Future<List<GroupMessage>> messages(String groupId) async {
+    // Fetching the sealed envelope (first read after approval) is part of the
+    // refresh; offline, [cachedMessages] simply shows nothing decryptable yet.
+    await _groupKey(groupId);
+    await _flushPending(groupId);
+
+    final rows = await _client
+        .from('group_messages')
+        .select('id, sender_id, ciphertext, created_at')
+        .eq('group_id', groupId)
+        .order('created_at');
+
+    await _cache.saveServerMessages([
+      for (final row in List<Map<String, Object?>>.from(rows))
+        CachedGroupMessagesCompanion.insert(
+          id: row['id'] as String,
+          groupId: groupId,
+          senderId: row['sender_id'] as String,
+          ciphertext: row['ciphertext'] as String,
+          createdAt: DateTime.parse(row['created_at'] as String),
+        ),
+    ]);
+
+    // One code path builds the display list, so cached and live reads can
+    // never drift apart.
+    return cachedMessages(groupId);
+  }
+
+  /// Encrypt on the device, persist, then try to push. With no network the
+  /// message stays queued and shows as "Sending…" — composing offline is a
+  /// first-class case, not an error.
   @override
   Future<void> sendMessage(String groupId, String text) async {
     final groupKey = await _groupKey(groupId);
@@ -196,10 +221,55 @@ class GroupsRepository implements GroupsRepo {
       groupKey: groupKey,
       plaintext: text,
     );
-    await _client.from('group_messages').insert({
-      'group_id': groupId,
-      'ciphertext': ciphertext,
-    });
+    await _cache.queueOutgoing(
+      CachedGroupMessagesCompanion.insert(
+        id: 'local:${DateTime.now().microsecondsSinceEpoch}-${_rng.nextInt(1 << 32)}',
+        groupId: groupId,
+        senderId: _uid,
+        ciphertext: ciphertext,
+        createdAt: DateTime.now().toUtc(),
+        pending: const Value(true),
+      ),
+    );
+    await _flushPending(groupId);
+  }
+
+  /// Drain the outgoing queue oldest-first, stopping at the first failure so
+  /// messages can never arrive out of order.
+  Future<void> _flushPending(String groupId) async {
+    for (final row in await _cache.pendingOutgoing(groupId)) {
+      try {
+        final inserted = await _client
+            .from('group_messages')
+            .insert({'group_id': groupId, 'ciphertext': row.ciphertext})
+            .select('id, sender_id, created_at')
+            .single();
+        await _cache.replacePending(
+          localId: row.id,
+          server: CachedGroupMessagesCompanion.insert(
+            id: inserted['id'] as String,
+            groupId: groupId,
+            senderId: inserted['sender_id'] as String? ?? row.senderId,
+            ciphertext: row.ciphertext,
+            createdAt: DateTime.parse(inserted['created_at'] as String),
+          ),
+        );
+      } on Object {
+        return; // Still offline — keep the rest queued, retry next cycle.
+      }
+    }
+  }
+
+  Future<String?> _tryDecrypt(List<int>? groupKey, String ciphertext) async {
+    if (groupKey == null) return null;
+    try {
+      return await _crypto.decryptMessage(
+        groupKey: groupKey,
+        packed: ciphertext,
+      );
+    } on Object {
+      return null; // Tamper / wrong epoch → "can't decrypt" placeholder.
+    }
   }
 
   @override
@@ -281,10 +351,17 @@ class GroupsRepository implements GroupsRepo {
   Future<void> _cacheGroupKey(String groupId, List<int> key) =>
       _keyStore.write(_cacheKey(groupId), base64Encode(key));
 
+  /// The group key if this device already holds it. Never touches the network,
+  /// so it is safe on the offline read path.
+  Future<List<int>?> _localGroupKey(String groupId) async {
+    final cached = await _keyStore.read(_cacheKey(groupId));
+    return cached == null ? null : base64Decode(cached);
+  }
+
   /// The group key: from the local cache, else opened from my sealed envelope.
   Future<List<int>?> _groupKey(String groupId) async {
-    final cached = await _keyStore.read(_cacheKey(groupId));
-    if (cached != null) return base64Decode(cached);
+    final cached = await _localGroupKey(groupId);
+    if (cached != null) return cached;
 
     final envelope = await _client
         .from('group_key_envelopes')

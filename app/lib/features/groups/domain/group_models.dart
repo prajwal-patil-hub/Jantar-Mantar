@@ -70,6 +70,7 @@ class GroupMessage {
     required this.createdAt,
     required this.decrypted,
     required this.mine,
+    this.pending = false,
   });
 
   final String id;
@@ -77,6 +78,10 @@ class GroupMessage {
   final DateTime createdAt;
   final String? decrypted;
   final bool mine;
+
+  /// Encrypted and stored locally, but not yet accepted by the server — the
+  /// bubble shows a "Sending…" marker (icon + text, never colour alone).
+  final bool pending;
 }
 
 class GroupPin {

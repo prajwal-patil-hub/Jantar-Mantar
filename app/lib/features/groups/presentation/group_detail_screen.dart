@@ -94,17 +94,18 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
   Timer? _poll;
   bool _sending = false;
   bool _loading = false;
+  bool _offline = false;
 
   @override
   void initState() {
     super.initState();
+    // Local-first: paint the cached conversation before any request is made,
+    // then refresh. Offline the chat still opens, fully readable.
+    _loadCached();
     _refresh();
     // Live updates: poll while the chat is open (simple + reliable; Realtime
     // is a later optimisation). Held state avoids spinner flicker.
-    _poll = Timer.periodic(
-      const Duration(seconds: 3),
-      (_) => _refresh(silent: true),
-    );
+    _poll = Timer.periodic(const Duration(seconds: 3), (_) => _refresh());
   }
 
   @override
@@ -114,19 +115,43 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
     super.dispose();
   }
 
-  Future<void> _refresh({bool silent = false}) async {
-    if (_loading) return;
-    _loading = true;
+  Future<void> _loadCached() async {
     try {
       final list = await ref
           .read(groupsRepositoryProvider)!
-          .messages(widget.group.id);
-      if (mounted) setState(() => _messages = list);
-    } on Object catch (e) {
-      if (!silent && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppL10n.of(context).groupActionFailed('$e'))),
-        );
+          .cachedMessages(widget.group.id);
+      // Don't clobber a network refresh that already won the race.
+      if (mounted && _messages == null) setState(() => _messages = list);
+    } on Object {
+      // Nothing cached yet — the refresh below decides what to show.
+    }
+  }
+
+  Future<void> _refresh() async {
+    if (_loading) return;
+    _loading = true;
+    final repo = ref.read(groupsRepositoryProvider)!;
+    try {
+      final list = await repo.messages(widget.group.id);
+      if (mounted) {
+        setState(() {
+          _messages = list;
+          _offline = false;
+        });
+      }
+    } on Object {
+      // Degrade visibly instead of erroring: keep serving the cache and say
+      // so, per the offline-first rule.
+      try {
+        final cached = await repo.cachedMessages(widget.group.id);
+        if (mounted) {
+          setState(() {
+            _messages = cached;
+            _offline = true;
+          });
+        }
+      } on Object {
+        if (mounted) setState(() => _offline = true);
       }
     } finally {
       _loading = false;
@@ -142,6 +167,8 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
           .read(groupsRepositoryProvider)!
           .sendMessage(widget.group.id, text);
       _controller.clear();
+      // Show the queued message immediately, even with no network.
+      await _loadCachedForce();
       await _refresh();
     } on Object catch (e) {
       if (mounted) {
@@ -151,6 +178,17 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
       }
     } finally {
       if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _loadCachedForce() async {
+    try {
+      final list = await ref
+          .read(groupsRepositoryProvider)!
+          .cachedMessages(widget.group.id);
+      if (mounted) setState(() => _messages = list);
+    } on Object {
+      // Best effort; the refresh that follows is authoritative.
     }
   }
 
@@ -177,6 +215,26 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
             ],
           ),
         ),
+        // Visible degraded state (icon + text, never colour alone): the chat
+        // still works, it is just not live.
+        if (_offline)
+          Container(
+            width: double.infinity,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              children: [
+                const Icon(Icons.cloud_off, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l10n.chatOffline,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
         Expanded(
           child: messages == null
               ? const Center(child: CircularProgressIndicator())
@@ -236,12 +294,33 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
           color: m.mine ? scheme.primaryContainer : scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          m.decrypted ?? l10n.cantDecrypt,
-          style: TextStyle(
-            fontStyle: m.decrypted == null ? FontStyle.italic : null,
-            color: m.decrypted == null ? scheme.error : null,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              m.decrypted ?? l10n.cantDecrypt,
+              style: TextStyle(
+                fontStyle: m.decrypted == null ? FontStyle.italic : null,
+                color: m.decrypted == null ? scheme.error : null,
+              ),
+            ),
+            if (m.pending)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.schedule, size: 12),
+                    const SizedBox(width: 4),
+                    Text(
+                      l10n.messageSending,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

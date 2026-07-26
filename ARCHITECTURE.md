@@ -36,8 +36,16 @@ Submission(id, facility_id?|new_geo, payload, photo?, submitter_id,
 Alert(id, severity[info|warn|critical], area_geo?, body, created_by, expires_at)
 AuditLog(id, actor_id, action, before, after, ts)          -- append-only
 SyncQueue(local_id, op, entity, payload, state, attempts)  -- client-side
+CachedGroupMessage(id, group_id, sender_id, ciphertext, pending, created_at)
+                                                           -- client-side, v2
 -- Phase 3: Group, Membership, Invite, GroupPin, PromotionRequest, Succession
 ```
+
+Local schema is at **v2** (`app/lib/core/db/app_database.dart`); v2 added
+`CachedGroupMessages`. It stores **ciphertext only** — group keys live in the
+OS keystore, so the SQLite file is worthless on a seized device and a
+panic-wipe of the keys makes the cache permanently unreadable. Rows flagged
+`pending` are messages encrypted on-device but not yet accepted by the server.
 
 ## Sync rules
 1. Read: emit local immediately → refresh in background → update UI.

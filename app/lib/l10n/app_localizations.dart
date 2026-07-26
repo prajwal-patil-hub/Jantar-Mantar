@@ -1027,6 +1027,18 @@ abstract class AppL10n {
   /// **'No messages yet. Say hello.'**
   String get noMessages;
 
+  /// No description provided for @chatOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing saved messages'**
+  String get chatOffline;
+
+  /// No description provided for @messageSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get messageSending;
+
   /// No description provided for @groupActionFailed.
   ///
   /// In en, this message translates to:

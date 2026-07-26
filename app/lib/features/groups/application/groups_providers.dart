@@ -7,6 +7,7 @@ import '../../../core/crypto/key_store.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/providers.dart';
 import '../data/demo_groups_repository.dart';
+import '../data/group_message_cache.dart';
 import '../data/groups_repo.dart';
 import '../data/groups_repository.dart';
 import '../domain/group_models.dart';
@@ -52,6 +53,11 @@ final demoGroupsRepositoryProvider = Provider<DemoGroupsRepository>(
   (ref) => DemoGroupsRepository(),
 );
 
+/// Offline chat store (ciphertext only) shared by every group.
+final groupMessageCacheProvider = Provider<GroupMessageCache>(
+  (ref) => GroupMessageCache(ref.watch(appDatabaseProvider)),
+);
+
 final groupsRepositoryProvider = Provider<GroupsRepo?>((ref) {
   // Demo Mode short-circuits the backend entirely: no auth, no network.
   if (ref.watch(demoModeProvider)) {
@@ -66,6 +72,7 @@ final groupsRepositoryProvider = Provider<GroupsRepo?>((ref) {
     crypto: ref.watch(e2eCryptoProvider),
     identity: ref.watch(deviceIdentityServiceProvider),
     keyStore: ref.watch(keyStoreProvider),
+    cache: ref.watch(groupMessageCacheProvider),
   );
 });
 

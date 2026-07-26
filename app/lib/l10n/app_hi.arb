@@ -195,6 +195,8 @@
   "amenityLabel": "नाम",
   "noAmenities": "अभी कोई समूह सुविधा नहीं।",
   "noMessages": "अभी कोई संदेश नहीं। नमस्ते कहें।",
+  "chatOffline": "ऑफ़लाइन — सहेजे गए संदेश दिखाए जा रहे हैं",
+  "messageSending": "भेजा जा रहा है…",
   "groupActionFailed": "कार्य विफल: {error}",
   "@groupActionFailed": { "placeholders": { "error": { "type": "String" } } },
 

@@ -243,6 +243,12 @@ class DemoGroupsRepository implements GroupsRepo {
     _members[groupId] = list;
   }
 
+  /// Demo data is already local, so the cached and live reads are the same
+  /// list — the demo chat behaves identically online and offline.
+  @override
+  Future<List<GroupMessage>> cachedMessages(String groupId) =>
+      messages(groupId);
+
   @override
   Future<List<GroupMessage>> messages(String groupId) async =>
       List.unmodifiable(_messages[groupId] ?? const []);

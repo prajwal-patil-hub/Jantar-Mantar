@@ -1,6 +1,20 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 13 — 2026-07-26 · Offline group chat (ADR-19): local ciphertext cache + outgoing queue
+**Done:**
+- **Drift schema v2** — `CachedGroupMessages(id, group_id, sender_id, ciphertext, pending, created_at)` + index, with a real `MigrationStrategy` (v1 installs get the table on upgrade, no data loss). First migration this project has needed.
+- **Ciphertext only, never plaintext.** The cache holds exactly what the server holds; the group key stays in the OS keystore. A seized device with a dumped SQLite file yields nothing, and wiping the keys makes the cache permanently unreadable — `GroupMessageCache.wipe()` is ready for the panic-wipe path. Caching plaintext would have handed away everything the E2E work exists to protect (ADR-19).
+- **Local-first reads.** `GroupsRepo.cachedMessages()` (new, no network) paints the conversation before any request; `messages()` refreshes, upserts the cache, and rebuilds through the same code path so cached and live reads cannot drift apart. `_groupKey` was split so the offline path can never touch the network.
+- **Visible degraded state**, not a silent failure or an empty chat: a refresh failure shows "Offline — showing saved messages" (cloud-off icon + text, bilingual) while the cached chat stays fully readable.
+- **Offline sends queue.** `sendMessage` encrypts on-device, persists with `pending = true`, then tries to push; no signal is *not* an error — the bubble shows "Sending…" (clock icon + text). The queue drains oldest-first and stops at the first failure, so message order can never break; an acked message is swapped for the server's copy in one transaction so it never blinks out of the list.
+- Demo repo implements `cachedMessages` too, so demo and real modes behave identically.
+- 57 tests green (+6: cache upsert/scoping/ordering, ciphertext-only, pending→acked lifecycle, clear/wipe, plus two widget tests that pump the real chat against a no-network repo and assert the offline banner and the queued "Sending…" bubble). analyze + custom_lint clean; web build green.
+
+**Honest gaps:** the v1→v2 migration is written and reviewed but not exercised by a drift schema-migration test (that needs generated schema snapshots — worth adding before the next schema change). Chat is still poll-based, not Realtime. Nothing calls `wipe()` yet because panic-wipe itself is still unbuilt.
+
+**Next:** key rotation on member removal, group broadcast reusing the alerts pipeline, QR scanning on device, RLS tests in CI.
+---
 ## Session 12 — 2026-07-25 · QR invites, persisted Demo Mode, group RLS negative tests
 **Done:**
 - **QR invites**: `qr_flutter` (per ADR/"never qr_code_scanner") invite sheet — scannable QR on a white backing (readable in dark mode), copyable code, and an explicit "24h · 10 uses · admin approval still required" line, replacing the plain text dialog. Bilingual.
