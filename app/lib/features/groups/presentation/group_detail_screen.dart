@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../application/groups_providers.dart';
 import '../data/groups_repo.dart';
 import '../domain/group_models.dart';
+import 'invite_sheet.dart';
 import 'pick_location_screen.dart';
 
 /// Group home: E2E Chat · Members · Amenities. Admins also get Invite and
@@ -30,18 +31,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     try {
       final code = await _repo.createInvite(widget.group.id);
       if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          content: SelectableText(l10n.inviteCreated(code)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel),
-            ),
-          ],
-        ),
-      );
+      await showInviteSheet(context, code);
     } on Object catch (e) {
       _snack(l10n.groupActionFailed('$e'));
     }

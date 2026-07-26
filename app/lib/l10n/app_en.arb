@@ -229,6 +229,12 @@
   "groupPinsLayer": "Group amenities",
   "groupPinFrom": "{group} · {label}",
   "@groupPinFrom": { "placeholders": { "group": { "type": "String" }, "label": { "type": "String" } } },
+  "inviteScanHint": "Have them scan this QR, or share the code below.",
+  "inviteExpiry": "Expires in 24 hours · up to 10 uses · they still need admin approval",
+  "inviteCopied": "Invite code copied",
+  "copyCode": "Copy code",
+  "done": "Done",
+
   "demoMode": "Demo mode",
   "demoModeSubtitle": "Explore every screen with sample data — no backend or login needed. Turn off to use the live backend."
 }

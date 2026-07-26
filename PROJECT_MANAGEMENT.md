@@ -65,7 +65,10 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Group-pin **map picker** (drag-to-place, replaces the hardcoded site centre)
 - [x] Group amenities **map layer + toggle** (off by default; square accent pins, visually distinct from public facility pins)
 - [x] Events screen localized (en+hi) — was English-only
-- [ ] Next: local message caching (offline), key rotation on member removal, QR invites, group broadcast reusing alerts, RLS negative tests for group tables, persist Demo Mode across reloads
+- [x] **QR invites** — `qr_flutter` invite sheet (scannable QR + copyable code + expiry/approval notice). NOTE: QR *scanning* (`mobile_scanner`) is still to do; it needs a physical device, so joining is code-paste for now.
+- [x] **Demo Mode persisted** across launches (SharedPreferences, defensive)
+- [x] **RLS negative tests for group tables** (`supabase/tests/rls_groups_negative_test.sql`, 12 assertions: outsider can't read hidden groups / messages / private pins / roster / invite codes / others' sealed keys; can't post or pin; can't self-approve to active; pending member can't read messages) — SECURITY.md gate for groups. Still to RUN via `supabase test db` + wire into CI.
+- [ ] Next: local message caching (offline), key rotation on member removal, group broadcast reusing alerts, QR scanning on device, run RLS tests in CI
 - **Bluetooth mesh chat: NOT building** (ADR-17)
 
 ## Definition of Done (every task)

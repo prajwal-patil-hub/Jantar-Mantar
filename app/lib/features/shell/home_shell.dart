@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/demo/demo_mode.dart';
 import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/glass_surface.dart';
@@ -33,6 +34,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     // Restore the saved language (one-frame flash to system locale on the
     // very first launch only; cached thereafter).
     ref.read(localeProvider.notifier).load();
+    // Restore the saved Demo Mode choice.
+    ref.read(demoModeProvider.notifier).load();
   }
 
   static const _screens = [

@@ -1,6 +1,17 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 12 — 2026-07-25 · QR invites, persisted Demo Mode, group RLS negative tests
+**Done:**
+- **QR invites**: `qr_flutter` (per ADR/"never qr_code_scanner") invite sheet — scannable QR on a white backing (readable in dark mode), copyable code, and an explicit "24h · 10 uses · admin approval still required" line, replacing the plain text dialog. Bilingual.
+- **Demo Mode persists** across launches (SharedPreferences, failure-tolerant like the locale provider); restored in `HomeShell.initState`.
+- **`supabase/tests/rls_groups_negative_test.sql`** — 12 pgTAP negative assertions for the group tables: an outsider cannot read hidden groups, messages, group-private pins, the roster, invite codes, or another member's sealed key; cannot post messages or plant pins; cannot self-approve from pending to active; and a pending member cannot read messages before approval. Closes the SECURITY.md "group scoping enforced with RLS + negative tests" gate at the code level.
+- 51 tests green (adds 3 demo-mode persistence tests); analyze + custom_lint clean; web build green.
+
+**Honest gaps:** QR *scanning* (`mobile_scanner`) still to do — needs a physical device, so joining is code-paste for now. The group RLS tests are written but not yet RUN (needs `supabase start && supabase test db` locally) or wired into CI.
+
+**Next:** local message caching, key rotation on member removal, group broadcast, QR scanning on device, RLS tests in CI.
+---
 ## Session 11 — 2026-07-25 · Demo Mode (ADR-18) + group map layer, picker, Events i18n
 **Done:**
 - **ADR-18: Demo Mode, default ON** — user could not enable Supabase anonymous sign-in (no dashboard access), leaving Groups unusable. Added `core/demo/demo_mode.dart` and a `GroupsRepo` interface implemented by both the real `GroupsRepository` (E2E) and a new in-memory `DemoGroupsRepository`. Sample data: 3 groups (admin + member roles), members incl. a pending join request, bilingual chat history, group amenities; send/approve/create all work in-session.

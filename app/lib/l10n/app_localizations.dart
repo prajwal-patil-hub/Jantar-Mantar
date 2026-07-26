@@ -1201,6 +1201,36 @@ abstract class AppL10n {
   /// **'{group} · {label}'**
   String groupPinFrom(String group, String label);
 
+  /// No description provided for @inviteScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Have them scan this QR, or share the code below.'**
+  String get inviteScanHint;
+
+  /// No description provided for @inviteExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in 24 hours · up to 10 uses · they still need admin approval'**
+  String get inviteExpiry;
+
+  /// No description provided for @inviteCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code copied'**
+  String get inviteCopied;
+
+  /// No description provided for @copyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get copyCode;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
   /// No description provided for @demoMode.
   ///
   /// In en, this message translates to:

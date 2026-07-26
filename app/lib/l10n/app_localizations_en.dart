@@ -641,6 +641,23 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get inviteScanHint =>
+      'Have them scan this QR, or share the code below.';
+
+  @override
+  String get inviteExpiry =>
+      'Expires in 24 hours · up to 10 uses · they still need admin approval';
+
+  @override
+  String get inviteCopied => 'Invite code copied';
+
+  @override
+  String get copyCode => 'Copy code';
+
+  @override
+  String get done => 'Done';
+
+  @override
   String get demoMode => 'Demo mode';
 
   @override

@@ -229,6 +229,12 @@
   "groupPinsLayer": "समूह सुविधाएँ",
   "groupPinFrom": "{group} · {label}",
   "@groupPinFrom": { "placeholders": { "group": { "type": "String" }, "label": { "type": "String" } } },
+  "inviteScanHint": "उनसे यह QR स्कैन करवाएँ, या नीचे दिया कोड साझा करें।",
+  "inviteExpiry": "24 घंटे में समाप्त · अधिकतम 10 उपयोग · व्यवस्थापक की स्वीकृति फिर भी ज़रूरी",
+  "inviteCopied": "आमंत्रण कोड कॉपी हुआ",
+  "copyCode": "कोड कॉपी करें",
+  "done": "हो गया",
+
   "demoMode": "डेमो मोड",
   "demoModeSubtitle": "हर स्क्रीन को नमूना डेटा के साथ देखें — बैकएंड या लॉगिन की ज़रूरत नहीं। लाइव बैकएंड के लिए बंद करें।"
 }

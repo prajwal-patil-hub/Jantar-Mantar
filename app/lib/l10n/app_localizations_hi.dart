@@ -641,6 +641,23 @@ class AppL10nHi extends AppL10n {
   }
 
   @override
+  String get inviteScanHint =>
+      'उनसे यह QR स्कैन करवाएँ, या नीचे दिया कोड साझा करें।';
+
+  @override
+  String get inviteExpiry =>
+      '24 घंटे में समाप्त · अधिकतम 10 उपयोग · व्यवस्थापक की स्वीकृति फिर भी ज़रूरी';
+
+  @override
+  String get inviteCopied => 'आमंत्रण कोड कॉपी हुआ';
+
+  @override
+  String get copyCode => 'कोड कॉपी करें';
+
+  @override
+  String get done => 'हो गया';
+
+  @override
   String get demoMode => 'डेमो मोड';
 
   @override
