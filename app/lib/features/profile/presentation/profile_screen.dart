@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/locale_provider.dart';
-import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
 import '../../verify/application/verify_providers.dart';
@@ -78,19 +78,31 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Card(
+            child: SwitchListTile(
+              secondary: const Icon(Icons.science_outlined),
+              title: const Text('Demo mode'),
+              subtitle: const Text(
+                'Explore every screen with sample data — no backend or login '
+                'needed. Turn off to use the live Supabase backend.',
+              ),
+              value: ref.watch(demoModeProvider),
+              onChanged: (v) => ref.read(demoModeProvider.notifier).set(v),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
             child: ListTile(
               leading: const Icon(Icons.verified_user_outlined),
               title: Text(l10n.volunteerAdmin),
               subtitle: Text(
-                isAdminSession(ref.watch(supabaseClientProvider))
+                ref.watch(canVerifyProvider)
                     ? l10n.signedInAsAdmin
                     : l10n.verifiersSignIn,
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  builder: (_) =>
-                      isAdminSession(ref.read(supabaseClientProvider))
+                  builder: (_) => ref.read(canVerifyProvider)
                       ? const VerificationQueueScreen()
                       : const AdminLoginScreen(),
                 ),

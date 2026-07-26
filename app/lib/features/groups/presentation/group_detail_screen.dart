@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../application/groups_providers.dart';
-import '../data/groups_repository.dart';
+import '../data/groups_repo.dart';
 import '../domain/group_models.dart';
 
 /// Group home: E2E Chat · Members · Amenities. Admins also get Invite and
@@ -20,7 +20,7 @@ class GroupDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
-  GroupsRepository get _repo => ref.read(groupsRepositoryProvider)!;
+  GroupsRepo get _repo => ref.read(groupsRepositoryProvider)!;
 
   Future<void> _invite() async {
     final l10n = AppL10n.of(context);

@@ -4,7 +4,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/crypto/device_identity_service.dart';
 import '../../../core/crypto/e2e_crypto.dart';
 import '../../../core/crypto/key_store.dart';
+import '../../../core/demo/demo_mode.dart';
 import '../../../core/providers.dart';
+import '../data/demo_groups_repository.dart';
+import '../data/groups_repo.dart';
 import '../data/groups_repository.dart';
 import '../domain/group_models.dart';
 
@@ -44,7 +47,16 @@ final deviceIdentityServiceProvider = Provider<DeviceIdentityService>(
 /// Null when Supabase isn't configured or the user isn't signed in yet —
 /// groups are inherently server-backed, so the UI shows a sign-in/offline
 /// notice in that case.
-final groupsRepositoryProvider = Provider<GroupsRepository?>((ref) {
+/// Demo repository instance (kept alive so in-session edits persist).
+final demoGroupsRepositoryProvider = Provider<DemoGroupsRepository>(
+  (ref) => DemoGroupsRepository(),
+);
+
+final groupsRepositoryProvider = Provider<GroupsRepo?>((ref) {
+  // Demo Mode short-circuits the backend entirely: no auth, no network.
+  if (ref.watch(demoModeProvider)) {
+    return ref.watch(demoGroupsRepositoryProvider);
+  }
   // Rebuild when auth state changes (e.g. anonymous sign-in completes).
   ref.watch(authChangesProvider);
   final client = ref.watch(supabaseClientProvider);

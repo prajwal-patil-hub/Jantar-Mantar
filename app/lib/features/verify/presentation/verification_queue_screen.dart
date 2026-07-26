@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
@@ -34,6 +35,13 @@ class _VerificationQueueScreenState
 
   Future<void> _approve(String id) async {
     final l10n = AppL10n.of(context);
+    // Demo Mode: resolve locally, no backend call.
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoPendingQueueProvider.notifier).remove(id);
+      setState(() => _refreshTick++);
+      _showError('Approved (demo) — it would now publish to the map.');
+      return;
+    }
     final client = ref.read(supabaseClientProvider);
     if (client == null) return;
     try {
@@ -64,6 +72,12 @@ class _VerificationQueueScreenState
     );
     if (reason == null) return;
 
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoPendingQueueProvider.notifier).remove(id);
+      setState(() => _refreshTick++);
+      _showError('Rejected (demo): $reason');
+      return;
+    }
     final client = ref.read(supabaseClientProvider);
     if (client == null) return;
     try {

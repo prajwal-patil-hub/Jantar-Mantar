@@ -7,10 +7,11 @@ import '../../../core/crypto/device_identity_service.dart';
 import '../../../core/crypto/e2e_crypto.dart';
 import '../../../core/crypto/key_store.dart';
 import '../domain/group_models.dart';
+import 'groups_repo.dart';
 
 /// Server-backed groups + E2E chat. All encryption happens here on the client;
 /// the [SupabaseClient] only ever carries ciphertext and sealed key envelopes.
-class GroupsRepository {
+class GroupsRepository implements GroupsRepo {
   // ignore_for_file: prefer_initializing_formals
   GroupsRepository({
     required SupabaseClient client,
@@ -40,6 +41,7 @@ class GroupsRepository {
     });
   }
 
+  @override
   Future<List<Group>> myGroups() async {
     final rows = await _client
         .from('groups')
@@ -53,6 +55,7 @@ class GroupsRepository {
     ];
   }
 
+  @override
   Future<Group> createGroup({
     required String name,
     String? description,
@@ -105,6 +108,7 @@ class GroupsRepository {
     );
   }
 
+  @override
   Future<List<GroupMember>> members(String groupId) async {
     final rows = await _client
         .from('group_members')
@@ -118,6 +122,7 @@ class GroupsRepository {
 
   /// Approve a pending member: activate them AND seal the current group key to
   /// their device key so they can decrypt chat.
+  @override
   Future<void> approveMember(String groupId, String userId) async {
     final groupKey = await _groupKey(groupId);
     if (groupKey == null) {
@@ -148,6 +153,7 @@ class GroupsRepository {
         .eq('user_id', userId);
   }
 
+  @override
   Future<List<GroupMessage>> messages(String groupId) async {
     final groupKey = await _groupKey(groupId);
     final rows = await _client
@@ -182,6 +188,7 @@ class GroupsRepository {
     return out;
   }
 
+  @override
   Future<void> sendMessage(String groupId, String text) async {
     final groupKey = await _groupKey(groupId);
     if (groupKey == null) throw StateError('No group key available.');
@@ -195,6 +202,7 @@ class GroupsRepository {
     });
   }
 
+  @override
   Future<List<GroupPin>> pins(String groupId) async {
     final rows = await _client
         .from('group_pins')
@@ -207,6 +215,7 @@ class GroupsRepository {
     ];
   }
 
+  @override
   Future<void> addPin({
     required String groupId,
     required String type,
@@ -226,6 +235,7 @@ class GroupsRepository {
   }
 
   /// Create a short invite code (default 24h, 10 uses).
+  @override
   Future<String> createInvite(String groupId) async {
     final code = _randomCode();
     await _client.from('group_invites').insert({
@@ -242,6 +252,7 @@ class GroupsRepository {
 
   /// Join via invite code → creates a PENDING membership (mandatory approval).
   /// Returns the group name for UX.
+  @override
   Future<String> joinByCode(String code) async {
     await ensureDeviceKeyPublished();
     final resolved = await _client.rpc<List<dynamic>>(

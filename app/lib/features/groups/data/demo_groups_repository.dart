@@ -1,0 +1,311 @@
+import 'dart:math';
+
+import '../domain/group_models.dart';
+import 'groups_repo.dart';
+
+/// In-memory Groups implementation with realistic sample data, used by Demo
+/// Mode so the whole Groups experience (chat, members, amenities, invites)
+/// can be explored with NO backend and NO login.
+///
+/// Everything lives in memory for the session: messages you send appear
+/// immediately, approvals work, created groups persist until reload. Nothing
+/// is encrypted here because nothing leaves the device — the real
+/// Supabase-backed repository is the one that does E2E crypto.
+class DemoGroupsRepository implements GroupsRepo {
+  DemoGroupsRepository() {
+    _seed();
+  }
+
+  static const demoUserId = 'demo-you';
+
+  final _groups = <Group>[];
+  final _members = <String, List<GroupMember>>{};
+  final _messages = <String, List<GroupMessage>>{};
+  final _pins = <String, List<GroupPin>>{};
+  final _rng = Random();
+
+  void _seed() {
+    final now = DateTime.now();
+
+    _groups.addAll([
+      const Group(
+        id: 'demo-medical',
+        name: 'Medical Volunteers',
+        description: 'First-aid team covering Gates 1–3',
+        visibility: 'hidden',
+        myRole: GroupRole.admin,
+        myState: MemberState.active,
+      ),
+      const Group(
+        id: 'demo-water',
+        name: 'Water Distribution',
+        description: 'Tanker coordination and refill scheduling',
+        visibility: 'hidden',
+        myRole: GroupRole.member,
+        myState: MemberState.active,
+      ),
+      const Group(
+        id: 'demo-legal',
+        name: 'Legal Aid Desk',
+        description: 'Volunteer lawyers on call',
+        visibility: 'public',
+        myRole: GroupRole.member,
+        myState: MemberState.active,
+      ),
+    ]);
+
+    _members['demo-medical'] = const [
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'You (admin)',
+      ),
+      GroupMember(
+        userId: 'demo-asha',
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'Asha',
+      ),
+      GroupMember(
+        userId: 'demo-rahul',
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'Rahul',
+      ),
+      // Pending request so the Approve button is visible in the demo.
+      GroupMember(
+        userId: 'demo-priya',
+        role: GroupRole.member,
+        state: MemberState.pending,
+        displayName: 'Priya (wants to join)',
+      ),
+    ];
+    _members['demo-water'] = const [
+      GroupMember(
+        userId: 'demo-vikram',
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'Vikram (admin)',
+      ),
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'You',
+      ),
+    ];
+    _members['demo-legal'] = const [
+      GroupMember(
+        userId: 'demo-meera',
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'Adv. Meera (admin)',
+      ),
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'You',
+      ),
+    ];
+
+    _messages['demo-medical'] = [
+      GroupMessage(
+        id: 'm1',
+        senderId: 'demo-asha',
+        createdAt: now.subtract(const Duration(minutes: 24)),
+        decrypted: 'First-aid kit at Gate 2 is running low on bandages.',
+        mine: false,
+      ),
+      GroupMessage(
+        id: 'm2',
+        senderId: demoUserId,
+        createdAt: now.subtract(const Duration(minutes: 21)),
+        decrypted: 'Sending a resupply from the main tent in 10 minutes.',
+        mine: true,
+      ),
+      GroupMessage(
+        id: 'm3',
+        senderId: 'demo-rahul',
+        createdAt: now.subtract(const Duration(minutes: 8)),
+        decrypted:
+            'दो लोगों को पानी की कमी से चक्कर आ रहे हैं — Gate 3 भेज रहा हूँ।',
+        mine: false,
+      ),
+    ];
+    _messages['demo-water'] = [
+      GroupMessage(
+        id: 'w1',
+        senderId: 'demo-vikram',
+        createdAt: now.subtract(const Duration(minutes: 40)),
+        decrypted: 'Tanker refills at 5 PM near Parliament St.',
+        mine: false,
+      ),
+      GroupMessage(
+        id: 'w2',
+        senderId: demoUserId,
+        createdAt: now.subtract(const Duration(minutes: 12)),
+        decrypted: 'Noted — I will keep the queue organised at Gate 1.',
+        mine: true,
+      ),
+    ];
+    _messages['demo-legal'] = [
+      GroupMessage(
+        id: 'l1',
+        senderId: 'demo-meera',
+        createdAt: now.subtract(const Duration(hours: 1)),
+        decrypted:
+            'If anyone is detained, note the time and location and '
+            'call the helpline immediately.',
+        mine: false,
+      ),
+    ];
+
+    _pins['demo-medical'] = const [
+      GroupPin(
+        id: 'p1',
+        type: 'medical',
+        label: 'First-aid tent (main)',
+        lat: 28.6265,
+        lng: 77.2151,
+        note: 'Stocked; two volunteers on duty',
+      ),
+      GroupPin(
+        id: 'p2',
+        type: 'meeting',
+        label: 'Volunteer meeting point',
+        lat: 28.6278,
+        lng: 77.2160,
+        note: 'Shift handover every 2 hours',
+      ),
+    ];
+    _pins['demo-water'] = const [
+      GroupPin(
+        id: 'p3',
+        type: 'supply',
+        label: 'Spare water cans store',
+        lat: 28.6252,
+        lng: 77.2178,
+        note: '40 cans remaining',
+      ),
+    ];
+    _pins['demo-legal'] = const [];
+  }
+
+  @override
+  Future<List<Group>> myGroups() async => List.unmodifiable(_groups);
+
+  @override
+  Future<Group> createGroup({
+    required String name,
+    String? description,
+    String visibility = 'hidden',
+  }) async {
+    final group = Group(
+      id: 'demo-${_rng.nextInt(1 << 32)}',
+      name: name,
+      description: description,
+      visibility: visibility,
+      myRole: GroupRole.admin,
+      myState: MemberState.active,
+    );
+    _groups.insert(0, group);
+    _members[group.id] = const [
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'You (admin)',
+      ),
+    ];
+    _messages[group.id] = [];
+    _pins[group.id] = [];
+    return group;
+  }
+
+  @override
+  Future<List<GroupMember>> members(String groupId) async =>
+      List.unmodifiable(_members[groupId] ?? const []);
+
+  @override
+  Future<void> approveMember(String groupId, String userId) async {
+    final list = [...?_members[groupId]];
+    final i = list.indexWhere((m) => m.userId == userId);
+    if (i == -1) return;
+    final m = list[i];
+    list[i] = GroupMember(
+      userId: m.userId,
+      role: m.role,
+      state: MemberState.active,
+      displayName: (m.displayName ?? '').replaceAll(' (wants to join)', ''),
+    );
+    _members[groupId] = list;
+  }
+
+  @override
+  Future<List<GroupMessage>> messages(String groupId) async =>
+      List.unmodifiable(_messages[groupId] ?? const []);
+
+  @override
+  Future<void> sendMessage(String groupId, String text) async {
+    final list = [...?_messages[groupId]];
+    list.add(
+      GroupMessage(
+        id: 'msg-${_rng.nextInt(1 << 32)}',
+        senderId: demoUserId,
+        createdAt: DateTime.now(),
+        decrypted: text,
+        mine: true,
+      ),
+    );
+    _messages[groupId] = list;
+  }
+
+  @override
+  Future<List<GroupPin>> pins(String groupId) async =>
+      List.unmodifiable(_pins[groupId] ?? const []);
+
+  @override
+  Future<void> addPin({
+    required String groupId,
+    required String type,
+    required String label,
+    required double lat,
+    required double lng,
+    String? note,
+  }) async {
+    final list = [...?_pins[groupId]];
+    list.add(
+      GroupPin(
+        id: 'pin-${_rng.nextInt(1 << 32)}',
+        type: type,
+        label: label,
+        lat: lat,
+        lng: lng,
+        note: note,
+      ),
+    );
+    _pins[groupId] = list;
+  }
+
+  @override
+  Future<String> createInvite(String groupId) async => 'DEMO2026';
+
+  @override
+  Future<String> joinByCode(String code) async {
+    final group = Group(
+      id: 'demo-joined-${_rng.nextInt(1 << 32)}',
+      name: 'Joined group ($code)',
+      description: 'Demo join — pending admin approval',
+      visibility: 'hidden',
+      myRole: GroupRole.member,
+      myState: MemberState.pending,
+    );
+    _groups.add(group);
+    _members[group.id] = const [];
+    _messages[group.id] = [];
+    _pins[group.id] = [];
+    return group.name;
+  }
+}
