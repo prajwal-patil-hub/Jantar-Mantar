@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
 
 /// SOS screen (ui-ux-spec §1.9): full-screen, high contrast, NO glass.
@@ -51,20 +52,22 @@ class _SosScreenState extends ConsumerState<SosScreen>
   }
 
   Future<void> _call(String number) async {
+    final l10n = AppL10n.of(context);
     // Dialing must never crash the SOS screen; failures leave the user on
     // the numbers list so they can dial manually.
     try {
       await launchUrl(Uri(scheme: 'tel', path: number));
     } on Object {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open dialer — dial $number')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.couldNotDial(number))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     const red = Color(0xFFC62828);
     const surface = Color(0xFF111214);
 
@@ -73,7 +76,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
       appBar: AppBar(
         backgroundColor: surface,
         foregroundColor: Colors.white,
-        title: const Text('SOS'),
+        title: Text(l10n.sos),
       ),
       body: SafeArea(
         child: Padding(
@@ -82,12 +85,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
             children: [
               const SizedBox(height: 8),
               Text(
-                _fired
-                    ? 'SOS queued — it sends the moment any connection '
-                          'returns. Calling directly is fastest.'
-                    : 'Hold the button for 2–3 seconds to send an SOS to '
-                          'volunteers. Calling directly is always available '
-                          'below.',
+                _fired ? l10n.sosQueuedInstruction : l10n.sosHoldInstruction,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
@@ -107,9 +105,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
                               size: 96,
                             ),
                             const SizedBox(height: 16),
-                            const Text(
-                              'SOS queued',
-                              style: TextStyle(
+                            Text(
+                              l10n.sosQueued,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -126,7 +124,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
                                 _hold.reset();
                                 setState(() => _fired = false);
                               },
-                              child: const Text("I'm safe — reset"),
+                              child: Text(l10n.imSafeReset),
                             ),
                           ],
                         )
@@ -161,11 +159,11 @@ class _SosScreenState extends ConsumerState<SosScreen>
                                         color: red,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: const Center(
+                                      child: Center(
                                         child: Text(
-                                          'SOS\nHold to send',
+                                          l10n.sosHoldToSend,
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -183,24 +181,22 @@ class _SosScreenState extends ConsumerState<SosScreen>
               ),
               _CallTile(
                 icon: Icons.local_police_outlined,
-                label:
-                    'Call emergency (police) — '
-                    '${SosScreen.emergencyNumber}',
+                label: l10n.callPolice(SosScreen.emergencyNumber),
                 onTap: () => _call(SosScreen.emergencyNumber),
               ),
               _CallTile(
                 icon: Icons.medical_services_outlined,
-                label: 'Call ambulance — ${SosScreen.ambulanceNumber}',
+                label: l10n.callAmbulance(SosScreen.ambulanceNumber),
                 onTap: () => _call(SosScreen.ambulanceNumber),
               ),
               _CallTile(
                 icon: Icons.gavel_outlined,
-                label: 'Legal aid helpline — ${SosScreen.legalAidNumber}',
+                label: l10n.callLegalAid(SosScreen.legalAidNumber),
                 onTap: () => _call(SosScreen.legalAidNumber),
               ),
               _CallTile(
                 icon: Icons.medical_information_outlined,
-                label: 'Nearest medical on map',
+                label: l10n.nearestMedical,
                 onTap: () {
                   ref
                       .read(mapFilterProvider.notifier)
@@ -209,11 +205,10 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 },
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Sharing location with a trusted contact arrives in a later '
-                'build — always explicit, per use.',
+              Text(
+                l10n.shareLocationLater,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
           ),

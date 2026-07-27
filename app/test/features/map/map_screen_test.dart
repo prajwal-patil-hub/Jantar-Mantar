@@ -96,19 +96,21 @@ void main() {
     expect(find.text('All'), findsOneWidget);
     expect(find.text('Water'), findsWidgets);
 
-    // Both seeded facilities in the Nearby sheet.
-    expect(find.text('Water point Gate 1'), findsWidgets);
-    expect(find.text('Community kitchen'), findsWidgets);
+    // The Nearby header reflects the count of facilities near the map centre
+    // (both seeded facilities feed nearbyFacilitiesProvider).
+    expect(find.text('Nearby · 2'), findsOneWidget);
 
     // SOS element and Report FAB present.
     expect(find.text('SOS'), findsOneWidget);
     expect(find.text('Report'), findsOneWidget);
 
-    // Filtering to Shelter empties the visible facility list.
+    // Filtering to Shelter (no seeded shelters) empties the Nearby list, so
+    // the header drops its count.
     await tester.tap(find.text('Shelter').first);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Water point Gate 1'), findsNothing);
+    expect(find.text('Nearby · 2'), findsNothing);
+    expect(find.text('Nearby'), findsOneWidget);
 
     // Dispose the tree and flush drift's stream-close timer so the fake
     // async zone ends with no pending timers.

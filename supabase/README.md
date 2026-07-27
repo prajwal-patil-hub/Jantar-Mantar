@@ -7,8 +7,9 @@ publishable key.
 ## One-time setup (dashboard) — DO THESE NOW
 
 1. **Apply the schema:** Dashboard → SQL Editor → paste the full contents of
-   `migrations/20260724000001_init.sql` → Run. (Or `supabase db push` with the
-   CLI if you link the project.)
+   `migrations/20260724000001_init.sql` → Run, then do the same with
+   `migrations/20260725000002_groups.sql` (groups + E2E chat). Apply them in
+   filename order. (Or `supabase db push` with the CLI if you link the project.)
 2. **Enable anonymous sign-ins:** Dashboard → Authentication → Sign In /
    Up → enable **Anonymous sign-ins** (ADR-4: anonymous-by-default; the app
    signs in anonymously in the background).
@@ -42,3 +43,20 @@ publishable key.
   capture.
 - Push notifications (FCM) — later; alerts arrive via pull/Realtime for now.
 - Rate limiting at the edge — before public launch.
+
+## Running the RLS negative tests
+
+```bash
+./supabase/tests/run_local.sh            # plain Postgres + shim (what CI runs)
+supabase start && supabase test db       # higher fidelity, needs Docker
+```
+
+`tests/00_supabase_shim.sql` stands in for the Supabase-managed objects the
+policies read (`auth.users`, `auth.uid()`, the `authenticated` role) so the
+suite runs without Docker. It also reproduces Supabase's **default table
+grants**, which our migrations rely on implicitly.
+
+**Self-hosting note (ADR-8's escape hatch):** a plain Postgres has none of
+those default grants, so `anon`/`authenticated` would hit "permission denied"
+before RLS was ever consulted. A self-hosted deployment must apply the
+equivalent grants — see the shim for the exact statements.

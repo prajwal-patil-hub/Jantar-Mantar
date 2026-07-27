@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
 
@@ -21,7 +23,7 @@ class CategoryStep extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'What are you reporting?',
+          AppL10n.of(context).stepCategoryQuestion,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
@@ -76,7 +78,10 @@ class _CategoryCard extends StatelessWidget {
             children: [
               Icon(type.icon, size: 32),
               const SizedBox(height: 8),
-              Text(type.label, style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                type.label(AppL10n.of(context)),
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
             ],
           ),
         ),

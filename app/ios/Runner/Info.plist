@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Used only to scan a group invite QR code. No photos or video are recorded or uploaded.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used only to attach a photo to a facility report. Location and camera metadata are removed before upload.</string>
 </dict>
 </plist>

@@ -43,12 +43,39 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Sync wired: SupabaseRemoteApi push (idempotent client_id), RemotePullService (facilities/capacity/alerts/verdicts), SyncService 60s cycle
 - [ ] flutter_secure_storage session hardening + cert pinning · [ ] panic-wipe
 ### E9. i18n (en/hi) + accessibility pass
+- [x] Flutter gen-l10n: en + hi ARB, every user-facing screen localized (nav, map, submit flow, detail sheet, alerts, SOS, profile, admin/verify)
+- [x] Bundled Noto Sans + Noto Sans Devanagari (Devanagari as font fallback); instant language toggle in Profile, persisted (ADR-15)
+- [x] Accessibility baseline held: status = color+icon+localized-text everywhere; 48dp+ targets; Semantics on pins/SOS; respects system text scale + locale
+- [ ] Full TalkBack/VoiceOver sweep across OEMs + CVD-simulator audit → Phase 2 hardening
 
 ## Board
-**Done:** Research · Doc system · E1–E4 · E6 (user side) · E7 · E5+E8 core (schema+RLS+RPCs, sync push/pull, anon auth, admin queue UI)
+**Done:** Research · Doc system · E1–E9 (offline map · submit · sync · anon auth · admin verify · alerts · SOS · **en/hi i18n + a11y baseline**)
 **In progress:** USER ACTION: apply `supabase/migrations/` in SQL editor · enable Anonymous sign-ins · create + grant admin account (see `supabase/README.md`)
-**Next up:** End-to-end smoke test on a device → then E9 (i18n hi/en + accessibility pass) or hardening follow-ups (cert pinning, secure storage, RLS tests in CI, broadcast authoring UI)
-**Blocked:** Live sync until the dashboard steps above are done. Before store release: app icon, applicationId, tile provider, EXIF-strip pipeline, region bulk-download.
+**Phase 2 hardening — done:** panic-wipe · cert-pinning mechanism (inactive pending a pin bundle) · EXIF-strip photo pipeline · drift migration tests · RLS negatives in CI · automated CVD/contrast audit · app icon · applicationId
+**Next up:** the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
+**Blocked:** Live sync until the dashboard steps above are done.
+
+## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.
+
+## Phase 3 — Groups + E2E chat (pulled forward per ADR-16, in progress)
+- [x] Nav: **Groups** tab (Map · Events · Groups · Alerts · Profile)
+- [x] E2E crypto core (`core/crypto/`): X25519 identity, ECIES sealed group-key delivery, AES-GCM messages — 7 tests incl. negatives
+- [x] Backend `supabase/migrations/20260725000002_groups.sql`: groups, members, key envelopes, invites, group pins, messages; RLS deny-by-default + member/admin helpers + `resolve_invite`
+- [x] UI: groups list, create, join-by-code, group detail (E2E Chat · Members · Amenities), admin invite + member approval
+- [x] **Demo Mode** (ADR-18): `core/demo/demo_mode.dart` + `DemoGroupsRepository` behind a `GroupsRepo` interface; sample groups/members/chat/amenities, demo verification queue, sample events. Explore everything with no backend/login; toggle in Profile.
+- [x] Group-pin **map picker** (drag-to-place, replaces the hardcoded site centre)
+- [x] Group amenities **map layer + toggle** (off by default; square accent pins, visually distinct from public facility pins)
+- [x] Events screen localized (en+hi) — was English-only
+- [x] **QR invites** — `qr_flutter` invite sheet (scannable QR + copyable code + expiry/approval notice). NOTE: QR *scanning* (`mobile_scanner`) is still to do; it needs a physical device, so joining is code-paste for now.
+- [x] **Demo Mode persisted** across launches (SharedPreferences, defensive)
+- [x] **RLS negative tests for group tables** (`supabase/tests/rls_groups_negative_test.sql`, 12 assertions: outsider can't read hidden groups / messages / private pins / roster / invite codes / others' sealed keys; can't post or pin; can't self-approve to active; pending member can't read messages) — SECURITY.md gate for groups. Still to RUN via `supabase test db` + wire into CI.
+- [x] **Offline chat** (ADR-19): Drift v2 `CachedGroupMessages` (ciphertext only) — chat opens instantly from cache, stays readable with no network behind a visible "Offline — showing saved messages" banner, and messages composed offline are encrypted, queued (`Sending…`, icon + text), and drained oldest-first when the network returns
+- [x] **Key rotation on member removal** (ADR-20): admin Remove action → member deleted → new epoch key sealed to everyone who remains; all past epochs kept locally so history survives; offline-queued messages re-sealed under the current epoch before sending; confirm dialog states plainly that it is forward secrecy only. 3 new pgTAP negatives (non-admin cannot issue envelopes or remove members; a removed member loses read access) → **15 group RLS assertions**
+- [x] **Group broadcasts** (ADR-21) — admin announcement, encrypted like any message, flag carried inside the ciphertext; alerts treatment in chat + an Alerts-feed section, members-only footer
+- [x] **QR scanning** (`mobile_scanner`) — `inviteCodeFrom()` is the parse boundary for attacker-controlled QR content; falls back to code-paste on web/no-camera/denied permission
+- [x] **RLS negative tests RUN and in CI** — all 25 assertions pass; `supabase/tests/run_local.sh` needs no Docker; verified to fail when a policy is weakened
+- [x] Phase-3 group work complete
+- **Bluetooth mesh chat: NOT building** (ADR-17)
 
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)

@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../groups/application/groups_providers.dart';
 import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
@@ -38,11 +40,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final facilities =
         ref.watch(facilitiesProvider).asData?.value ?? const <Facility>[];
     final pending =
         ref.watch(pendingSubmissionsProvider).asData?.value ??
         const <Submission>[];
+    final showGroupPins = ref.watch(showGroupPinsProvider);
+    final groupPins =
+        ref.watch(groupPinsForMapProvider).asData?.value ??
+        const <GroupPinOnMap>[];
 
     final markers = [
       for (final facility in facilities)
@@ -68,6 +75,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             height: 48,
             child: PendingMarker(submission: submission),
           ),
+      // Group amenities layer (opt-in via the layers button).
+      for (final gp in groupPins)
+        Marker(
+          point: LatLng(gp.pin.lat, gp.pin.lng),
+          width: 48,
+          height: 48,
+          child: _GroupPinMarker(
+            entry: gp,
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n.groupPinFrom(gp.groupName, gp.pin.label)),
+              ),
+            ),
+          ),
+        ),
     ];
 
     return Stack(
@@ -133,8 +155,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               FloatingActionButton.small(
+                heroTag: 'grouplayer',
+                tooltip: l10n.showGroupPins,
+                backgroundColor: showGroupPins
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : null,
+                onPressed: () =>
+                    ref.read(showGroupPinsProvider.notifier).toggle(),
+                child: Icon(
+                  showGroupPins ? Icons.layers : Icons.layers_outlined,
+                ),
+              ),
+              const SizedBox(height: 12),
+              FloatingActionButton.small(
                 heroTag: 'recenter',
-                tooltip: 'Back to Jantar Mantar',
+                tooltip: l10n.recenter,
                 onPressed: () => _mapController.move(
                   MapConfig.jantarMantar,
                   MapConfig.initialZoom,
@@ -152,7 +187,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ),
                 ),
                 icon: const Icon(Icons.add_location_alt),
-                label: const Text('Report'),
+                label: Text(l10n.report),
               ),
             ],
           ),
@@ -213,6 +248,45 @@ class _SosButton extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Group amenity pin — deliberately distinct from public facility pins
+/// (square badge, group colour) so a private group pin is never mistaken for
+/// a verified public facility.
+class _GroupPinMarker extends StatelessWidget {
+  const _GroupPinMarker({required this.entry, required this.onTap});
+
+  final GroupPinOnMap entry;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final icon = switch (entry.pin.type) {
+      'medical' => Icons.medical_services,
+      'water' => Icons.water_drop,
+      'food' => Icons.restaurant,
+      'supply' => Icons.inventory_2,
+      'meeting' => Icons.groups,
+      _ => Icons.place,
+    };
+    return GestureDetector(
+      onTap: onTap,
+      child: Semantics(
+        label: '${entry.groupName}, ${entry.pin.label}',
+        button: true,
+        child: Container(
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: scheme.primary, width: 3),
+            boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black26)],
+          ),
+          child: Icon(icon, size: 22, color: scheme.primary),
         ),
       ),
     );

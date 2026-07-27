@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
 
@@ -11,46 +13,43 @@ class ReviewStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final category = draft.category;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Review', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.review, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
-        Text(
-          draft.isUpdate
-              ? 'This update goes to the verification queue before it '
-                    'changes the public map.'
-              : 'New facilities appear publicly only after verification. '
-                    'You’ll see it as "Pending (yours)" meanwhile.',
-        ),
+        Text(draft.isUpdate ? l10n.reviewUpdateNotice : l10n.reviewNewNotice),
         const SizedBox(height: 16),
         if (category != null)
           ListTile(
             leading: Icon(category.icon),
-            title: Text(category.label),
+            title: Text(category.label(l10n)),
             subtitle: draft.isUpdate
-                ? Text('Updating: ${draft.existingFacilityName}')
-                : const Text('New facility'),
+                ? Text(l10n.reviewUpdating(draft.existingFacilityName ?? ''))
+                : Text(l10n.reviewNewFacility),
           ),
         ListTile(
           leading: Icon(draft.status.icon),
-          title: Text('Status: ${draft.status.label}'),
+          title: Text(l10n.reviewStatus(draft.status.label(l10n))),
         ),
         ListTile(
           leading: const Icon(Icons.groups),
           title: Text(
             draft.capacityFor == null
-                ? 'Capacity: not specified'
-                : 'Capacity: ~${draft.capacityFor} people',
+                ? l10n.reviewCapacityNone
+                : l10n.reviewCapacityPeople(draft.capacityFor!),
           ),
         ),
         if (draft.location != null)
           ListTile(
             leading: const Icon(Icons.location_on_outlined),
             title: Text(
-              'Location: ${draft.location!.latitude.toStringAsFixed(5)}, '
-              '${draft.location!.longitude.toStringAsFixed(5)}',
+              l10n.reviewLocation(
+                draft.location!.latitude.toStringAsFixed(5),
+                draft.location!.longitude.toStringAsFixed(5),
+              ),
             ),
           ),
         if (draft.note.trim().isNotEmpty)

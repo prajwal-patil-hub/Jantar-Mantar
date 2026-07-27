@@ -51,13 +51,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(
-      find.text(
-        'No active alerts.\nCritical alerts appear here and on '
-        'the map instantly.',
-      ),
-      findsOneWidget,
-    );
+    // No public alerts in a fresh DB, but Demo Mode seeds a group broadcast,
+    // so the feed shows the group section rather than the empty state.
+    expect(find.text('From your groups'), findsOneWidget);
+    expect(find.text('Water Distribution · Warning'), findsOneWidget);
+    expect(find.text('Group broadcast · members only'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));

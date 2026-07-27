@@ -26,6 +26,10 @@ class SubmissionDraft {
   FacilityStatus status = FacilityStatus.good;
   String note = '';
 
+  /// Path to the SANITISED copy written by [PhotoPicker] — never the camera
+  /// roll original, which still carries GPS and camera metadata.
+  String? photoPath;
+
   bool get isUpdate => existingFacilityId != null;
 
   Map<String, Object?> toPayload() {

@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/submission_draft.dart';
 import 'widgets/capacity_step.dart';
 import 'widgets/category_step.dart';
@@ -97,28 +98,31 @@ class _SubmitFlowScreenState extends ConsumerState<SubmitFlowScreen> {
           facilityId: _draft.existingFacilityId,
           lat: location.latitude,
           lng: location.longitude,
+          // Always the sanitised copy — PhotoPicker never hands back the
+          // camera-roll original.
+          photoPath: _draft.photoPath,
         );
     if (!mounted) return;
+    final l10n = AppL10n.of(context);
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Saved — will be sent for verification when connection returns.',
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.savedWillSend)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _back,
-          tooltip: 'Back',
+          tooltip: l10n.back,
         ),
-        title: Text(_draft.isUpdate ? 'Update facility' : 'Report a facility'),
+        title: Text(
+          _draft.isUpdate ? l10n.updateFacilityTitle : l10n.reportFacilityTitle,
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(value: (_step + 1) / _stepCount),
@@ -157,7 +161,7 @@ class _SubmitFlowScreenState extends ConsumerState<SubmitFlowScreen> {
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(96, 48),
                       ),
-                      child: const Text('Back'),
+                      child: Text(l10n.back),
                     ),
                   const Spacer(),
                   if (_step < _stepCount - 1)
@@ -166,7 +170,7 @@ class _SubmitFlowScreenState extends ConsumerState<SubmitFlowScreen> {
                       style: FilledButton.styleFrom(
                         minimumSize: const Size(120, 48),
                       ),
-                      child: const Text('Next'),
+                      child: Text(l10n.next),
                     )
                   else
                     FilledButton.icon(
@@ -175,7 +179,7 @@ class _SubmitFlowScreenState extends ConsumerState<SubmitFlowScreen> {
                         minimumSize: const Size(200, 56),
                       ),
                       icon: const Icon(Icons.send),
-                      label: const Text('Submit for verification'),
+                      label: Text(l10n.submitForVerification),
                     ),
                 ],
               ),

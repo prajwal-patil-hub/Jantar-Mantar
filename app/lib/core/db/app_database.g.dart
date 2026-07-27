@@ -2799,6 +2799,476 @@ class SyncQueueEntriesCompanion extends UpdateCompanion<SyncQueueEntry> {
   }
 }
 
+class $CachedGroupMessagesTable extends CachedGroupMessages
+    with TableInfo<$CachedGroupMessagesTable, CachedGroupMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedGroupMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _senderIdMeta = const VerificationMeta(
+    'senderId',
+  );
+  @override
+  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
+    'sender_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ciphertextMeta = const VerificationMeta(
+    'ciphertext',
+  );
+  @override
+  late final GeneratedColumn<String> ciphertext = GeneratedColumn<String>(
+    'ciphertext',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keyEpochMeta = const VerificationMeta(
+    'keyEpoch',
+  );
+  @override
+  late final GeneratedColumn<int> keyEpoch = GeneratedColumn<int>(
+    'key_epoch',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _pendingMeta = const VerificationMeta(
+    'pending',
+  );
+  @override
+  late final GeneratedColumn<bool> pending = GeneratedColumn<bool>(
+    'pending',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pending" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    senderId,
+    ciphertext,
+    keyEpoch,
+    pending,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_group_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedGroupMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('sender_id')) {
+      context.handle(
+        _senderIdMeta,
+        senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_senderIdMeta);
+    }
+    if (data.containsKey('ciphertext')) {
+      context.handle(
+        _ciphertextMeta,
+        ciphertext.isAcceptableOrUnknown(data['ciphertext']!, _ciphertextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ciphertextMeta);
+    }
+    if (data.containsKey('key_epoch')) {
+      context.handle(
+        _keyEpochMeta,
+        keyEpoch.isAcceptableOrUnknown(data['key_epoch']!, _keyEpochMeta),
+      );
+    }
+    if (data.containsKey('pending')) {
+      context.handle(
+        _pendingMeta,
+        pending.isAcceptableOrUnknown(data['pending']!, _pendingMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedGroupMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedGroupMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      senderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sender_id'],
+      )!,
+      ciphertext: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ciphertext'],
+      )!,
+      keyEpoch: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}key_epoch'],
+      )!,
+      pending: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pending'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedGroupMessagesTable createAlias(String alias) {
+    return $CachedGroupMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class CachedGroupMessage extends DataClass
+    implements Insertable<CachedGroupMessage> {
+  /// Server message id once acknowledged; a `local:` id while pending.
+  final String id;
+  final String groupId;
+  final String senderId;
+  final String ciphertext;
+
+  /// Which group-key epoch this ciphertext was sealed under. Keys rotate when
+  /// a member is removed, and old keys are kept so history stays readable.
+  final int keyEpoch;
+  final bool pending;
+  final DateTime createdAt;
+  const CachedGroupMessage({
+    required this.id,
+    required this.groupId,
+    required this.senderId,
+    required this.ciphertext,
+    required this.keyEpoch,
+    required this.pending,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['group_id'] = Variable<String>(groupId);
+    map['sender_id'] = Variable<String>(senderId);
+    map['ciphertext'] = Variable<String>(ciphertext);
+    map['key_epoch'] = Variable<int>(keyEpoch);
+    map['pending'] = Variable<bool>(pending);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CachedGroupMessagesCompanion toCompanion(bool nullToAbsent) {
+    return CachedGroupMessagesCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      senderId: Value(senderId),
+      ciphertext: Value(ciphertext),
+      keyEpoch: Value(keyEpoch),
+      pending: Value(pending),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CachedGroupMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedGroupMessage(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String>(json['groupId']),
+      senderId: serializer.fromJson<String>(json['senderId']),
+      ciphertext: serializer.fromJson<String>(json['ciphertext']),
+      keyEpoch: serializer.fromJson<int>(json['keyEpoch']),
+      pending: serializer.fromJson<bool>(json['pending']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'groupId': serializer.toJson<String>(groupId),
+      'senderId': serializer.toJson<String>(senderId),
+      'ciphertext': serializer.toJson<String>(ciphertext),
+      'keyEpoch': serializer.toJson<int>(keyEpoch),
+      'pending': serializer.toJson<bool>(pending),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CachedGroupMessage copyWith({
+    String? id,
+    String? groupId,
+    String? senderId,
+    String? ciphertext,
+    int? keyEpoch,
+    bool? pending,
+    DateTime? createdAt,
+  }) => CachedGroupMessage(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    senderId: senderId ?? this.senderId,
+    ciphertext: ciphertext ?? this.ciphertext,
+    keyEpoch: keyEpoch ?? this.keyEpoch,
+    pending: pending ?? this.pending,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  CachedGroupMessage copyWithCompanion(CachedGroupMessagesCompanion data) {
+    return CachedGroupMessage(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      senderId: data.senderId.present ? data.senderId.value : this.senderId,
+      ciphertext: data.ciphertext.present
+          ? data.ciphertext.value
+          : this.ciphertext,
+      keyEpoch: data.keyEpoch.present ? data.keyEpoch.value : this.keyEpoch,
+      pending: data.pending.present ? data.pending.value : this.pending,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedGroupMessage(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('senderId: $senderId, ')
+          ..write('ciphertext: $ciphertext, ')
+          ..write('keyEpoch: $keyEpoch, ')
+          ..write('pending: $pending, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    senderId,
+    ciphertext,
+    keyEpoch,
+    pending,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedGroupMessage &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.senderId == this.senderId &&
+          other.ciphertext == this.ciphertext &&
+          other.keyEpoch == this.keyEpoch &&
+          other.pending == this.pending &&
+          other.createdAt == this.createdAt);
+}
+
+class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
+  final Value<String> id;
+  final Value<String> groupId;
+  final Value<String> senderId;
+  final Value<String> ciphertext;
+  final Value<int> keyEpoch;
+  final Value<bool> pending;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const CachedGroupMessagesCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.senderId = const Value.absent(),
+    this.ciphertext = const Value.absent(),
+    this.keyEpoch = const Value.absent(),
+    this.pending = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedGroupMessagesCompanion.insert({
+    required String id,
+    required String groupId,
+    required String senderId,
+    required String ciphertext,
+    this.keyEpoch = const Value.absent(),
+    this.pending = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       groupId = Value(groupId),
+       senderId = Value(senderId),
+       ciphertext = Value(ciphertext),
+       createdAt = Value(createdAt);
+  static Insertable<CachedGroupMessage> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? senderId,
+    Expression<String>? ciphertext,
+    Expression<int>? keyEpoch,
+    Expression<bool>? pending,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (senderId != null) 'sender_id': senderId,
+      if (ciphertext != null) 'ciphertext': ciphertext,
+      if (keyEpoch != null) 'key_epoch': keyEpoch,
+      if (pending != null) 'pending': pending,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedGroupMessagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? groupId,
+    Value<String>? senderId,
+    Value<String>? ciphertext,
+    Value<int>? keyEpoch,
+    Value<bool>? pending,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return CachedGroupMessagesCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      senderId: senderId ?? this.senderId,
+      ciphertext: ciphertext ?? this.ciphertext,
+      keyEpoch: keyEpoch ?? this.keyEpoch,
+      pending: pending ?? this.pending,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
+    }
+    if (ciphertext.present) {
+      map['ciphertext'] = Variable<String>(ciphertext.value);
+    }
+    if (keyEpoch.present) {
+      map['key_epoch'] = Variable<int>(keyEpoch.value);
+    }
+    if (pending.present) {
+      map['pending'] = Variable<bool>(pending.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedGroupMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('senderId: $senderId, ')
+          ..write('ciphertext: $ciphertext, ')
+          ..write('keyEpoch: $keyEpoch, ')
+          ..write('pending: $pending, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2811,6 +3281,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SyncQueueEntriesTable syncQueueEntries = $SyncQueueEntriesTable(
     this,
   );
+  late final $CachedGroupMessagesTable cachedGroupMessages =
+      $CachedGroupMessagesTable(this);
+  late final Index idxCachedGroupMessagesGroup = Index(
+    'idx_cached_group_messages_group',
+    'CREATE INDEX idx_cached_group_messages_group ON cached_group_messages (group_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2821,6 +3297,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     submissions,
     alerts,
     syncQueueEntries,
+    cachedGroupMessages,
+    idxCachedGroupMessagesGroup,
   ];
 }
 
@@ -4436,6 +4914,262 @@ typedef $$SyncQueueEntriesTableProcessedTableManager =
       SyncQueueEntry,
       PrefetchHooks Function()
     >;
+typedef $$CachedGroupMessagesTableCreateCompanionBuilder =
+    CachedGroupMessagesCompanion Function({
+      required String id,
+      required String groupId,
+      required String senderId,
+      required String ciphertext,
+      Value<int> keyEpoch,
+      Value<bool> pending,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$CachedGroupMessagesTableUpdateCompanionBuilder =
+    CachedGroupMessagesCompanion Function({
+      Value<String> id,
+      Value<String> groupId,
+      Value<String> senderId,
+      Value<String> ciphertext,
+      Value<int> keyEpoch,
+      Value<bool> pending,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$CachedGroupMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedGroupMessagesTable> {
+  $$CachedGroupMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get keyEpoch => $composableBuilder(
+    column: $table.keyEpoch,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pending => $composableBuilder(
+    column: $table.pending,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedGroupMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedGroupMessagesTable> {
+  $$CachedGroupMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senderId => $composableBuilder(
+    column: $table.senderId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get keyEpoch => $composableBuilder(
+    column: $table.keyEpoch,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get pending => $composableBuilder(
+    column: $table.pending,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedGroupMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedGroupMessagesTable> {
+  $$CachedGroupMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get senderId =>
+      $composableBuilder(column: $table.senderId, builder: (column) => column);
+
+  GeneratedColumn<String> get ciphertext => $composableBuilder(
+    column: $table.ciphertext,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get keyEpoch =>
+      $composableBuilder(column: $table.keyEpoch, builder: (column) => column);
+
+  GeneratedColumn<bool> get pending =>
+      $composableBuilder(column: $table.pending, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$CachedGroupMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedGroupMessagesTable,
+          CachedGroupMessage,
+          $$CachedGroupMessagesTableFilterComposer,
+          $$CachedGroupMessagesTableOrderingComposer,
+          $$CachedGroupMessagesTableAnnotationComposer,
+          $$CachedGroupMessagesTableCreateCompanionBuilder,
+          $$CachedGroupMessagesTableUpdateCompanionBuilder,
+          (
+            CachedGroupMessage,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedGroupMessagesTable,
+              CachedGroupMessage
+            >,
+          ),
+          CachedGroupMessage,
+          PrefetchHooks Function()
+        > {
+  $$CachedGroupMessagesTableTableManager(
+    _$AppDatabase db,
+    $CachedGroupMessagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedGroupMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedGroupMessagesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedGroupMessagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<String> senderId = const Value.absent(),
+                Value<String> ciphertext = const Value.absent(),
+                Value<int> keyEpoch = const Value.absent(),
+                Value<bool> pending = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedGroupMessagesCompanion(
+                id: id,
+                groupId: groupId,
+                senderId: senderId,
+                ciphertext: ciphertext,
+                keyEpoch: keyEpoch,
+                pending: pending,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String groupId,
+                required String senderId,
+                required String ciphertext,
+                Value<int> keyEpoch = const Value.absent(),
+                Value<bool> pending = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedGroupMessagesCompanion.insert(
+                id: id,
+                groupId: groupId,
+                senderId: senderId,
+                ciphertext: ciphertext,
+                keyEpoch: keyEpoch,
+                pending: pending,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedGroupMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedGroupMessagesTable,
+      CachedGroupMessage,
+      $$CachedGroupMessagesTableFilterComposer,
+      $$CachedGroupMessagesTableOrderingComposer,
+      $$CachedGroupMessagesTableAnnotationComposer,
+      $$CachedGroupMessagesTableCreateCompanionBuilder,
+      $$CachedGroupMessagesTableUpdateCompanionBuilder,
+      (
+        CachedGroupMessage,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedGroupMessagesTable,
+          CachedGroupMessage
+        >,
+      ),
+      CachedGroupMessage,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4450,4 +5184,6 @@ class $AppDatabaseManager {
       $$AlertsTableTableManager(_db, _db.alerts);
   $$SyncQueueEntriesTableTableManager get syncQueueEntries =>
       $$SyncQueueEntriesTableTableManager(_db, _db.syncQueueEntries);
+  $$CachedGroupMessagesTableTableManager get cachedGroupMessages =>
+      $$CachedGroupMessagesTableTableManager(_db, _db.cachedGroupMessages);
 }

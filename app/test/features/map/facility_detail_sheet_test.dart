@@ -9,6 +9,8 @@ import 'package:jantar_mantar_sahayata/core/providers.dart';
 import 'package:jantar_mantar_sahayata/core/theme/app_theme.dart';
 import 'package:jantar_mantar_sahayata/features/map/presentation/facility_detail_sheet.dart';
 
+import '../../support/l10n_harness.dart';
+
 void main() {
   late AppDatabase db;
   final now = DateTime.now();
@@ -42,6 +44,8 @@ void main() {
         overrides: [appDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: AppTheme.light(),
+          localizationsDelegates: testLocalizationsDelegates,
+          supportedLocales: testSupportedLocales,
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(

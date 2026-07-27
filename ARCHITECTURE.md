@@ -36,8 +36,23 @@ Submission(id, facility_id?|new_geo, payload, photo?, submitter_id,
 Alert(id, severity[info|warn|critical], area_geo?, body, created_by, expires_at)
 AuditLog(id, actor_id, action, before, after, ts)          -- append-only
 SyncQueue(local_id, op, entity, payload, state, attempts)  -- client-side
+CachedGroupMessage(id, group_id, sender_id, ciphertext, key_epoch, pending,
+                   created_at)                             -- client-side, v3
 -- Phase 3: Group, Membership, Invite, GroupPin, PromotionRequest, Succession
 ```
+
+Local schema is at **v3** (`app/lib/core/db/app_database.dart`); v2 added
+`CachedGroupMessages`, v3 added `key_epoch`. It stores **ciphertext only** —
+group keys live in the OS keystore, so the SQLite file is worthless on a
+seized device and a panic-wipe of the keys makes the cache permanently
+unreadable. Rows flagged `pending` are messages encrypted on-device but not
+yet accepted by the server.
+
+**Group-key epochs (ADR-20).** Removing a member mints a new group key at the
+next epoch, sealed to everyone who remains. The device keeps every epoch it
+has held (`group_key_epochs_<group>` indexes them in the keystore) and each
+message carries the epoch it was sealed under, so rotation gives forward
+secrecy without destroying readable history.
 
 ## Sync rules
 1. Read: emit local immediately → refresh in background → update UI.

@@ -18,7 +18,17 @@ import 'db/dev_seed.dart';
 import 'sync/sync_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
-  final db = AppDatabase(driftDatabase(name: 'commonground'));
+  final db = AppDatabase(
+    driftDatabase(
+      name: 'commonground',
+      // Web needs the sqlite3 WebAssembly module + drift worker, shipped in
+      // web/. Native (Android/iOS/desktop) ignores this.
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    ),
+  );
   if (kDebugMode) {
     // Sample pins for development only; streams refresh when it lands.
     unawaited(seedDebugFacilities(db));

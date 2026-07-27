@@ -5,6 +5,11 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  exclude:
+    # drift_dev output — historical schema snapshots for the migration tests.
+    # Regenerated verbatim by `drift_dev schema generate`, so hand-fixing lint
+    # findings there would be undone on every schema change.
+    - test/core/db/generated_migrations/**
   plugins:
     - custom_lint
   language:

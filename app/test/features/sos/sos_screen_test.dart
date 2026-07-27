@@ -9,6 +9,8 @@ import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
 import 'package:jantar_mantar_sahayata/features/sos/presentation/sos_screen.dart';
 
+import '../../support/l10n_harness.dart';
+
 void main() {
   late AppDatabase db;
 
@@ -18,7 +20,11 @@ void main() {
   Widget app() {
     return ProviderScope(
       overrides: [appDatabaseProvider.overrideWithValue(db)],
-      child: const MaterialApp(home: SosScreen()),
+      child: MaterialApp(
+        localizationsDelegates: testLocalizationsDelegates,
+        supportedLocales: testSupportedLocales,
+        home: const SosScreen(),
+      ),
     );
   }
 

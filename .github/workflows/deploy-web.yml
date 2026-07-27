@@ -1,0 +1,74 @@
+name: Deploy web (PWA)
+
+# Publishes the Flutter web build to GitHub Pages so the app can be opened on
+# a phone and installed via Safari → Share → Add to Home Screen.
+#
+# The web build is for EVALUATION, not field use — see the notice the app shows
+# on web, and docs/hosting-web.md. No keystore, no offline tiles, no camera.
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; don't cancel a run that is mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # NOTE: Pages must be enabled ONCE by hand before this works —
+      #   Settings → Pages → Build and deployment → Source: GitHub Actions
+      # `enablement: true` looks like it would do this automatically, but the
+      # built-in GITHUB_TOKEN cannot create a Pages site ("Resource not
+      # accessible by integration"), so it just fails confusingly instead.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # Turn the cryptic 404 above into an instruction.
+      - name: Explain a missing Pages site
+        if: failure() && steps.pages.outcome == 'failure'
+        run: |
+          echo "::error::GitHub Pages is not enabled for this repository."
+          echo "::error::Enable it once: Settings → Pages → Build and deployment → Source: 'GitHub Actions', then re-run this workflow."
+          exit 1
+
+      # The site lives at /<repo>/, so the base href must match or every asset
+      # 404s.
+      - name: Build web
+        working-directory: app
+        run: |
+          flutter pub get
+          flutter build web --release \
+            --base-href "${{ steps.pages.outputs.base_path }}/"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

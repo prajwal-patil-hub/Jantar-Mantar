@@ -12,6 +12,7 @@ import 'package:jantar_mantar_sahayata/core/map/tile_providers.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
 import 'package:jantar_mantar_sahayata/features/submit/presentation/submit_flow_screen.dart';
 
+import '../../support/l10n_harness.dart';
 import '../../support/stub_tile_provider.dart';
 
 void main() {
@@ -27,6 +28,8 @@ void main() {
         mapTileProviderProvider.overrideWith((ref) => StubTileProvider()),
       ],
       child: MaterialApp(
+        localizationsDelegates: testLocalizationsDelegates,
+        supportedLocales: testSupportedLocales,
         home: SubmitFlowScreen(
           initialLocation: MapConfig.jantarMantar,
           prefill: prefill,

@@ -72,6 +72,33 @@ class Alerts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+/// Local cache of group chat so conversations open instantly and stay readable
+/// with no network.
+///
+/// Deliberately stores **ciphertext only** — never plaintext. The group key
+/// lives in the OS keystore, so a seized device with a dumped SQLite file
+/// yields nothing, and panic-wiping the keys makes this table unreadable
+/// (SECURITY.md: "minimal local sensitive data"). Rows with [pending] set are
+/// outgoing messages encrypted on-device but not yet accepted by the server.
+@DataClassName('CachedGroupMessage')
+@TableIndex(name: 'idx_cached_group_messages_group', columns: {#groupId})
+class CachedGroupMessages extends Table {
+  /// Server message id once acknowledged; a `local:` id while pending.
+  TextColumn get id => text()();
+  TextColumn get groupId => text()();
+  TextColumn get senderId => text()();
+  TextColumn get ciphertext => text()();
+
+  /// Which group-key epoch this ciphertext was sealed under. Keys rotate when
+  /// a member is removed, and old keys are kept so history stays readable.
+  IntColumn get keyEpoch => integer().withDefault(const Constant(1))();
+  BoolColumn get pending => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// Client-side outbox: every write lands here in the same transaction as its
 /// local effect, and the sync worker drains it with exponential backoff.
 @DataClassName('SyncQueueEntry')

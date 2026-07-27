@@ -17,12 +17,24 @@ class StatusColors extends ThemeExtension<StatusColors> {
   final Color out;
   final Color unverified;
 
+  /// Measured in `test/core/theme/color_accessibility_test.dart`, which is the
+  /// gate — change a value here and that test tells you what it cost.
   static const StatusColors standard = StatusColors(
-    good: Color(0xFF2E7D32), // ✓
-    low: Color(0xFFF9A825), // !
-    out: Color(0xFFC62828), // ✕
-    unverified: Color(0xFF9E9E9E), // ?
+    good: Color(0xFF2E7D32), // ✓  5.00:1 light · 3.63:1 dark
+    low: Color(0xFFF9A825), // !  see the note below
+    out: Color(0xFFC62828), // ✕  5.48:1 light · 3.31:1 dark
+    // Was #9E9E9E (2.61:1 on light — under the 3:1 bar for graphics).
+    unverified: Color(0xFF616161), // ?  6.04:1 light · 3.00:1 dark
   );
+
+  // Why `low` stays a bright amber despite measuring only 1.92:1 on the light
+  // surface: every darker amber that clears 3:1 collapses against the red
+  // "Out" under all three CVD simulations (#C07000 scores 0.036 separation,
+  // versus 0.26 today). "Low" versus "Out" is the most consequential
+  // distinction on the map — is there water left or not — so separability wins
+  // over fill contrast, and the shortfall is covered by the rule that status
+  // is always icon + text as well, never colour alone. Revisit only with a
+  // palette that satisfies both.
 
   @override
   StatusColors copyWith({

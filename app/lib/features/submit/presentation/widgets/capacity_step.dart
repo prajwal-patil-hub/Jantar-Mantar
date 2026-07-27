@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/submission_draft.dart';
 
 /// Step 3: big +/− steppers and presets, no keyboard (ui-ux-spec §1.8).
@@ -18,16 +19,17 @@ class CapacityStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final value = draft.capacityFor;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(
-          'Roughly how many people can it serve?',
+          l10n.stepCapacityQuestion,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
-        const Text('Skip this if it doesn’t apply.'),
+        Text(l10n.skipIfNotApplicable),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -70,7 +72,7 @@ class CapacityStep extends StatelessWidget {
                 onSelected: (_) => _set(preset),
               ),
             ChoiceChip(
-              label: const Text('Skip'),
+              label: Text(l10n.skip),
               selected: value == null,
               onSelected: (_) => _set(null),
             ),

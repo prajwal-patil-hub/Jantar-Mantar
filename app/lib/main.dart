@@ -8,6 +8,7 @@ import 'core/config/supabase_config.dart';
 import 'core/map/map_config.dart';
 import 'core/map/tile_providers.dart';
 import 'core/providers.dart';
+import 'core/security/certificate_pinning.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +29,14 @@ Future<void> main() async {
   // later in the background. Failure here degrades to offline-only.
   SupabaseClient? supabaseClient;
   try {
+    // Null unless a pin bundle is shipped — see CertificatePinning. When it is
+    // present the handshake fails closed against any CA outside the bundle,
+    // including one installed on the device.
+    final pinnedClient = await CertificatePinning.client();
     await Supabase.initialize(
       url: SupabaseConfig.url,
       publishableKey: SupabaseConfig.publishableKey,
+      httpClient: pinnedClient,
     );
     supabaseClient = Supabase.instance.client;
   } on Object {

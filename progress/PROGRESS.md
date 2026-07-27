@@ -1,6 +1,110 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 14 — 2026-07-26 · "Complete everything": broadcasts, QR scan, Phase-2 hardening, real test gates
+**Done:**
+- **Group broadcasts (ADR-21)** — reuse the alerts *presentation*, never the public alerts table (that would make group content server-readable and fetchable by non-members). The broadcast flag lives inside the ciphertext, so the server can't distinguish announcements from chatter. Untagged text stays a plain message → no migration, existing chat decodes unchanged. A test proves a user can't type a string that fakes one.
+- **QR scanning** (`mobile_scanner`) — `inviteCodeFrom()` treats scanned content as attacker input; only a well-formed 8-char code reaches `joinByCode`. Falls back to code-paste on web / no camera / denied permission.
+- **Panic wipe** — keys deleted FIRST so a wipe killed halfway still fails safe, then every table, then local sign-out. The dialog says what it cannot reach (the server, other devices).
+- **Cert pinning** — mechanism complete and fails closed, but shipped INACTIVE. This container's egress proxy terminates TLS, so any pin I derived here would have pinned Anthropic's sandbox CA. Added `tool/fetch_api_roots.sh` (refuses interception chains) + the procedure. A guessed pin is worse than none.
+- **EXIF stripping** — decode+re-encode, so thumbnails/maker notes/XMP can't survive; orientation baked in first. A test caught that `decodeImage` *throws* on malformed input rather than returning null — "fails closed" wasn't actually true until I fixed it.
+- **App icon + applicationId** — `io.github.prajwalpatilhub.commonground` (a namespace the owner actually controls). Icon: two overlapping saffron circles, intersection filled — abstract on purpose, since a recognisable symbol on a protester's home screen is itself a risk.
+
+**Three things that were only *claimed* before, and are now actually true:**
+- **Migration tests found a real bug.** The v2 step called `createTable` but never created the table's index, so every *upgraded* install lost the chat index and would full-scan on each 3s poll — on exactly the low-end devices we target. Fresh installs were fine, which is why nothing surfaced it.
+- **The RLS negatives had never been executed.** They now run in CI against a plain Postgres (shim, no Docker). All 25 pass — and I verified the suite *fails* when `messages_member_read` is weakened to `using (true)`. A suite that has only ever been green proves nothing.
+- **The CVD audit was a recurring ritual nobody ran.** Automated it; it found three genuine contrast failures. Fixed `unverified` (2.61:1 → 6.04:1). Two are accepted and **pinned, not waived**: `low` amber (1.92:1 — every compliant darker amber collapses against red under CVD, and Low-vs-Out is the map's most consequential distinction) and `good`-vs-`out` under protanopia (the only in-family fix makes "good" a teal that collides with info blue). Both are carried by the standing icon+text rule. The test also asserts the saffron accent is indistinguishable from status colours under CVD, giving ADR-10's "never use accent for status" ban teeth.
+
+**100 tests green; analyze + custom_lint clean; web build green.**
+
+**Honest gaps — all need hardware or a trusted network, none are code:** two-device E2E chat smoke test; TalkBack/VoiceOver sweep (checklist in `docs/accessibility-audit.md`, and the SOS hold-to-fire gesture is the one I'd expect trouble on); the TLS pin bundle; a production tile provider (ADR-13). Also: broadcasts are not push notifications — a member sees one when they next open the app.
+---
+## Session 13 — 2026-07-26 · Offline group chat (ADR-19): local ciphertext cache + outgoing queue
+**Done:**
+- **Drift schema v2** — `CachedGroupMessages(id, group_id, sender_id, ciphertext, pending, created_at)` + index, with a real `MigrationStrategy` (v1 installs get the table on upgrade, no data loss). First migration this project has needed.
+- **Ciphertext only, never plaintext.** The cache holds exactly what the server holds; the group key stays in the OS keystore. A seized device with a dumped SQLite file yields nothing, and wiping the keys makes the cache permanently unreadable — `GroupMessageCache.wipe()` is ready for the panic-wipe path. Caching plaintext would have handed away everything the E2E work exists to protect (ADR-19).
+- **Local-first reads.** `GroupsRepo.cachedMessages()` (new, no network) paints the conversation before any request; `messages()` refreshes, upserts the cache, and rebuilds through the same code path so cached and live reads cannot drift apart. `_groupKey` was split so the offline path can never touch the network.
+- **Visible degraded state**, not a silent failure or an empty chat: a refresh failure shows "Offline — showing saved messages" (cloud-off icon + text, bilingual) while the cached chat stays fully readable.
+- **Offline sends queue.** `sendMessage` encrypts on-device, persists with `pending = true`, then tries to push; no signal is *not* an error — the bubble shows "Sending…" (clock icon + text). The queue drains oldest-first and stops at the first failure, so message order can never break; an acked message is swapped for the server's copy in one transaction so it never blinks out of the list.
+- Demo repo implements `cachedMessages` too, so demo and real modes behave identically.
+- 57 tests green (+6: cache upsert/scoping/ordering, ciphertext-only, pending→acked lifecycle, clear/wipe, plus two widget tests that pump the real chat against a no-network repo and assert the offline banner and the queued "Sending…" bubble). analyze + custom_lint clean; web build green.
+
+**Honest gaps:** the v1→v2 migration is written and reviewed but not exercised by a drift schema-migration test (that needs generated schema snapshots — worth adding before the next schema change). Chat is still poll-based, not Realtime. Nothing calls `wipe()` yet because panic-wipe itself is still unbuilt.
+
+**Next:** key rotation on member removal, group broadcast reusing the alerts pipeline, QR scanning on device, RLS tests in CI.
+
+### Same session, part 2 — key rotation on member removal (ADR-20)
+**Done:**
+- **Drift v3**: `key_epoch` on the chat cache (additive migration, exercises the strategy added an hour earlier).
+- **Rotation**: admin Remove → the member row is deleted *first* (rotating while they're still a member would just hand them the new key) → a new random key at `epoch+1` is sealed to every remaining **active** member → cached locally.
+- **All epochs kept.** Keystore now indexes epochs per group (`group_key_epochs_<id>`), with a compat shim for the pre-rotation single-key location. Each message carries its epoch, so rotation gives forward secrecy *without* wiping readable history — the mistake that would have made this feature actively harmful.
+- **Offline-queued messages are re-sealed** under the current epoch before they go out, closing the window where a just-removed member could read something typed a minute before their removal.
+- `approveMember` now seals the *current* epoch, not a hardcoded `1` — a new member gets today's key, never the history predating them.
+- Honest UI: the confirm dialog states that they lose access and a new key is issued, **and** that messages already on their device stay there. If any remaining member has no published device key, `removeMember` returns that count and the UI warns rather than letting them silently go dark.
+- Fixed a bad first attempt: I inferred "is this me" from the admin flag, which would have blocked an admin from removing another admin. Replaced with an explicit `GroupMember.isMe` set by the repository (the only layer that knows the signed-in id).
+- **+3 pgTAP negatives → 15 group RLS assertions**: a non-admin cannot issue key envelopes (cannot rotate), cannot remove another member, and a removed member can no longer read the ciphertext at all.
+- 62 tests green (+5: three crypto-level rotation properties — removed member cannot read post-rotation messages or open the new envelope, old epochs stay readable, re-sealing works — plus demo removal and the isMe invariant). analyze + custom_lint clean; web build green.
+
+**Honest gaps:** rotation is forward-secrecy only, by construction. Neither migration (v1→v2, v2→v3) is covered by a drift schema-migration test — that needs generated schema snapshots and should land before the next schema change. The 15 RLS assertions are still written-but-not-run (needs `supabase start && supabase test db`).
+---
+## Session 12 — 2026-07-25 · QR invites, persisted Demo Mode, group RLS negative tests
+**Done:**
+- **QR invites**: `qr_flutter` (per ADR/"never qr_code_scanner") invite sheet — scannable QR on a white backing (readable in dark mode), copyable code, and an explicit "24h · 10 uses · admin approval still required" line, replacing the plain text dialog. Bilingual.
+- **Demo Mode persists** across launches (SharedPreferences, failure-tolerant like the locale provider); restored in `HomeShell.initState`.
+- **`supabase/tests/rls_groups_negative_test.sql`** — 12 pgTAP negative assertions for the group tables: an outsider cannot read hidden groups, messages, group-private pins, the roster, invite codes, or another member's sealed key; cannot post messages or plant pins; cannot self-approve from pending to active; and a pending member cannot read messages before approval. Closes the SECURITY.md "group scoping enforced with RLS + negative tests" gate at the code level.
+- 51 tests green (adds 3 demo-mode persistence tests); analyze + custom_lint clean; web build green.
+
+**Honest gaps:** QR *scanning* (`mobile_scanner`) still to do — needs a physical device, so joining is code-paste for now. The group RLS tests are written but not yet RUN (needs `supabase start && supabase test db` locally) or wired into CI.
+
+**Next:** local message caching, key rotation on member removal, group broadcast, QR scanning on device, RLS tests in CI.
+---
+## Session 11 — 2026-07-25 · Demo Mode (ADR-18) + group map layer, picker, Events i18n
+**Done:**
+- **ADR-18: Demo Mode, default ON** — user could not enable Supabase anonymous sign-in (no dashboard access), leaving Groups unusable. Added `core/demo/demo_mode.dart` and a `GroupsRepo` interface implemented by both the real `GroupsRepository` (E2E) and a new in-memory `DemoGroupsRepository`. Sample data: 3 groups (admin + member roles), members incl. a pending join request, bilingual chat history, group amenities; send/approve/create all work in-session.
+- Verification queue works in demo (sample pending submissions, working approve/reject); `canVerifyProvider` opens the admin screen without a login. Profile gained a Demo mode switch.
+- **Group amenities on the main map** + layers toggle FAB (off by default; square accent pins deliberately distinct from round public-facility pins so private group pins are never mistaken for verified public ones).
+- **Map picker for group amenities** — replaced the hardcoded site-centre coordinate with a drag-to-place screen (same no-GPS approach as the submit flow).
+- **Events screen** rebuilt with real sample events AND localized (en+hi) — it had shipped English-only, breaking the locked bilingual rule.
+- 48 tests green (6 demo/group tests incl. Groups tab rendering with no Supabase client, and the map-layer provider); analyze + custom_lint clean; web build green.
+
+**Honest gaps:** demo data is in-memory (resets on reload); demo chat is not encrypted (nothing leaves the device — the E2E path is the Supabase one); Demo Mode isn't persisted across reloads yet.
+
+**Next:** persist Demo Mode, local message caching, key rotation on member removal, QR invites, group broadcast, RLS negative tests for group tables.
+---
+## Session 10 — 2026-07-25 · Fixes + Phase 3 kickoff: Groups + E2E chat (ADR-16), no mesh (ADR-17)
+**Done:**
+- **Web run fix:** drift needs `web:` DriftWebOptions + `web/sqlite3.wasm` + `web/drift_worker.js` (version-matched) — fixed the "web parameter needs to be set" startup crash; `flutter build web` green.
+- **Nearby sheet fix:** was un-draggable (flutter_map pan gestures vs sheet drag + glass nav bar overlapping the handle). Now a DraggableScrollableController with tap-to-expand header + snap + nav-bar clearance; map test asserts header count.
+- **ADR-17: no in-app Bluetooth mesh chat** (user agreed) — research flags it broken/battery-heavy/"never for sensitive data" and it can't run on web.
+- **ADR-16: Groups (Phase 3) + E2E chat**, sequenced crypto-first:
+  - `core/crypto/`: `E2ECrypto` (X25519 identity, random group key, ECIES sealed-box key delivery, AES-GCM-256 messages), `DeviceIdentityService` (seed in OS keystore via flutter_secure_storage, `KeyStore` abstraction + in-memory for tests). 7 tests incl. non-recipient-can't-open, wrong-key-can't-decrypt, tamper-fails.
+  - `supabase/migrations/20260725000002_groups.sql`: groups/members/key_envelopes/invites/group_pins/group_messages + RLS deny-by-default + `is_group_member`/`is_group_admin`/`resolve_invite`.
+  - `features/groups/`: repository wiring crypto↔Supabase (create→seal-to-self, approve→seal-to-member, send→encrypt, read→decrypt), providers, UI (list, create, join-by-code, detail with E2E Chat/Members/Amenities tabs, admin invite + approval). Groups tab added to nav (now 5 destinations).
+  - New l10n keys (en+hi) for all group strings.
+- 42 tests green; analyze + custom_lint clean; web build green.
+
+**Deps added:** cryptography, flutter_secure_storage.
+
+**USER ACTIONS for groups to work live:** apply BOTH migrations (init + groups) in SQL editor; groups need sign-in (anonymous is fine) — the Groups tab shows a notice until backend + auth are live.
+
+**Known gaps (logged in ADR-16 / board):** key rotation on member removal, local message caching (currently online fetch), group-pin map picker, QR invites, group broadcast + map-layer toggle, RLS negative tests for group tables.
+
+**Next:** wire the above gaps; run the two-device E2E chat smoke test once backend is applied.
+---
+## Session 9 — 2026-07-24 · Phase 1: E9 — Hindi/English i18n + accessibility baseline (MVP core complete)
+**Done:**
+- **ADR-15: Flutter gen-l10n** — `l10n.yaml` + `lib/l10n/app_en.arb` / `app_hi.arb` (~110 keys each incl. plurals/placeholders), typed `AppL10n`. Every user-facing screen localized: nav shell, map (filters, Report, recenter, Nearby), facility detail sheet (capacity/freshness/stale/actions/report-closed dialog), 5-step submit flow, alerts feed + critical banner, SOS (instructions, call tiles, reset), profile, admin login, verification queue.
+- **Fonts:** bundled Noto Sans + Noto Sans Devanagari (6 TTFs from Google Fonts gstatic, in `assets/fonts/`), Devanagari wired as `fontFamilyFallback` so Hindi renders proper matras/conjuncts. NOT google_fonts runtime fetch (offline-first).
+- **Locale plumbing:** `core/l10n/locale_provider.dart` (SharedPreferences-persisted, defensive on failure, defaults to system); instant Language toggle (English/हिन्दी SegmentedButton) in Profile; MaterialApp wired with delegates + supportedLocales.
+- **Refactor:** domain enum labels moved to context-based `core/l10n/l10n_labels.dart`; `*_visuals.dart` now icons/colors only (removed English `.label` getters to avoid extension-name collision). Status stays color+icon+**localized** text everywhere.
+- Tests 35 green (added `localization_test.dart`: Hindi nav labels render Devanagari; en/hi resolve distinct strings). Shared `test/support/l10n_harness.dart` supplies delegates to widget tests building their own MaterialApp.
+- analyze + custom_lint clean.
+
+**Accessibility pass (baseline):** 48dp+ targets across buttons/tiles; Semantics on markers + SOS; color+icon+text rule holds in both languages; respects system text scale + locale. Full TalkBack/OEM + CVD-simulator sweep deferred to Phase 2 hardening.
+
+**Lesson:** two extensions on the same enum can't both expose a member named `label` (ambiguous) — dropped the English getters and centralized localized labels.
+
+**Next session:** device end-to-end smoke test (submit→approve→verified pin, toggle Hindi mid-flow), then Phase 2 hardening: cert pinning (dio + pin), flutter_secure_storage for the Supabase session, panic-wipe, RLS negative tests in CI, CVD/TalkBack audit; plus alert-broadcast admin UI and the EXIF-strip photo pipeline.
 ---
 ## Session 8 — 2026-07-24 · Phase 1: E5+E8 — Supabase backend, sync, anon auth, admin queue
 **Done:**

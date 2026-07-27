@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/demo/demo_mode.dart';
+import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../map/presentation/widgets/facility_visuals.dart';
 import '../application/verify_providers.dart';
 
@@ -22,15 +25,23 @@ class _VerificationQueueScreenState
   // Bumping the tick re-runs the family future = refresh after decisions.
   int _refreshTick = 0;
 
-  static const _rejectReasons = [
-    'Duplicate',
-    "Can't verify",
-    'Stale',
-    'Inaccurate',
-    'Spam',
+  List<String> _rejectReasons(AppL10n l10n) => [
+    l10n.reasonDuplicate,
+    l10n.reasonCantVerify,
+    l10n.reasonStale,
+    l10n.reasonInaccurate,
+    l10n.reasonSpam,
   ];
 
   Future<void> _approve(String id) async {
+    final l10n = AppL10n.of(context);
+    // Demo Mode: resolve locally, no backend call.
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoPendingQueueProvider.notifier).remove(id);
+      setState(() => _refreshTick++);
+      _showError('Approved (demo) — it would now publish to the map.');
+      return;
+    }
     final client = ref.read(supabaseClientProvider);
     if (client == null) return;
     try {
@@ -40,17 +51,18 @@ class _VerificationQueueScreenState
       );
       setState(() => _refreshTick++);
     } on Object catch (e) {
-      _showError('Approve failed: $e');
+      _showError(l10n.approveFailed('$e'));
     }
   }
 
   Future<void> _reject(String id) async {
+    final l10n = AppL10n.of(context);
     final reason = await showDialog<String>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Reject — why?'),
+        title: Text(l10n.rejectWhy),
         children: [
-          for (final reason in _rejectReasons)
+          for (final reason in _rejectReasons(l10n))
             SimpleDialogOption(
               onPressed: () => Navigator.of(context).pop(reason),
               child: Text(reason),
@@ -60,6 +72,12 @@ class _VerificationQueueScreenState
     );
     if (reason == null) return;
 
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoPendingQueueProvider.notifier).remove(id);
+      setState(() => _refreshTick++);
+      _showError('Rejected (demo): $reason');
+      return;
+    }
     final client = ref.read(supabaseClientProvider);
     if (client == null) return;
     try {
@@ -69,7 +87,7 @@ class _VerificationQueueScreenState
       );
       setState(() => _refreshTick++);
     } on Object catch (e) {
-      _showError('Reject failed: $e');
+      _showError(l10n.rejectFailed('$e'));
     }
   }
 
@@ -82,15 +100,16 @@ class _VerificationQueueScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final pending = ref.watch(pendingServerSubmissionsProvider(_refreshTick));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verification queue'),
+        title: Text(l10n.verificationQueue),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             onPressed: () => setState(() => _refreshTick++),
           ),
         ],
@@ -100,11 +119,11 @@ class _VerificationQueueScreenState
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Could not load the queue: $e'),
+            child: Text(l10n.queueLoadFailed('$e')),
           ),
         ),
         data: (rows) => rows.isEmpty
-            ? const Center(child: Text('Queue is clear — nothing pending.'))
+            ? Center(child: Text(l10n.queueClear))
             : ListView.builder(
                 padding: const EdgeInsets.all(12),
                 itemCount: rows.length,
@@ -132,11 +151,13 @@ class _SubmissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final id = row['id'] as String;
     final payload = (row['payload'] as Map?)?.cast<String, Object?>() ?? {};
     final categoryName = payload['category'] as String?;
     final category = FacilityType.values.asNameMap()[categoryName];
     final isUpdate = payload['mode'] == 'update';
+    final typeLabel = category?.label(l10n) ?? categoryName ?? '?';
     final createdAt = DateTime.tryParse(
       row['created_at'] as String? ?? '',
     )?.toLocal();
@@ -153,8 +174,9 @@ class _SubmissionCard extends StatelessWidget {
                 Icon(category?.icon ?? Icons.help_outline),
                 const SizedBox(width: 8),
                 Text(
-                  '${category?.label ?? categoryName ?? 'Unknown'} — '
-                  '${isUpdate ? 'update' : 'new facility'}',
+                  isUpdate
+                      ? l10n.queueCardUpdate(typeLabel)
+                      : l10n.queueCardNew(typeLabel),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
@@ -170,9 +192,9 @@ class _SubmissionCard extends StatelessWidget {
               spacing: 12,
               children: [
                 if (payload['status'] != null)
-                  Text('Status: ${payload['status']}'),
-                if (payload['forPeople'] != null)
-                  Text('Capacity: ~${payload['forPeople']}'),
+                  Text(l10n.reviewStatus(_statusLabel(l10n, payload))),
+                if (payload['forPeople'] is int)
+                  Text(l10n.reviewCapacityPeople(payload['forPeople'] as int)),
                 if (row['lat'] != null)
                   Text(
                     '(${(row['lat'] as num).toStringAsFixed(4)}, '
@@ -195,7 +217,7 @@ class _SubmissionCard extends StatelessWidget {
                     ),
                     onPressed: () => onApprove(id),
                     icon: const Icon(Icons.check),
-                    label: const Text('Approve'),
+                    label: Text(l10n.approve),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -207,7 +229,7 @@ class _SubmissionCard extends StatelessWidget {
                     ),
                     onPressed: () => onReject(id),
                     icon: const Icon(Icons.close),
-                    label: const Text('Reject'),
+                    label: Text(l10n.reject),
                   ),
                 ),
               ],
@@ -216,5 +238,10 @@ class _SubmissionCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _statusLabel(AppL10n l10n, Map<String, Object?> payload) {
+    final status = FacilityStatus.values.asNameMap()[payload['status']];
+    return status?.label(l10n) ?? '${payload['status']}';
   }
 }

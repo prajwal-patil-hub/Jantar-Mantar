@@ -3,8 +3,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../core/map/tile_providers.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../map/application/map_providers.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
@@ -51,6 +53,7 @@ class _LocationStepState extends ConsumerState<LocationStep> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
     final draft = widget.draft;
 
     if (draft.isUpdate) {
@@ -60,14 +63,14 @@ class _LocationStepState extends ConsumerState<LocationStep> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Updating an existing facility',
+              l10n.updatingExisting,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             ListTile(
               leading: Icon(draft.category?.icon),
               title: Text(draft.existingFacilityName ?? ''),
-              subtitle: const Text('Location stays as mapped'),
+              subtitle: Text(l10n.locationStaysMapped),
             ),
           ],
         ),
@@ -79,9 +82,12 @@ class _LocationStepState extends ConsumerState<LocationStep> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Where is it?', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          l10n.stepLocationQuestion,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 4),
-        const Text('Drag the map until the pin sits on the spot.'),
+        Text(l10n.stepLocationHint),
         const SizedBox(height: 12),
         SizedBox(
           height: 280,
@@ -131,9 +137,10 @@ class _LocationStepState extends ConsumerState<LocationStep> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Similar ${duplicate.facility.type.label.toLowerCase()} '
-                    '${duplicate.distanceMeters.round()} m away — update it '
-                    'instead?',
+                    l10n.duplicateHint(
+                      duplicate.facility.type.label(l10n).toLowerCase(),
+                      duplicate.distanceMeters.round(),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -147,7 +154,7 @@ class _LocationStepState extends ConsumerState<LocationStep> {
                             ..location = LatLng(f.lat, f.lng);
                           widget.onChanged();
                         },
-                        child: Text('Update ${duplicate.facility.name}'),
+                        child: Text(l10n.updateNamed(duplicate.facility.name)),
                       ),
                     ],
                   ),
