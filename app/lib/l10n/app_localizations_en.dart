@@ -63,7 +63,7 @@ class AppL10nEn extends AppL10n {
   String get report => 'Report';
 
   @override
-  String get recenter => 'Back to Jantar Mantar';
+  String get recenter => 'Recentre the map';
 
   @override
   String get sos => 'SOS';
@@ -699,6 +699,75 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get eventLiveNow => 'Live now';
+
+  @override
+  String get jumpToSite => 'Jump to a site';
+
+  @override
+  String get eventDelhiSitInTitle => 'Overnight sit-in';
+
+  @override
+  String get eventDelhiSitInNote =>
+      'Bring warm layers; shade tents convert to sleeping cover after 9 PM.';
+
+  @override
+  String get eventDelhiSitInLocation => 'Jantar Mantar, New Delhi';
+
+  @override
+  String get eventDelhiSitInTime => 'Tonight, 9:00 PM';
+
+  @override
+  String get eventLondonTitle => 'Parliament Square assembly';
+
+  @override
+  String get eventLondonNote =>
+      'Speeches from the Gandhi statue. Legal observers in orange hi-vis.';
+
+  @override
+  String get eventLondonLocation => 'Parliament Square, London';
+
+  @override
+  String get eventLondonTime => 'Live now';
+
+  @override
+  String get eventLondonLegalTitle => 'Know-your-rights briefing';
+
+  @override
+  String get eventLondonLegalNote =>
+      'Short session on stop-and-search and what to do if detained.';
+
+  @override
+  String get eventLondonLegalLocation =>
+      'Westminster Bridge north side, London';
+
+  @override
+  String get eventLondonLegalTime => 'Starts 5:00 PM';
+
+  @override
+  String get eventBengaluruTitle => 'Town Hall gathering';
+
+  @override
+  String get eventBengaluruNote =>
+      'Water tanker and community meal counter on site.';
+
+  @override
+  String get eventBengaluruLocation => 'Town Hall, Bengaluru';
+
+  @override
+  String get eventBengaluruTime => 'Live now';
+
+  @override
+  String get eventBengaluruWaterTitle => 'Shade tent build';
+
+  @override
+  String get eventBengaluruWaterNote =>
+      'Volunteers needed to raise six more tents before the afternoon heat.';
+
+  @override
+  String get eventBengaluruWaterLocation => 'JC Road side, Bengaluru';
+
+  @override
+  String get eventBengaluruWaterTime => 'Tomorrow, 7:00 AM';
 
   @override
   String get pickOnMap => 'Place on map';

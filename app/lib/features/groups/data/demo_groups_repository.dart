@@ -53,6 +53,32 @@ class DemoGroupsRepository implements GroupsRepo {
         myRole: GroupRole.member,
         myState: MemberState.active,
       ),
+      const Group(
+        id: 'demo-london',
+        name: 'London — Parliament Square',
+        description: 'Westminster support crew',
+        visibility: 'hidden',
+        myRole: GroupRole.admin,
+        myState: MemberState.active,
+      ),
+      const Group(
+        id: 'demo-bengaluru',
+        name: 'Bengaluru — Town Hall',
+        description: 'Water, food and shade coordination',
+        visibility: 'public',
+        myRole: GroupRole.member,
+        myState: MemberState.active,
+      ),
+      // Awaiting approval — the list shows the hourglass and the tile is not
+      // tappable, which is the mandatory-approval rule made visible.
+      const Group(
+        id: 'demo-pending',
+        name: 'Press & Documentation',
+        description: 'Requested to join — waiting on an admin',
+        visibility: 'hidden',
+        myRole: GroupRole.member,
+        myState: MemberState.pending,
+      ),
     ]);
 
     _members['demo-medical'] = const [
@@ -206,6 +232,134 @@ class DemoGroupsRepository implements GroupsRepo {
       ),
     ];
     _pins['demo-legal'] = const [];
+
+    // --- London ---------------------------------------------------------
+    _members['demo-london'] = const [
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'You (admin)',
+        isMe: true,
+      ),
+      GroupMember(
+        userId: 'demo-sam',
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'Sam',
+      ),
+      GroupMember(
+        userId: 'demo-nadia',
+        role: GroupRole.member,
+        state: MemberState.pending,
+        displayName: 'Nadia (wants to join)',
+      ),
+    ];
+    _messages['demo-london'] = [
+      GroupMessage(
+        id: 'ldn0',
+        senderId: 'demo-sam',
+        createdAt: now.subtract(const Duration(minutes: 18)),
+        decrypted:
+            'Bridge St is being kettled — do not go east from the square.',
+        mine: false,
+        broadcastSeverity: AlertSeverity.critical,
+      ),
+      GroupMessage(
+        id: 'ldn1',
+        senderId: 'demo-sam',
+        createdAt: now.subtract(const Duration(minutes: 15)),
+        decrypted: 'Legal observers are wearing orange hi-vis.',
+        mine: false,
+      ),
+      GroupMessage(
+        id: 'ldn2',
+        senderId: demoUserId,
+        createdAt: now.subtract(const Duration(minutes: 9)),
+        decrypted: 'Understood — routing people to the west side.',
+        mine: true,
+      ),
+    ];
+    _pins['demo-london'] = const [
+      GroupPin(
+        id: 'ldn-p1',
+        type: 'meeting',
+        label: 'Legal observer rally point',
+        lat: 51.4998,
+        lng: -0.1272,
+        note: 'Orange hi-vis, by the Gandhi statue',
+      ),
+      GroupPin(
+        id: 'ldn-p2',
+        type: 'supply',
+        label: 'Spare water crates',
+        lat: 51.5012,
+        lng: -0.1290,
+        note: 'Under the gazebo',
+      ),
+    ];
+
+    // --- Bengaluru ------------------------------------------------------
+    _members['demo-bengaluru'] = const [
+      GroupMember(
+        userId: 'demo-arun',
+        role: GroupRole.admin,
+        state: MemberState.active,
+        displayName: 'Arun (admin)',
+      ),
+      GroupMember(
+        userId: demoUserId,
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'You',
+        isMe: true,
+      ),
+      GroupMember(
+        userId: 'demo-lakshmi',
+        role: GroupRole.member,
+        state: MemberState.active,
+        displayName: 'Lakshmi',
+      ),
+    ];
+    _messages['demo-bengaluru'] = [
+      GroupMessage(
+        id: 'blr1',
+        senderId: 'demo-arun',
+        createdAt: now.subtract(const Duration(minutes: 50)),
+        decrypted: 'ಟೌನ್ ಹಾಲ್ ಬಳಿ ನೀರಿನ ಟ್ಯಾಂಕರ್ ಬಂದಿದೆ.',
+        mine: false,
+      ),
+      GroupMessage(
+        id: 'blr2',
+        senderId: 'demo-lakshmi',
+        createdAt: now.subtract(const Duration(minutes: 22)),
+        decrypted: 'शाम 4 बजे तक छाया वाले टेंट तैयार हो जाएँगे।',
+        mine: false,
+      ),
+      GroupMessage(
+        id: 'blr3',
+        senderId: demoUserId,
+        createdAt: now.subtract(const Duration(minutes: 6)),
+        decrypted: 'I can cover the food counter until 6.',
+        mine: true,
+      ),
+    ];
+    _pins['demo-bengaluru'] = const [
+      GroupPin(
+        id: 'blr-p1',
+        type: 'supply',
+        label: 'Shade tent store',
+        lat: 12.9648,
+        lng: 77.5866,
+        note: 'Poles and tarps for 6 more tents',
+      ),
+    ];
+
+    // Pending membership: no roster, no chat, no pins are readable yet —
+    // exactly what the RLS negative tests assert on the real backend.
+    _members['demo-pending'] = const [];
+    _messages['demo-pending'] = [];
+    _pins['demo-pending'] = const [];
   }
 
   @override

@@ -31,6 +31,42 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   final _mapController = MapController();
+  ProtestSite _site = MapConfig.sites.first;
+
+  /// Lets the map reach demo data in other cities. Single-site remains the
+  /// product's default; this only moves the camera.
+  Future<void> _pickSite() async {
+    final l10n = AppL10n.of(context);
+    final picked = await showModalBottomSheet<ProtestSite>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(
+                l10n.jumpToSite,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            for (final site in MapConfig.sites)
+              ListTile(
+                leading: Icon(
+                  site.id == _site.id
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                ),
+                title: Text(site.name),
+                onTap: () => Navigator.of(context).pop(site),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null) return;
+    setState(() => _site = picked);
+    _mapController.move(picked.center, MapConfig.initialZoom);
+  }
 
   @override
   void dispose() {
@@ -170,11 +206,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               FloatingActionButton.small(
                 heroTag: 'recenter',
                 tooltip: l10n.recenter,
-                onPressed: () => _mapController.move(
-                  MapConfig.jantarMantar,
-                  MapConfig.initialZoom,
-                ),
+                // Recentres on whichever site is currently selected.
+                onPressed: () =>
+                    _mapController.move(_site.center, MapConfig.initialZoom),
                 child: const Icon(Icons.my_location),
+              ),
+              const SizedBox(height: 12),
+              FloatingActionButton.small(
+                heroTag: 'sites',
+                tooltip: l10n.jumpToSite,
+                onPressed: _pickSite,
+                child: const Icon(Icons.travel_explore),
               ),
               const SizedBox(height: 12),
               FloatingActionButton.extended(

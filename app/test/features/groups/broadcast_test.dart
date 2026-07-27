@@ -60,9 +60,12 @@ void main() {
     addTearDown(container.dispose);
 
     final seeded = await container.read(groupBroadcastsProvider.future);
-    expect(seeded, hasLength(1));
-    expect(seeded.single.groupName, 'Water Distribution');
-    expect(seeded.single.message.broadcastSeverity, AlertSeverity.warn);
+    expect(seeded, hasLength(2));
+    // Newest first, and spanning more than one city.
+    expect(seeded.first.groupName, 'London — Parliament Square');
+    expect(seeded.first.message.broadcastSeverity, AlertSeverity.critical);
+    expect(seeded.last.groupName, 'Water Distribution');
+    expect(seeded.last.message.broadcastSeverity, AlertSeverity.warn);
 
     // A new broadcast shows up; ordinary chat does not.
     final repo = container.read(demoGroupsRepositoryProvider);
@@ -75,7 +78,7 @@ void main() {
     container.invalidate(groupBroadcastsProvider);
 
     final after = await container.read(groupBroadcastsProvider.future);
-    expect(after, hasLength(2));
+    expect(after, hasLength(3));
     // Newest first.
     expect(after.first.message.decrypted, 'Move the first-aid tent to Gate 3');
     expect(

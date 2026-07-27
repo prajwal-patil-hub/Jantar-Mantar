@@ -44,6 +44,47 @@ class EventsScreen extends StatelessWidget {
         note: l10n.eventLangarNote,
         verified: false,
       ),
+      _EventData(
+        title: l10n.eventDelhiSitInTitle,
+        status: _EventStatus.upcoming,
+        time: l10n.eventDelhiSitInTime,
+        location: l10n.eventDelhiSitInLocation,
+        note: l10n.eventDelhiSitInNote,
+        verified: true,
+      ),
+      // Other cities, matching the map's site switcher.
+      _EventData(
+        title: l10n.eventLondonTitle,
+        status: _EventStatus.live,
+        time: l10n.eventLondonTime,
+        location: l10n.eventLondonLocation,
+        note: l10n.eventLondonNote,
+        verified: true,
+      ),
+      _EventData(
+        title: l10n.eventLondonLegalTitle,
+        status: _EventStatus.today,
+        time: l10n.eventLondonLegalTime,
+        location: l10n.eventLondonLegalLocation,
+        note: l10n.eventLondonLegalNote,
+        verified: true,
+      ),
+      _EventData(
+        title: l10n.eventBengaluruTitle,
+        status: _EventStatus.live,
+        time: l10n.eventBengaluruTime,
+        location: l10n.eventBengaluruLocation,
+        note: l10n.eventBengaluruNote,
+        verified: true,
+      ),
+      _EventData(
+        title: l10n.eventBengaluruWaterTitle,
+        status: _EventStatus.upcoming,
+        time: l10n.eventBengaluruWaterTime,
+        location: l10n.eventBengaluruWaterLocation,
+        note: l10n.eventBengaluruWaterNote,
+        verified: false,
+      ),
     ];
 
     return SafeArea(

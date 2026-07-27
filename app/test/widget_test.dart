@@ -54,8 +54,13 @@ void main() {
     // No public alerts in a fresh DB, but Demo Mode seeds a group broadcast,
     // so the feed shows the group section rather than the empty state.
     expect(find.text('From your groups'), findsOneWidget);
+    // Broadcasts from more than one city, newest first.
+    expect(
+      find.text('London — Parliament Square · Critical'),
+      findsOneWidget,
+    );
     expect(find.text('Water Distribution · Warning'), findsOneWidget);
-    expect(find.text('Group broadcast · members only'), findsOneWidget);
+    expect(find.text('Group broadcast · members only'), findsNWidgets(2));
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));

@@ -208,7 +208,7 @@ abstract class AppL10n {
   /// No description provided for @recenter.
   ///
   /// In en, this message translates to:
-  /// **'Back to Jantar Mantar'**
+  /// **'Recentre the map'**
   String get recenter;
 
   /// No description provided for @sos.
@@ -1284,6 +1284,132 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Live now'**
   String get eventLiveNow;
+
+  /// No description provided for @jumpToSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to a site'**
+  String get jumpToSite;
+
+  /// No description provided for @eventDelhiSitInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overnight sit-in'**
+  String get eventDelhiSitInTitle;
+
+  /// No description provided for @eventDelhiSitInNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring warm layers; shade tents convert to sleeping cover after 9 PM.'**
+  String get eventDelhiSitInNote;
+
+  /// No description provided for @eventDelhiSitInLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Jantar Mantar, New Delhi'**
+  String get eventDelhiSitInLocation;
+
+  /// No description provided for @eventDelhiSitInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonight, 9:00 PM'**
+  String get eventDelhiSitInTime;
+
+  /// No description provided for @eventLondonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Parliament Square assembly'**
+  String get eventLondonTitle;
+
+  /// No description provided for @eventLondonNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Speeches from the Gandhi statue. Legal observers in orange hi-vis.'**
+  String get eventLondonNote;
+
+  /// No description provided for @eventLondonLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Parliament Square, London'**
+  String get eventLondonLocation;
+
+  /// No description provided for @eventLondonTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Live now'**
+  String get eventLondonTime;
+
+  /// No description provided for @eventLondonLegalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Know-your-rights briefing'**
+  String get eventLondonLegalTitle;
+
+  /// No description provided for @eventLondonLegalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Short session on stop-and-search and what to do if detained.'**
+  String get eventLondonLegalNote;
+
+  /// No description provided for @eventLondonLegalLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Westminster Bridge north side, London'**
+  String get eventLondonLegalLocation;
+
+  /// No description provided for @eventLondonLegalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts 5:00 PM'**
+  String get eventLondonLegalTime;
+
+  /// No description provided for @eventBengaluruTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Town Hall gathering'**
+  String get eventBengaluruTitle;
+
+  /// No description provided for @eventBengaluruNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Water tanker and community meal counter on site.'**
+  String get eventBengaluruNote;
+
+  /// No description provided for @eventBengaluruLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Town Hall, Bengaluru'**
+  String get eventBengaluruLocation;
+
+  /// No description provided for @eventBengaluruTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Live now'**
+  String get eventBengaluruTime;
+
+  /// No description provided for @eventBengaluruWaterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shade tent build'**
+  String get eventBengaluruWaterTitle;
+
+  /// No description provided for @eventBengaluruWaterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Volunteers needed to raise six more tents before the afternoon heat.'**
+  String get eventBengaluruWaterNote;
+
+  /// No description provided for @eventBengaluruWaterLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'JC Road side, Bengaluru'**
+  String get eventBengaluruWaterLocation;
+
+  /// No description provided for @eventBengaluruWaterTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, 7:00 AM'**
+  String get eventBengaluruWaterTime;
 
   /// No description provided for @pickOnMap.
   ///

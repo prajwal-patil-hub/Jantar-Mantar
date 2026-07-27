@@ -19,9 +19,22 @@ void main() {
       final repo = DemoGroupsRepository();
 
       final groups = await repo.myGroups();
-      expect(groups, hasLength(3));
+      expect(groups, hasLength(6));
       expect(groups.first.name, 'Medical Volunteers');
       expect(groups.first.isAdmin, isTrue);
+      // Other cities, so the demo is not implicitly Delhi-only.
+      expect(
+        groups.map((g) => g.name),
+        containsAll(<String>[
+          'London — Parliament Square',
+          'Bengaluru — Town Hall',
+        ]),
+      );
+      // One group is still awaiting approval, so the pending state is visible.
+      expect(
+        groups.where((g) => g.myState == MemberState.pending),
+        hasLength(1),
+      );
 
       final members = await repo.members('demo-medical');
       expect(members, hasLength(4));
@@ -67,6 +80,12 @@ void main() {
       () async {
         final repo = DemoGroupsRepository();
         for (final group in await repo.myGroups()) {
+          // A pending membership can't read the roster at all — that is the
+          // mandatory-approval rule, enforced by RLS on the real backend.
+          if (group.myState != MemberState.active) {
+            expect(await repo.members(group.id), isEmpty);
+            continue;
+          }
           final members = await repo.members(group.id);
           expect(members.where((m) => m.isMe), hasLength(1));
         }
