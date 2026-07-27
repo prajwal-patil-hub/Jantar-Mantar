@@ -787,6 +787,13 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get webLimitedTitle => 'Browser version — for trying it out';
+
+  @override
+  String get webLimitedBody =>
+      'This build runs in a browser, so it cannot use the phone\'s secure key storage, offline map caching, or the camera. Encryption keys are kept in browser storage, which Safari can delete after about a week of not opening the app — that would permanently lose your group chat history. Use the installed app for anything real.';
+
+  @override
   String get demoMode => 'Demo mode';
 
   @override

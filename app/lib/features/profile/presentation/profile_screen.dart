@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,6 +29,42 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           Text(l10n.profile, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 16),
+          // On web there is no OS keystore: flutter_secure_storage falls back
+          // to localStorage, which Safari evicts after ~7 idle days — that
+          // would destroy the device identity and make cached group chat
+          // permanently undecryptable. Say so where someone might otherwise
+          // turn Demo Mode off and start using real E2E chat here.
+          if (kIsWeb) ...[
+            Card(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.public_off, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.webLimitedTitle,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.webLimitedBody,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           Card(
             child: ListTile(
               leading: Badge(

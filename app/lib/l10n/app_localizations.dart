@@ -1429,6 +1429,18 @@ abstract class AppL10n {
   /// **'Wipe failed: {error}'**
   String panicWipeFailed(String error);
 
+  /// No description provided for @webLimitedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browser version — for trying it out'**
+  String get webLimitedTitle;
+
+  /// No description provided for @webLimitedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This build runs in a browser, so it cannot use the phone\'s secure key storage, offline map caching, or the camera. Encryption keys are kept in browser storage, which Safari can delete after about a week of not opening the app — that would permanently lose your group chat history. Use the installed app for anything real.'**
+  String get webLimitedBody;
+
   /// No description provided for @demoMode.
   ///
   /// In en, this message translates to:

@@ -1,0 +1,65 @@
+name: Deploy web (PWA)
+
+# Publishes the Flutter web build to GitHub Pages so the app can be opened on
+# a phone and installed via Safari → Share → Add to Home Screen.
+#
+# The web build is for EVALUATION, not field use — see the notice the app shows
+# on web, and docs/hosting-web.md. No keystore, no offline tiles, no camera.
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; don't cancel a run that is mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # enablement: true turns Pages on the first time, so there is no manual
+      # settings step.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # The site lives at /<repo>/, so the base href must match or every asset
+      # 404s.
+      - name: Build web
+        working-directory: app
+        run: |
+          flutter pub get
+          flutter build web --release \
+            --base-href "${{ steps.pages.outputs.base_path }}/"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
