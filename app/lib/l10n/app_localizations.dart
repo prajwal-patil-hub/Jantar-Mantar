@@ -859,6 +859,114 @@ abstract class AppL10n {
   /// **'Spam'**
   String get reasonSpam;
 
+  /// No description provided for @alertSignals.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical alert signals'**
+  String get alertSignals;
+
+  /// No description provided for @alertVibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate'**
+  String get alertVibrate;
+
+  /// No description provided for @alertVibrateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buzz twice when a critical alert arrives.'**
+  String get alertVibrateSubtitle;
+
+  /// No description provided for @alertSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get alertSound;
+
+  /// No description provided for @alertSoundSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default — an unexpected chime can identify you in a crowd.'**
+  String get alertSoundSubtitle;
+
+  /// No description provided for @auditLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get auditLog;
+
+  /// No description provided for @auditLogEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No admin actions recorded yet.'**
+  String get auditLogEmpty;
+
+  /// No description provided for @auditLogAppendOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Append-only. Entries cannot be edited or deleted, including by admins.'**
+  String get auditLogAppendOnly;
+
+  /// No description provided for @auditApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved a submission'**
+  String get auditApproved;
+
+  /// No description provided for @auditRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected a submission'**
+  String get auditRejected;
+
+  /// No description provided for @auditAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Published an alert'**
+  String get auditAlert;
+
+  /// No description provided for @auditBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {actor}'**
+  String auditBy(String actor);
+
+  /// No description provided for @selectMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get selectMode;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
+
+  /// No description provided for @approveSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve selected'**
+  String get approveSelected;
+
+  /// No description provided for @approveSelectedConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve {count} submissions? Each one publishes to the public map immediately.'**
+  String approveSelectedConfirm(int count);
+
+  /// No description provided for @batchApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} approved.'**
+  String batchApproved(int count);
+
+  /// No description provided for @batchPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} approved, {failed} failed.'**
+  String batchPartial(int done, int failed);
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:

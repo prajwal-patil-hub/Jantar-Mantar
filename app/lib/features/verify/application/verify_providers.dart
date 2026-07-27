@@ -114,3 +114,70 @@ final authChangesForVerifyProvider = StreamProvider<AuthState>((ref) {
   if (client == null) return const Stream.empty();
   return client.auth.onAuthStateChange;
 });
+
+/// Append-only audit trail (E5). `audit_log` is admin-read-only by RLS and is
+/// written by the SECURITY DEFINER decision functions, so this is a read-only
+/// window onto what admins actually did — the accountability half of
+/// verify-before-display.
+final auditLogProvider = FutureProvider.autoDispose
+    .family<List<Map<String, Object?>>, int>((ref, refreshTick) async {
+      if (ref.watch(demoModeProvider)) {
+        return ref.watch(demoAuditLogProvider);
+      }
+      final client = ref.watch(supabaseClientProvider);
+      if (client == null) throw StateError('Backend not configured.');
+      final rows = await client
+          .from('audit_log')
+          .select('id, actor_id, action, entity, entity_id, ts')
+          .order('ts', ascending: false)
+          .limit(100);
+      return List<Map<String, Object?>>.from(rows);
+    });
+
+/// Sample audit entries so the viewer is explorable in Demo Mode.
+final demoAuditLogProvider = Provider<List<Map<String, Object?>>>((ref) {
+  final now = DateTime.now();
+  String at(int m) => now.subtract(Duration(minutes: m)).toIso8601String();
+  return [
+    {
+      'id': 5,
+      'actor_id': 'admin-meera',
+      'action': 'approve_submission',
+      'entity': 'submission',
+      'entity_id': 'demo-sub-9',
+      'ts': at(3),
+    },
+    {
+      'id': 4,
+      'actor_id': 'admin-meera',
+      'action': 'reject_submission',
+      'entity': 'submission',
+      'entity_id': 'demo-sub-8',
+      'ts': at(14),
+    },
+    {
+      'id': 3,
+      'actor_id': 'admin-vikram',
+      'action': 'publish_alert',
+      'entity': 'alert',
+      'entity_id': 'seed-alert-critical',
+      'ts': at(27),
+    },
+    {
+      'id': 2,
+      'actor_id': 'admin-vikram',
+      'action': 'approve_submission',
+      'entity': 'submission',
+      'entity_id': 'demo-sub-7',
+      'ts': at(52),
+    },
+    {
+      'id': 1,
+      'actor_id': 'admin-meera',
+      'action': 'approve_submission',
+      'entity': 'submission',
+      'entity_id': 'demo-sub-6',
+      'ts': at(96),
+    },
+  ];
+});

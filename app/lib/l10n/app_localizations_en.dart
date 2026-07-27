@@ -446,6 +446,73 @@ class AppL10nEn extends AppL10n {
   String get reasonSpam => 'Spam';
 
   @override
+  String get alertSignals => 'Critical alert signals';
+
+  @override
+  String get alertVibrate => 'Vibrate';
+
+  @override
+  String get alertVibrateSubtitle =>
+      'Buzz twice when a critical alert arrives.';
+
+  @override
+  String get alertSound => 'Sound';
+
+  @override
+  String get alertSoundSubtitle =>
+      'Off by default — an unexpected chime can identify you in a crowd.';
+
+  @override
+  String get auditLog => 'Audit log';
+
+  @override
+  String get auditLogEmpty => 'No admin actions recorded yet.';
+
+  @override
+  String get auditLogAppendOnly =>
+      'Append-only. Entries cannot be edited or deleted, including by admins.';
+
+  @override
+  String get auditApproved => 'Approved a submission';
+
+  @override
+  String get auditRejected => 'Rejected a submission';
+
+  @override
+  String get auditAlert => 'Published an alert';
+
+  @override
+  String auditBy(String actor) {
+    return 'by $actor';
+  }
+
+  @override
+  String get selectMode => 'Select';
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get approveSelected => 'Approve selected';
+
+  @override
+  String approveSelectedConfirm(int count) {
+    return 'Approve $count submissions? Each one publishes to the public map immediately.';
+  }
+
+  @override
+  String batchApproved(int count) {
+    return '$count approved.';
+  }
+
+  @override
+  String batchPartial(int done, int failed) {
+    return '$done approved, $failed failed.';
+  }
+
+  @override
   String get cancel => 'Cancel';
 
   @override

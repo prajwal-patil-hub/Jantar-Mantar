@@ -444,6 +444,72 @@ class AppL10nHi extends AppL10n {
   String get reasonSpam => 'स्पैम';
 
   @override
+  String get alertSignals => 'गंभीर चेतावनी संकेत';
+
+  @override
+  String get alertVibrate => 'कंपन';
+
+  @override
+  String get alertVibrateSubtitle => 'गंभीर चेतावनी आने पर दो बार कंपन।';
+
+  @override
+  String get alertSound => 'ध्वनि';
+
+  @override
+  String get alertSoundSubtitle =>
+      'डिफ़ॉल्ट रूप से बंद — अचानक बजी आवाज़ भीड़ में आपकी पहचान करा सकती है।';
+
+  @override
+  String get auditLog => 'ऑडिट लॉग';
+
+  @override
+  String get auditLogEmpty => 'अभी तक कोई व्यवस्थापक कार्रवाई दर्ज नहीं।';
+
+  @override
+  String get auditLogAppendOnly =>
+      'केवल जोड़ा जा सकता है। प्रविष्टियाँ संपादित या हटाई नहीं जा सकतीं — व्यवस्थापक भी नहीं।';
+
+  @override
+  String get auditApproved => 'एक सबमिशन स्वीकृत किया';
+
+  @override
+  String get auditRejected => 'एक सबमिशन अस्वीकार किया';
+
+  @override
+  String get auditAlert => 'एक चेतावनी प्रकाशित की';
+
+  @override
+  String auditBy(String actor) {
+    return '$actor द्वारा';
+  }
+
+  @override
+  String get selectMode => 'चुनें';
+
+  @override
+  String selectedCount(int count) {
+    return '$count चुने गए';
+  }
+
+  @override
+  String get approveSelected => 'चुने हुए स्वीकृत करें';
+
+  @override
+  String approveSelectedConfirm(int count) {
+    return '$count सबमिशन स्वीकृत करें? हर एक तुरंत सार्वजनिक नक्शे पर प्रकाशित होगा।';
+  }
+
+  @override
+  String batchApproved(int count) {
+    return '$count स्वीकृत।';
+  }
+
+  @override
+  String batchPartial(int done, int failed) {
+    return '$done स्वीकृत, $failed विफल।';
+  }
+
+  @override
   String get cancel => 'रद्द करें';
 
   @override

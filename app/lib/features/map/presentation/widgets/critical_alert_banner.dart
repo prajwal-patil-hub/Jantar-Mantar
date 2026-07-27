@@ -5,6 +5,7 @@ import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/theme/status_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../alerts/application/alerts_providers.dart';
+import '../../../alerts/application/critical_alert_signal.dart';
 
 /// Full-width critical-alert banner on the map (ui-ux-spec §1.10). Appears
 /// instantly with NO animation — safety-critical info never waits for
@@ -15,6 +16,9 @@ class CriticalAlertBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final alert = ref.watch(criticalAlertProvider);
+    // Buzz/chime once per new critical alert. Watched here because this is
+    // the one widget that is mounted exactly when a critical alert is live.
+    ref.watch(criticalAlertSignalProvider);
     if (alert == null) return const SizedBox.shrink();
 
     final l10n = AppL10n.of(context);

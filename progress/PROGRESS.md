@@ -1,6 +1,19 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 17 — 2026-07-27 · E5 closed (audit log + batch approve) · E6 closed (critical-alert signals)
+**Done:**
+- **Audit-log viewer** — `features/verify/presentation/audit_log_screen.dart`, reached from an `Icons.history` action in the queue AppBar. The backend has written an append-only `audit_log` since ADR-14, but nothing in the app could read it, so verify-before-display had accountability on paper only. Read-only by design: `audit_log` has no update or delete policy at all, and putting edit affordances on the screen would imply otherwise. The append-only promise is stated in the UI, not just in the schema. Demo Mode serves five sample entries so it is explorable with no backend.
+- **Batch approve** — opt-in select mode, off by default. While it is on, the per-card approve/reject buttons are **hidden**: mixing a one-tap publish into a multi-select list is how the wrong thing reaches the public map. Confirmation states the count. The RPCs run **sequentially**, so each gets its own server-side authz check, and the result is reported as done/failed counts — a partial failure says "3 approved, 1 failed", never a blanket "done".
+- **Edit-before-approve deliberately NOT built** and logged as such: it needs a new RPC parameter and a migration, and reject-with-reason already covers "this is wrong". Left ticked open in PROJECT_MANAGEMENT.md rather than quietly dropped.
+- **Critical-alert sound/vibration (ADR-24)** — the last E6 item, and it needed **no plugin**: `HapticFeedback` + `SystemSound` from `flutter/services`, so no permission prompt, no notification channel, nothing added to the manifest. The design decision is the asymmetry: **vibration on by default, sound off by default**. A pocketed phone can buzz without telling anyone nearby that its owner gets protest alerts; a phone that chimes unexpectedly in a kettle or a police line identifies the person holding it. That is the user's risk to accept, so it is opt-in. Both toggles live in Profile and persist.
+- Fires **once per alert id**, not once per rebuild: a re-sync, an edit to the same alert, or a widget rebuild stays silent, and switching sound on later does not retroactively buzz for what is already on screen.
+- 123 tests green (+13); analyze + custom_lint clean; web build green.
+
+**Test note:** the "a new critical alert signals again" test failed at first for a reason worth keeping — Drift stores `DateTime` at **second** precision, so two alerts inserted 100 ms apart tie on `created_at` and the feed ordering never changes. Tests that depend on alert ordering must space the timestamps explicitly.
+
+**Next:** Phase 4 — trust scores and promotion rules, so verification stops being a single-admin bottleneck. Still hardware-blocked and unchanged: two-device E2E chat smoke test, TalkBack/VoiceOver sweep, TLS pin bundle from a trusted network, production tile provider (ADR-13).
+---
 ## Session 16 — 2026-07-27 · E6 closed: admin authoring for public alerts
 **Done:**
 - **`ComposeAlertScreen`** — the missing half of E6. Until now nothing could create a verified public alert; the feed could only ever show seeded or synced ones.

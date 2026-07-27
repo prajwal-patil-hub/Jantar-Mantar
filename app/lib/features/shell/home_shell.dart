@@ -8,6 +8,7 @@ import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/glass_surface.dart';
 import '../../l10n/app_localizations.dart';
+import '../alerts/application/critical_alert_signal.dart';
 import '../alerts/presentation/alerts_screen.dart';
 import '../events/presentation/events_screen.dart';
 import '../groups/presentation/groups_screen.dart';
@@ -36,6 +37,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     // Restore the saved language (one-frame flash to system locale on the
     // very first launch only; cached thereafter).
     ref.read(localeProvider.notifier).load();
+    // Restore the critical-alert signal preferences before the map (and with
+    // it the banner) can fire one.
+    unawaited(ref.read(alertHapticsProvider.notifier).load());
+    unawaited(ref.read(alertSoundProvider.notifier).load());
     // Restore the saved Demo Mode choice, then make the local sample data
     // match it — this is what puts pins on the map and alerts in the feed on
     // a release build (the hosted PWA), not just in debug.

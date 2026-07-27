@@ -28,12 +28,15 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E5. Verification queue (admin) + audit log
 - [x] `supabase/` schema: tables, RLS deny-by-default, `approve_submission`/`reject_submission` SECURITY DEFINER RPCs writing append-only audit_log (ADR-14); pgTAP negative tests written
 - [x] Admin login (email/password) + verification queue UI: oldest-first pending cards, approve / reject-with-reason
-- [ ] Run RLS negative tests via `supabase test db` + add to CI · [ ] merge/edit-approve/batch actions · [ ] audit log viewer UI
+- [x] Run RLS negative tests via `supabase test db` + add to CI (`supabase/tests/run_local.sh`, 25 assertions, no Docker)
+- [x] **Batch approve** — opt-in select mode (per-card approve/reject hidden while it is on), counted confirmation, sequential RPCs so each gets its own server-side authz check; result reported as done/failed counts, never a blanket "done"
+- [x] **Audit log viewer** — `features/verify/presentation/audit_log_screen.dart`, reached from the queue AppBar; read-only by design (audit_log has no update/delete policy), states the append-only promise in the UI
+- [ ] Edit-before-approve (amend a submission's payload during review) — deferred: needs a new RPC parameter + migration, and the current reject-with-reason path already covers "this is wrong"
 ### E6. Alerts feed + broadcast
 - [x] Alerts feed: severity-banded cards (icon+label+color; info blue distinct from status colors), critical pinned first, timestamps, verified-by-admin note, offline "may be outdated" footer
 - [x] Full-width critical banner on the map — instant, no animation, never glass
 - [x] **Broadcast authoring (admin)** — `features/alerts/presentation/compose_alert_screen.dart`, reached from the verification queue. Severity + body + mandatory expiry; critical needs a second confirmation; the screen states up-front that this is PUBLIC and unencrypted, unlike a group broadcast (ADR-21)
-- [ ] Sound/vibration for critical alerts — needs plugin, Phase 2
+- [x] **Sound/vibration for critical alerts** (ADR-24) — `features/alerts/application/critical_alert_signal.dart`, no plugin (`HapticFeedback` + `SystemSound`). Vibration on by default, **sound off by default** (a chime identifies its owner in a crowd); both togglable in Profile and persisted. Fires once per alert id, never on a rebuild or re-sync
 ### E7. SOS screen
 - [x] Full-screen high-contrast SOS: hold-to-send (2.5s radial countdown), release-early cancel, queued through the outbox, "I'm safe" reset
 - [x] Direct-call tiles (112 emergency · 108 ambulance · 15100 NALSA legal aid) via dialer; "Nearest medical" jumps to map filtered to medical

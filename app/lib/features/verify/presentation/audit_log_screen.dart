@@ -1,0 +1,111 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/l10n/l10n_labels.dart';
+import '../../../l10n/app_localizations.dart';
+import '../application/verify_providers.dart';
+
+/// Read-only view of the append-only audit trail (E5).
+///
+/// Verify-before-display concentrates real power in a handful of admins, so
+/// the log is the accountability half of it: every approve, reject and alert
+/// is attributable. Deliberately read-only — `audit_log` has no update or
+/// delete policy at all, and adding edit affordances here would imply
+/// otherwise.
+class AuditLogScreen extends ConsumerStatefulWidget {
+  const AuditLogScreen({super.key});
+
+  @override
+  ConsumerState<AuditLogScreen> createState() => _AuditLogScreenState();
+}
+
+class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
+  int _refreshTick = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final entries = ref.watch(auditLogProvider(_refreshTick));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.auditLog),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: l10n.refresh,
+            onPressed: () => setState(() => _refreshTick++),
+          ),
+        ],
+      ),
+      body: entries.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(l10n.queueLoadFailed('$e')),
+          ),
+        ),
+        data: (rows) => rows.isEmpty
+            ? Center(child: Text(l10n.auditLogEmpty))
+            : ListView.separated(
+                padding: const EdgeInsets.all(12),
+                itemCount: rows.length + 1,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  if (i == rows.length) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        l10n.auditLogAppendOnly,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    );
+                  }
+                  return _AuditTile(row: rows[i]);
+                },
+              ),
+      ),
+    );
+  }
+}
+
+class _AuditTile extends StatelessWidget {
+  const _AuditTile({required this.row});
+
+  final Map<String, Object?> row;
+
+  /// Approvals and rejections read very differently at a glance, so they get
+  /// distinct icons — never colour alone.
+  (IconData, String) _action(AppL10n l10n) {
+    return switch (row['action'] as String? ?? '') {
+      'approve_submission' => (Icons.check_circle_outline, l10n.auditApproved),
+      'reject_submission' => (Icons.cancel_outlined, l10n.auditRejected),
+      'publish_alert' => (Icons.campaign_outlined, l10n.auditAlert),
+      final other => (Icons.history, other),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final (icon, label) = _action(l10n);
+    final ts = DateTime.tryParse(row['ts'] as String? ?? '')?.toLocal();
+    final actor = row['actor_id'] as String? ?? '—';
+
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(
+        '${row['entity'] ?? ''} ${row['entity_id'] ?? ''}\n'
+        '${l10n.auditBy(actor)}',
+      ),
+      isThreeLine: true,
+      trailing: Text(
+        ts == null ? '' : relativeTimeL10n(l10n, ts, DateTime.now()),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+    );
+  }
+}

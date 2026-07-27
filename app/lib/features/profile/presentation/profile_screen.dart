@@ -7,6 +7,7 @@ import '../../../core/l10n/locale_provider.dart';
 import '../../../core/providers.dart';
 import '../../../core/security/panic_wipe_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../alerts/application/critical_alert_signal.dart';
 import '../../map/application/map_providers.dart';
 import '../../verify/application/verify_providers.dart';
 import '../../verify/presentation/admin_login_screen.dart';
@@ -128,6 +129,33 @@ class ProfileScreen extends ConsumerWidget {
                 // demo data can never linger and be mistaken for real data.
                 await applyDemoSeed(ref.read(appDatabaseProvider), on: v);
               },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.crisis_alert),
+                  title: Text(l10n.alertSignals),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.vibration),
+                  title: Text(l10n.alertVibrate),
+                  subtitle: Text(l10n.alertVibrateSubtitle),
+                  value: ref.watch(alertHapticsProvider),
+                  onChanged: (v) =>
+                      ref.read(alertHapticsProvider.notifier).set(v),
+                ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.volume_up_outlined),
+                  title: Text(l10n.alertSound),
+                  subtitle: Text(l10n.alertSoundSubtitle),
+                  value: ref.watch(alertSoundProvider),
+                  onChanged: (v) =>
+                      ref.read(alertSoundProvider.notifier).set(v),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),
