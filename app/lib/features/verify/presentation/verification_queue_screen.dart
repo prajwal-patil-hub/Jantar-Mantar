@@ -6,6 +6,7 @@ import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../alerts/presentation/compose_alert_screen.dart';
 import '../../map/presentation/widgets/facility_visuals.dart';
 import '../application/verify_providers.dart';
 
@@ -107,6 +108,16 @@ class _VerificationQueueScreenState
       appBar: AppBar(
         title: Text(l10n.verificationQueue),
         actions: [
+          // Public-alert authoring lives with the other admin powers.
+          IconButton(
+            icon: const Icon(Icons.campaign_outlined),
+            tooltip: l10n.newAlert,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const ComposeAlertScreen(),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: l10n.refresh,

@@ -1,6 +1,20 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 16 — 2026-07-27 · E6 closed: admin authoring for public alerts
+**Done:**
+- **`ComposeAlertScreen`** — the missing half of E6. Until now nothing could create a verified public alert; the feed could only ever show seeded or synced ones.
+- **Severity + body + mandatory expiry.** There is no "never expires" option on purpose: a stale warning is worse than no warning, and the screen says so.
+- **Critical needs a second confirmation**, warn and info do not — friction on a warning is friction on getting information out, but a critical alert takes over the top of everyone's map.
+- **States the asymmetry before you type**, not after you post: this is public and unencrypted, unlike a group broadcast (ADR-21). The two are visually similar and must never be confused.
+- Local-first: writes to Drift so the feed and map banner update immediately, then pushes to Supabase (RLS already restricts `alerts` insert to admins — the negative tests assert a non-admin cannot).
+- **Corrected a false claim in my own doc comment**: it said the alert was "queued in the outbox", which was not implemented. Alerts have no outbox retry yet, so the code now says exactly that and the UI reports "saved on this device, but NOT sent" rather than implying it reached anyone.
+- 110 tests green (+5 covering the public warning, the expiry, and that cancelling the critical dialog writes nothing); analyze + custom_lint clean; web build green.
+
+**Test note:** four of the new tests initially failed because the publish button sits below the fold in the 800×600 test viewport — `ensureVisible` before `tap`. Worth remembering for any long form.
+
+**Next:** E5's remaining items — audit-log viewer and batch/merge approve actions — then Phase 4 (trust scores, promotion rules).
+---
 ## Session 15 — 2026-07-27 · Nearby full-height, Groups create action, Directions/Share
 **Done:**
 - **Nearby sheet now opens fully.** It was capped at `maxChildSize: 0.5`, so half the screen was the hard ceiling — the reported bug, not a gesture problem. Now three snap points (16% / 50% / 94%) and the tappable header cycles through them, which matters because flutter_map's pan gestures fight a drag started over the map. Stops at 94% deliberately: a sliver of map keeps the sheet visibly dismissible.

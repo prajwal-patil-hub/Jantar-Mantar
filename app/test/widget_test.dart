@@ -55,10 +55,7 @@ void main() {
     // so the feed shows the group section rather than the empty state.
     expect(find.text('From your groups'), findsOneWidget);
     // Broadcasts from more than one city, newest first.
-    expect(
-      find.text('London — Parliament Square · Critical'),
-      findsOneWidget,
-    );
+    expect(find.text('London — Parliament Square · Critical'), findsOneWidget);
     expect(find.text('Water Distribution · Warning'), findsOneWidget);
     expect(find.text('Group broadcast · members only'), findsNWidgets(2));
 

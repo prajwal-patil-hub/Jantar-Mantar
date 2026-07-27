@@ -262,6 +262,59 @@ class AppL10nHi extends AppL10n {
       'स्थानीय कैश से दिखाया गया — ऑफ़लाइन में पुराना हो सकता है।';
 
   @override
+  String get alertComposeTitle => 'नई सार्वजनिक चेतावनी';
+
+  @override
+  String get alertPublicWarning =>
+      'यह सभी के लिए सार्वजनिक नक्शे पर जाएगी — केवल समूह सदस्यों तक सीमित नहीं, और एन्क्रिप्टेड नहीं। निजी रखना हो तो समूह प्रसारण का उपयोग करें।';
+
+  @override
+  String get alertBody => 'संदेश';
+
+  @override
+  String get alertBodyHint => 'लोगों को क्या जानना चाहिए, और क्या करना चाहिए।';
+
+  @override
+  String get alertExpiry => 'समाप्ति अवधि';
+
+  @override
+  String get alertExpiryWhy =>
+      'चेतावनियाँ अपने आप हट जाती हैं। पुरानी चेतावनी न होने से भी बदतर है।';
+
+  @override
+  String alertExpiresHours(int count) {
+    return '$count घंटे';
+  }
+
+  @override
+  String alertExpiresMinutes(int count) {
+    return '$count मिनट';
+  }
+
+  @override
+  String get alertPublish => 'चेतावनी प्रकाशित करें';
+
+  @override
+  String get alertPublished => 'चेतावनी प्रकाशित हो गई।';
+
+  @override
+  String get alertConfirmCriticalTitle => 'गंभीर चेतावनी प्रकाशित करें?';
+
+  @override
+  String get alertConfirmCriticalBody =>
+      'गंभीर चेतावनियाँ आस-पास के सभी लोगों के नक्शे के ऊपर दिखती हैं। इनका उपयोग तब करें जब लोगों को हटना हो या रुकना हो।';
+
+  @override
+  String get alertDemoNote => 'डेमो मोड: यह केवल इस डिवाइस पर सहेजा गया है।';
+
+  @override
+  String get alertLocalOnly =>
+      'इस डिवाइस पर सहेजा गया, पर सर्वर तक नहीं भेजा जा सका — अभी इसे कोई और नहीं देख सकता।';
+
+  @override
+  String get newAlert => 'नई चेतावनी';
+
+  @override
   String get sosHoldInstruction =>
       'स्वयंसेवकों को SOS भेजने के लिए बटन को 2–3 सेकंड दबाए रखें। सीधे कॉल करना नीचे हमेशा उपलब्ध है।';
 

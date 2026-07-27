@@ -32,7 +32,7 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E6. Alerts feed + broadcast
 - [x] Alerts feed: severity-banded cards (icon+label+color; info blue distinct from status colors), critical pinned first, timestamps, verified-by-admin note, offline "may be outdated" footer
 - [x] Full-width critical banner on the map — instant, no animation, never glass
-- [ ] Broadcast authoring (admin) — lands with E5 backend
+- [x] **Broadcast authoring (admin)** — `features/alerts/presentation/compose_alert_screen.dart`, reached from the verification queue. Severity + body + mandatory expiry; critical needs a second confirmation; the screen states up-front that this is PUBLIC and unencrypted, unlike a group broadcast (ADR-21)
 - [ ] Sound/vibration for critical alerts — needs plugin, Phase 2
 ### E7. SOS screen
 - [x] Full-screen high-contrast SOS: hold-to-send (2.5s radial countdown), release-early cancel, queued through the outbox, "I'm safe" reset

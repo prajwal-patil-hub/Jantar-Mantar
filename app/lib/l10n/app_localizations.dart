@@ -547,6 +547,96 @@ abstract class AppL10n {
   /// **'Shown from local cache — may be outdated while offline.'**
   String get cachedMayBeOutdated;
 
+  /// No description provided for @alertComposeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New public alert'**
+  String get alertComposeTitle;
+
+  /// No description provided for @alertPublicWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This goes on the public map for everyone — not just group members, and not encrypted. Use a group broadcast if it should stay private.'**
+  String get alertPublicWarning;
+
+  /// No description provided for @alertBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get alertBody;
+
+  /// No description provided for @alertBodyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What people need to know, and what to do about it.'**
+  String get alertBodyHint;
+
+  /// No description provided for @alertExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires after'**
+  String get alertExpiry;
+
+  /// No description provided for @alertExpiryWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts disappear automatically. A stale warning is worse than none.'**
+  String get alertExpiryWhy;
+
+  /// No description provided for @alertExpiresHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h'**
+  String alertExpiresHours(int count);
+
+  /// No description provided for @alertExpiresMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String alertExpiresMinutes(int count);
+
+  /// No description provided for @alertPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish alert'**
+  String get alertPublish;
+
+  /// No description provided for @alertPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert published.'**
+  String get alertPublished;
+
+  /// No description provided for @alertConfirmCriticalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish a CRITICAL alert?'**
+  String get alertConfirmCriticalTitle;
+
+  /// No description provided for @alertConfirmCriticalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical alerts take over the top of the map for everyone nearby. Use them when people need to move or stop what they are doing.'**
+  String get alertConfirmCriticalBody;
+
+  /// No description provided for @alertDemoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode: this is saved on this device only.'**
+  String get alertDemoNote;
+
+  /// No description provided for @alertLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device, but it could NOT be sent to the server — nobody else can see it yet.'**
+  String get alertLocalOnly;
+
+  /// No description provided for @newAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'New alert'**
+  String get newAlert;
+
   /// No description provided for @sosHoldInstruction.
   ///
   /// In en, this message translates to:

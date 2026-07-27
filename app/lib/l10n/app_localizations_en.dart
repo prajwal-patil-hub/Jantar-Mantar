@@ -263,6 +263,60 @@ class AppL10nEn extends AppL10n {
       'Shown from local cache — may be outdated while offline.';
 
   @override
+  String get alertComposeTitle => 'New public alert';
+
+  @override
+  String get alertPublicWarning =>
+      'This goes on the public map for everyone — not just group members, and not encrypted. Use a group broadcast if it should stay private.';
+
+  @override
+  String get alertBody => 'Message';
+
+  @override
+  String get alertBodyHint =>
+      'What people need to know, and what to do about it.';
+
+  @override
+  String get alertExpiry => 'Expires after';
+
+  @override
+  String get alertExpiryWhy =>
+      'Alerts disappear automatically. A stale warning is worse than none.';
+
+  @override
+  String alertExpiresHours(int count) {
+    return '$count h';
+  }
+
+  @override
+  String alertExpiresMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get alertPublish => 'Publish alert';
+
+  @override
+  String get alertPublished => 'Alert published.';
+
+  @override
+  String get alertConfirmCriticalTitle => 'Publish a CRITICAL alert?';
+
+  @override
+  String get alertConfirmCriticalBody =>
+      'Critical alerts take over the top of the map for everyone nearby. Use them when people need to move or stop what they are doing.';
+
+  @override
+  String get alertDemoNote => 'Demo mode: this is saved on this device only.';
+
+  @override
+  String get alertLocalOnly =>
+      'Saved on this device, but it could NOT be sent to the server — nobody else can see it yet.';
+
+  @override
+  String get newAlert => 'New alert';
+
+  @override
   String get sosHoldInstruction =>
       'Hold the button for 2–3 seconds to send an SOS to volunteers. Calling directly is always available below.';
 
