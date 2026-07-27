@@ -523,6 +523,18 @@ class AppL10nEn extends AppL10n {
   String get auditAlert => 'Published an alert';
 
   @override
+  String get auditCorroborated => 'Published by corroboration';
+
+  @override
+  String get auditPromoted => 'Reporter promoted';
+
+  @override
+  String get auditDemoted => 'Reporter demoted';
+
+  @override
+  String get auditAutomatic => 'automatic — no admin decision';
+
+  @override
   String auditBy(String actor) {
     return 'by $actor';
   }

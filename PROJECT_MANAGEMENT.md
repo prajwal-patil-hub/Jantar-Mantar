@@ -16,7 +16,7 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] **"Your standing" card** in Profile — tier + counts + what is still needed, with the thresholds served by `trust_thresholds()` so the bar cannot disagree with the rules
 - [x] 14 new pgTAP negatives (**39 total**), verified to fail when the verifier guards are removed
 - [x] Multi-site: Delhi · London · Bengaluru selectable from the map (`MapConfig.sites`)
-- [ ] Corroboration auto-verify (N independent agreeing reports publish without an admin) — the other half of the bottleneck fix
+- [x] **Corroboration auto-verify** (ADR-26) — `supabase/migrations/20260727000004_corroboration.sql`: 3 distinct **trusted** reporters agreeing on the same facility+status inside 20 minutes publishes with no human decision; never creates a facility, never sets `verified_at`, and **never credits trust** (so a ring cannot farm itself to verifier). 10 pgTAP negatives (**49 total**), verified to fail when the trust gate is removed
 - [ ] Moderator tooling beyond the queue (per-user history, revoke a verifier by hand)
 
 ## Epics → tasks (MVP)
@@ -66,7 +66,7 @@ _Last updated: 2026-07-24 · Phase 0_
 **In progress:** USER ACTION: apply `supabase/migrations/` in SQL editor · enable Anonymous sign-ins · create + grant admin account (see `supabase/README.md`)
 **Phase 2 hardening — done:** panic-wipe · cert-pinning mechanism (inactive pending a pin bundle) · EXIF-strip photo pipeline · drift migration tests · RLS negatives in CI · automated CVD/contrast audit · app icon · applicationId
 **Phase 4 — started:** trust scores + narrow verifier role + "Your standing" (ADR-25). USER ACTION: apply `supabase/migrations/20260727000003_trust.sql` in the SQL editor for it to take effect on the live backend.
-**Next up:** corroboration auto-verify, then the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
+**Next up:** the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
 **Blocked:** Live sync until the dashboard steps above are done.
 
 ## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.

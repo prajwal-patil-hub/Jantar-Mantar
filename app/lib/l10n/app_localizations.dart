@@ -997,6 +997,30 @@ abstract class AppL10n {
   /// **'Published an alert'**
   String get auditAlert;
 
+  /// No description provided for @auditCorroborated.
+  ///
+  /// In en, this message translates to:
+  /// **'Published by corroboration'**
+  String get auditCorroborated;
+
+  /// No description provided for @auditPromoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporter promoted'**
+  String get auditPromoted;
+
+  /// No description provided for @auditDemoted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporter demoted'**
+  String get auditDemoted;
+
+  /// No description provided for @auditAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'automatic — no admin decision'**
+  String get auditAutomatic;
+
   /// No description provided for @auditBy.
   ///
   /// In en, this message translates to:

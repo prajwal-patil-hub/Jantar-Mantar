@@ -186,6 +186,14 @@ final demoAuditLogProvider = Provider<List<Map<String, Object?>>>((ref) {
       'ts': at(14),
     },
     {
+      'id': 6,
+      'actor_id': null,
+      'action': 'corroborate_submission',
+      'entity': 'facility',
+      'entity_id': 'seed-food-2',
+      'ts': at(8),
+    },
+    {
       'id': 3,
       'actor_id': 'admin-vikram',
       'action': 'publish_alert',

@@ -1,6 +1,20 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 19 — 2026-07-27 · Corroboration auto-verify
+**Done:**
+- **`supabase/migrations/20260727000004_corroboration.sql`** — an AFTER INSERT trigger: when 3 **distinct** reporters agree on the same facility AND the same status inside 20 minutes, it publishes with no human decision at all. Trust promotion (ADR-25) adds more people who *can* approve; this handles the case where nobody is available.
+- **The whole design is the sock-puppet defence.** Anonymous sign-in is free, so "three users agree" is worth nothing by itself. Only accounts at tier `trusted` or better count — five admin-approved reports **each** to get there — and a test files a full quorum of three fresh accounts and asserts nothing publishes.
+- **Corroborated approvals deliberately do NOT credit trust.** Without that, a ring of three trusted accounts could corroborate each other all the way to verifier and never face an admin again. That is asserted too.
+- Same narrow envelope as a verifier: existing facilities only, `verified_at` untouched, so the worst case is a status flip on a known pin that the next report corrects. Disagreeing reports stay in the queue for a human.
+- **The audit row has `actor_id = NULL` on purpose** and names every submitter, so a colluding ring is reconstructible. The audit viewer renders that null as "automatic — no admin decision" rather than a blank or a dash, and now also labels promotions/demotions.
+- 10 new pgTAP negatives (**49 total**), and I checked they bite: dropping the trust gate turns assertions 3 and 4 red.
+- 135 tests green; analyze + custom_lint clean.
+
+**Needs the user:** apply BOTH new migrations (`..._trust.sql`, then `..._corroboration.sql`) in the Supabase SQL editor, in that order — the corroboration trigger reads `user_trust`.
+
+**Next:** what is left is genuinely hardware- or network-bound: two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), TLS pin bundle generated from a trusted network (this container's egress terminates TLS, so a pin derived here would be worse than none), and picking a production tile provider (ADR-13).
+---
 ## Session 18 — 2026-07-27 · Phase 4 begins: trust scores and a deliberately narrow verifier
 **Done:**
 - **`supabase/migrations/20260727000003_trust.sql`** — `user_trust` counts approved/rejected submissions per account and recomputes a tier on every decision: `new` → `trusted` at 5 approvals → `verifier` at 20, each behind an **accuracy gate** (4:1 and 9:1), so volume alone never buys standing.

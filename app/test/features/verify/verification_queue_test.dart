@@ -218,7 +218,21 @@ void main() {
     expect(find.byType(AuditLogScreen), findsOneWidget);
     expect(find.text('Approved a submission'), findsWidgets);
     expect(find.text('Rejected a submission'), findsOneWidget);
+    // Corroborated entries have no actor by design — the UI must say the
+    // system decided, not render a blank or a dash.
+    expect(find.text('Published by corroboration'), findsOneWidget);
+    expect(
+      find.textContaining('automatic — no admin decision'),
+      findsOneWidget,
+    );
+
     // The append-only promise is stated in the UI, not just in the schema.
+    // It is the last row, so scroll to it.
+    await tester.scrollUntilVisible(
+      find.textContaining('cannot be edited or deleted'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.textContaining('cannot be edited or deleted'), findsOneWidget);
   });
 }

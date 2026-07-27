@@ -521,6 +521,18 @@ class AppL10nHi extends AppL10n {
   String get auditAlert => 'एक चेतावनी प्रकाशित की';
 
   @override
+  String get auditCorroborated => 'पुष्टि द्वारा प्रकाशित';
+
+  @override
+  String get auditPromoted => 'रिपोर्टर पदोन्नत';
+
+  @override
+  String get auditDemoted => 'रिपोर्टर पदावनत';
+
+  @override
+  String get auditAutomatic => 'स्वचालित — किसी व्यवस्थापक का निर्णय नहीं';
+
+  @override
   String auditBy(String actor) {
     return '$actor द्वारा';
   }

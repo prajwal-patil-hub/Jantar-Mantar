@@ -83,6 +83,13 @@ class _AuditTile extends StatelessWidget {
       'approve_submission' => (Icons.check_circle_outline, l10n.auditApproved),
       'reject_submission' => (Icons.cancel_outlined, l10n.auditRejected),
       'publish_alert' => (Icons.campaign_outlined, l10n.auditAlert),
+      // No human decided these — the actor column is null (ADR-25/26).
+      'corroborate_submission' => (
+        Icons.groups_outlined,
+        l10n.auditCorroborated,
+      ),
+      'promote_user' => (Icons.arrow_upward, l10n.auditPromoted),
+      'demote_user' => (Icons.arrow_downward, l10n.auditDemoted),
       final other => (Icons.history, other),
     };
   }
@@ -92,14 +99,15 @@ class _AuditTile extends StatelessWidget {
     final l10n = AppL10n.of(context);
     final (icon, label) = _action(l10n);
     final ts = DateTime.tryParse(row['ts'] as String? ?? '')?.toLocal();
-    final actor = row['actor_id'] as String? ?? '—';
+    // A null actor is meaningful, not missing data: the system decided.
+    final actor = row['actor_id'] as String?;
 
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
       subtitle: Text(
         '${row['entity'] ?? ''} ${row['entity_id'] ?? ''}\n'
-        '${l10n.auditBy(actor)}',
+        '${actor == null ? l10n.auditAutomatic : l10n.auditBy(actor)}',
       ),
       isThreeLine: true,
       trailing: Text(
