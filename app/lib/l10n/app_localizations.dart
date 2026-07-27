@@ -859,6 +859,78 @@ abstract class AppL10n {
   /// **'Spam'**
   String get reasonSpam;
 
+  /// No description provided for @yourStanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Your standing'**
+  String get yourStanding;
+
+  /// No description provided for @tierNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New reporter'**
+  String get tierNew;
+
+  /// No description provided for @tierTrusted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted reporter'**
+  String get tierTrusted;
+
+  /// No description provided for @tierVerifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifier'**
+  String get tierVerifier;
+
+  /// No description provided for @tierNewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reports go to an admin for verification.'**
+  String get tierNewBody;
+
+  /// No description provided for @tierTrustedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reports are prioritised in the queue.'**
+  String get tierTrustedBody;
+
+  /// No description provided for @tierVerifierBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can approve updates to existing facilities. New facilities, rejections and alerts stay with admins.'**
+  String get tierVerifierBody;
+
+  /// No description provided for @standingCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{approved} approved · {rejected} rejected'**
+  String standingCounts(int approved, int rejected);
+
+  /// No description provided for @standingRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more approved reports to the next level'**
+  String standingRemaining(int count);
+
+  /// No description provided for @standingTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest level reached.'**
+  String get standingTop;
+
+  /// No description provided for @verifierCannotReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejecting is admin-only.'**
+  String get verifierCannotReject;
+
+  /// No description provided for @verifierNeedsAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'A new facility needs an admin.'**
+  String get verifierNeedsAdmin;
+
   /// No description provided for @alertSignals.
   ///
   /// In en, this message translates to:

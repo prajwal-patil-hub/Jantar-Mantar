@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/providers.dart';
+import '../domain/trust_standing.dart';
 
 /// Sample pending submissions so the verification queue is explorable in
 /// Demo Mode (no backend, no admin login).
@@ -100,12 +101,41 @@ bool isAdminSession(SupabaseClient? client) {
   return metadata != null && metadata['role'] == 'admin';
 }
 
-/// Whether the app should show admin/verifier screens: real admin session, or
-/// Demo Mode (which grants a simulated admin view with sample data).
+/// Whether the app should show admin/verifier screens: a real admin session, a
+/// trust-promoted verifier (ADR-25), or Demo Mode (which grants a simulated
+/// admin view with sample data).
+///
+/// Display gating only. Every decision is re-checked server-side, and a
+/// verifier's powers are a strict subset of an admin's — see
+/// [isAdminSession] and `supabase/migrations/20260727000003_trust.sql`.
 final canVerifyProvider = Provider<bool>((ref) {
   if (ref.watch(demoModeProvider)) return true;
   ref.watch(authChangesForVerifyProvider);
-  return isAdminSession(ref.watch(supabaseClientProvider));
+  if (isAdminSession(ref.watch(supabaseClientProvider))) return true;
+  final standing = ref.watch(trustStandingProvider).asData?.value;
+  return standing?.tier == TrustTier.verifier;
+});
+
+/// The signed-in user's verification standing (Phase 4). Demo Mode returns a
+/// mid-progress "trusted" standing so the card is explorable with no backend.
+final trustStandingProvider = FutureProvider<TrustStanding>((ref) async {
+  if (ref.watch(demoModeProvider)) {
+    return const TrustStanding(
+      tier: TrustTier.trusted,
+      approved: 12,
+      rejected: 1,
+      trustedAt: 5,
+      verifierAt: 20,
+    );
+  }
+  ref.watch(authChangesForVerifyProvider);
+  final client = ref.watch(supabaseClientProvider);
+  if (client == null || client.auth.currentUser == null) {
+    return TrustStanding.unknown;
+  }
+  final result = await client.rpc<Object?>('my_trust');
+  if (result is! Map) return TrustStanding.unknown;
+  return TrustStanding.fromJson(result.cast<String, Object?>());
 });
 
 /// Rebuilds [canVerifyProvider] when the session changes.

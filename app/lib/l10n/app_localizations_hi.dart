@@ -444,6 +444,48 @@ class AppL10nHi extends AppL10n {
   String get reasonSpam => 'स्पैम';
 
   @override
+  String get yourStanding => 'आपकी स्थिति';
+
+  @override
+  String get tierNew => 'नया रिपोर्टर';
+
+  @override
+  String get tierTrusted => 'विश्वसनीय रिपोर्टर';
+
+  @override
+  String get tierVerifier => 'सत्यापनकर्ता';
+
+  @override
+  String get tierNewBody =>
+      'आपकी रिपोर्ट सत्यापन के लिए व्यवस्थापक के पास जाती है।';
+
+  @override
+  String get tierTrustedBody => 'आपकी रिपोर्ट कतार में प्राथमिकता पाती है।';
+
+  @override
+  String get tierVerifierBody =>
+      'आप मौजूदा सुविधाओं के अपडेट स्वीकृत कर सकते हैं। नई सुविधाएँ, अस्वीकृति और चेतावनियाँ व्यवस्थापकों के पास रहती हैं।';
+
+  @override
+  String standingCounts(int approved, int rejected) {
+    return '$approved स्वीकृत · $rejected अस्वीकृत';
+  }
+
+  @override
+  String standingRemaining(int count) {
+    return 'अगले स्तर तक $count और स्वीकृत रिपोर्ट';
+  }
+
+  @override
+  String get standingTop => 'उच्चतम स्तर प्राप्त।';
+
+  @override
+  String get verifierCannotReject => 'अस्वीकृति केवल व्यवस्थापक कर सकते हैं।';
+
+  @override
+  String get verifierNeedsAdmin => 'नई सुविधा के लिए व्यवस्थापक चाहिए।';
+
+  @override
   String get alertSignals => 'गंभीर चेतावनी संकेत';
 
   @override

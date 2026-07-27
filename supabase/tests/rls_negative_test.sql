@@ -78,12 +78,14 @@ select throws_ok(
   'non-admin cannot insert alerts'
 );
 
--- 8. NEGATIVE: non-admin cannot call approve_submission.
+-- 8. NEGATIVE: non-admin cannot call approve_submission. Since ADR-25 a
+--    promoted verifier can also approve (narrowly); an untrusted user still
+--    cannot, and the message names both roles.
 select throws_ok(
   $$select public.approve_submission(
       (select id from public.submissions where client_id = 'sub-a-1'))$$,
-  'P0001', 'admin role required',
-  'approve_submission rejects non-admins'
+  'P0001', 'admin or verifier role required',
+  'approve_submission rejects users who are neither admin nor verifier'
 );
 
 -- 9. NEGATIVE: non-admin cannot read the audit log.

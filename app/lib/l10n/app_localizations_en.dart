@@ -446,6 +446,47 @@ class AppL10nEn extends AppL10n {
   String get reasonSpam => 'Spam';
 
   @override
+  String get yourStanding => 'Your standing';
+
+  @override
+  String get tierNew => 'New reporter';
+
+  @override
+  String get tierTrusted => 'Trusted reporter';
+
+  @override
+  String get tierVerifier => 'Verifier';
+
+  @override
+  String get tierNewBody => 'Your reports go to an admin for verification.';
+
+  @override
+  String get tierTrustedBody => 'Your reports are prioritised in the queue.';
+
+  @override
+  String get tierVerifierBody =>
+      'You can approve updates to existing facilities. New facilities, rejections and alerts stay with admins.';
+
+  @override
+  String standingCounts(int approved, int rejected) {
+    return '$approved approved · $rejected rejected';
+  }
+
+  @override
+  String standingRemaining(int count) {
+    return '$count more approved reports to the next level';
+  }
+
+  @override
+  String get standingTop => 'Highest level reached.';
+
+  @override
+  String get verifierCannotReject => 'Rejecting is admin-only.';
+
+  @override
+  String get verifierNeedsAdmin => 'A new facility needs an admin.';
+
+  @override
   String get alertSignals => 'Critical alert signals';
 
   @override

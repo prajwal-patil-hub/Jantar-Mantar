@@ -12,6 +12,7 @@ import '../../map/application/map_providers.dart';
 import '../../verify/application/verify_providers.dart';
 import '../../verify/presentation/admin_login_screen.dart';
 import '../../verify/presentation/verification_queue_screen.dart';
+import '../../verify/presentation/widgets/standing_card.dart';
 
 /// Early Profile screen: pending-uploads tray, instant language toggle, and
 /// the volunteer/admin entry (ui-ux-spec §1.12). Appearance and privacy
@@ -82,6 +83,8 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          const StandingCard(),
           const SizedBox(height: 8),
           Card(
             child: Padding(

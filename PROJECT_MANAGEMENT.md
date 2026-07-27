@@ -10,6 +10,15 @@ _Last updated: 2026-07-24 · Phase 0_
 | **3 — Groups (Stage 1)** | Minimal group set per research | Create/join/approve/private-pins all RLS-enforced |
 | **4 — Scale** | Promotion rules, moderator tooling, multi-site | Trust-score promotion live; second site onboarded |
 
+## Phase 4 — Scale (in progress)
+- [x] **Trust scores + promotion rules** (ADR-25) — `supabase/migrations/20260727000003_trust.sql`: `user_trust` (no insert/update/delete policy anywhere, so self-promotion is impossible by construction), accuracy-gated tiers, reversible on every decision, promotions and demotions audited
+- [x] **Verifier role, deliberately narrow** — approves only updates to existing facilities, never sets `verified_at`, cannot decide its own submissions, rate-limited, and **cannot reject**. The queue UI mirrors each limit with the reason shown, never as a substitute for the server check
+- [x] **"Your standing" card** in Profile — tier + counts + what is still needed, with the thresholds served by `trust_thresholds()` so the bar cannot disagree with the rules
+- [x] 14 new pgTAP negatives (**39 total**), verified to fail when the verifier guards are removed
+- [x] Multi-site: Delhi · London · Bengaluru selectable from the map (`MapConfig.sites`)
+- [ ] Corroboration auto-verify (N independent agreeing reports publish without an admin) — the other half of the bottleneck fix
+- [ ] Moderator tooling beyond the queue (per-user history, revoke a verifier by hand)
+
 ## Epics → tasks (MVP)
 ### E1. Project scaffold
 - [x] Confirm backend: **Supabase** (ADR-8 confirmed 2026-07-24)
@@ -56,7 +65,8 @@ _Last updated: 2026-07-24 · Phase 0_
 **Done:** Research · Doc system · E1–E9 (offline map · submit · sync · anon auth · admin verify · alerts · SOS · **en/hi i18n + a11y baseline**)
 **In progress:** USER ACTION: apply `supabase/migrations/` in SQL editor · enable Anonymous sign-ins · create + grant admin account (see `supabase/README.md`)
 **Phase 2 hardening — done:** panic-wipe · cert-pinning mechanism (inactive pending a pin bundle) · EXIF-strip photo pipeline · drift migration tests · RLS negatives in CI · automated CVD/contrast audit · app icon · applicationId
-**Next up:** the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
+**Phase 4 — started:** trust scores + narrow verifier role + "Your standing" (ADR-25). USER ACTION: apply `supabase/migrations/20260727000003_trust.sql` in the SQL editor for it to take effect on the live backend.
+**Next up:** corroboration auto-verify, then the manual items only a human with hardware can do — two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), generate the TLS pin bundle from a trusted network (`tool/fetch_api_roots.sh`), pick a production tile provider (ADR-13)
 **Blocked:** Live sync until the dashboard steps above are done.
 
 ## MVP status: all 9 core epics code-complete. Phase 1 → Phase 2 (hardening) after the device smoke test.

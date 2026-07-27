@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jantar_mantar_sahayata/core/demo/demo_mode.dart';
+import 'package:jantar_mantar_sahayata/features/verify/application/verify_providers.dart';
 import 'package:jantar_mantar_sahayata/features/verify/presentation/audit_log_screen.dart';
 import 'package:jantar_mantar_sahayata/features/verify/presentation/verification_queue_screen.dart';
 
@@ -115,6 +117,98 @@ void main() {
     expect(button.onPressed, isNull);
   });
 
+  group('promoted verifier (ADR-25)', () {
+    // Demo Mode simulates a full admin, so these run with it off and no
+    // Supabase session: what is left is exactly the verifier's subset.
+    Future<void> pumpAsVerifier(WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            demoModeProvider.overrideWith(_DemoOff.new),
+            pendingServerSubmissionsProvider(0).overrideWith(
+              (ref) async => [
+                {
+                  'id': 'srv-update',
+                  'facility_ref': '22222222-2222-2222-2222-222222222222',
+                  'created_at': DateTime.now().toIso8601String(),
+                  'payload': {
+                    'category': 'water',
+                    'status': 'low',
+                    'mode': 'update',
+                  },
+                },
+                {
+                  'id': 'srv-new',
+                  'facility_ref': null,
+                  'created_at': DateTime.now().toIso8601String(),
+                  'payload': {
+                    'category': 'food',
+                    'status': 'good',
+                    'mode': 'new',
+                  },
+                },
+              ],
+            ),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: testLocalizationsDelegates,
+            supportedLocales: testSupportedLocales,
+            home: const VerificationQueueScreen(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('cannot reject, and is told why', (tester) async {
+      await pumpAsVerifier(tester);
+      final reject = tester.widget<OutlinedButton>(
+        find.widgetWithText(OutlinedButton, 'Reject').first,
+      );
+      expect(reject.onPressed, isNull);
+      expect(find.textContaining('Rejecting is admin-only'), findsWidgets);
+    });
+
+    testWidgets('cannot approve a submission that would create a facility', (
+      tester,
+    ) async {
+      await pumpAsVerifier(tester);
+      final buttons = tester
+          .widgetList<FilledButton>(
+            find.widgetWithText(FilledButton, 'Approve'),
+          )
+          .toList();
+      // First card updates a known facility; second would mint a new pin.
+      expect(buttons[0].onPressed, isNotNull);
+      expect(buttons[1].onPressed, isNull);
+      expect(
+        find.textContaining('new facility needs an admin'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('gets neither the alert composer nor the audit log', (
+      tester,
+    ) async {
+      await pumpAsVerifier(tester);
+      expect(find.byIcon(Icons.campaign_outlined), findsNothing);
+      expect(find.byIcon(Icons.history), findsNothing);
+      // Batch mode is still available — it only ever approves.
+      expect(find.byIcon(Icons.checklist), findsOneWidget);
+    });
+
+    testWidgets('cannot batch-select what it cannot approve', (tester) async {
+      await pumpAsVerifier(tester);
+      await tester.tap(find.byIcon(Icons.checklist));
+      await tester.pump();
+
+      final boxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
+      expect(boxes[0].onChanged, isNotNull);
+      expect(boxes[1].onChanged, isNull);
+    });
+  });
+
   testWidgets('the audit log is reachable from the queue', (tester) async {
     await pump(tester);
     await tester.tap(find.byIcon(Icons.history));
@@ -127,4 +221,11 @@ void main() {
     // The append-only promise is stated in the UI, not just in the schema.
     expect(find.textContaining('cannot be edited or deleted'), findsOneWidget);
   });
+}
+
+/// Demo Mode grants a simulated admin view, so turning it off is how a test
+/// reaches the ordinary (here: promoted verifier) path.
+class _DemoOff extends DemoModeNotifier {
+  @override
+  bool build() => false;
 }

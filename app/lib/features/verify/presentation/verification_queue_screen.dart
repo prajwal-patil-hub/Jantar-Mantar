@@ -186,6 +186,12 @@ class _VerificationQueueScreenState
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final pending = ref.watch(pendingServerSubmissionsProvider(_refreshTick));
+    // Demo Mode simulates the full admin view. A promoted verifier gets a
+    // strict subset (ADR-25) — mirrored here so the buttons match what the
+    // server will actually allow, never as a substitute for the server check.
+    final isAdmin =
+        ref.watch(demoModeProvider) ||
+        isAdminSession(ref.watch(supabaseClientProvider));
 
     return Scaffold(
       appBar: AppBar(
@@ -215,26 +221,30 @@ class _VerificationQueueScreenState
                   tooltip: l10n.selectMode,
                   onPressed: () => setState(() => _selectMode = true),
                 ),
-                // Public-alert authoring lives with the other admin powers.
-                IconButton(
-                  icon: const Icon(Icons.campaign_outlined),
-                  tooltip: l10n.newAlert,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ComposeAlertScreen(),
+                // Public-alert authoring stays an admin power.
+                if (isAdmin)
+                  IconButton(
+                    icon: const Icon(Icons.campaign_outlined),
+                    tooltip: l10n.newAlert,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ComposeAlertScreen(),
+                      ),
                     ),
                   ),
-                ),
-                // Accountability for everything above it.
-                IconButton(
-                  icon: const Icon(Icons.history),
-                  tooltip: l10n.auditLog,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const AuditLogScreen(),
+                // Accountability for everything above it. Admin-only because
+                // that is what the audit_log RLS policy allows — showing the
+                // entry point to a verifier would only open an empty screen.
+                if (isAdmin)
+                  IconButton(
+                    icon: const Icon(Icons.history),
+                    tooltip: l10n.auditLog,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const AuditLogScreen(),
+                      ),
                     ),
                   ),
-                ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: l10n.refresh,
@@ -259,6 +269,7 @@ class _VerificationQueueScreenState
                   final id = rows[i]['id'] as String;
                   return _SubmissionCard(
                     row: rows[i],
+                    isAdmin: isAdmin,
                     selectMode: _selectMode,
                     selected: _selected.contains(id),
                     onToggleSelected: _toggleSelected,
@@ -275,6 +286,7 @@ class _VerificationQueueScreenState
 class _SubmissionCard extends StatelessWidget {
   const _SubmissionCard({
     required this.row,
+    required this.isAdmin,
     required this.selectMode,
     required this.selected,
     required this.onToggleSelected,
@@ -283,7 +295,13 @@ class _SubmissionCard extends StatelessWidget {
   });
 
   final Map<String, Object?> row;
+  final bool isAdmin;
   final bool selectMode;
+
+  /// A verifier can only approve a submission that updates a facility which
+  /// already exists — `approve_submission` raises otherwise. Mirrored so the
+  /// button is disabled with a reason instead of failing after the tap.
+  bool get _canApprove => isAdmin || row['facility_ref'] != null;
   final bool selected;
   final void Function(String id) onToggleSelected;
   final Future<void> Function(String id) onApprove;
@@ -307,7 +325,7 @@ class _SubmissionCard extends StatelessWidget {
       // In select mode the whole card is the target — a bare checkbox is
       // under 48dp and this list gets used one-handed under pressure.
       child: InkWell(
-        onTap: selectMode ? () => onToggleSelected(id) : null,
+        onTap: selectMode && _canApprove ? () => onToggleSelected(id) : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -318,7 +336,9 @@ class _SubmissionCard extends StatelessWidget {
                   if (selectMode)
                     Checkbox(
                       value: selected,
-                      onChanged: (_) => onToggleSelected(id),
+                      onChanged: _canApprove
+                          ? (_) => onToggleSelected(id)
+                          : null,
                     ),
                   Icon(category?.icon ?? Icons.help_outline),
                   const SizedBox(width: 8),
@@ -372,7 +392,7 @@ class _SubmissionCard extends StatelessWidget {
                           minimumSize: const Size(0, 48),
                           backgroundColor: const Color(0xFF2E7D32),
                         ),
-                        onPressed: () => onApprove(id),
+                        onPressed: _canApprove ? () => onApprove(id) : null,
                         icon: const Icon(Icons.check),
                         label: Text(l10n.approve),
                       ),
@@ -384,13 +404,24 @@ class _SubmissionCard extends StatelessWidget {
                           minimumSize: const Size(0, 48),
                           foregroundColor: const Color(0xFFC62828),
                         ),
-                        onPressed: () => onReject(id),
+                        onPressed: isAdmin ? () => onReject(id) : null,
                         icon: const Icon(Icons.close),
                         label: Text(l10n.reject),
                       ),
                     ),
                   ],
                 ),
+                // Say WHY a button is dead, rather than leaving a verifier
+                // tapping something greyed out with no explanation.
+                if (!isAdmin) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    _canApprove
+                        ? l10n.verifierCannotReject
+                        : '${l10n.verifierNeedsAdmin} ${l10n.verifierCannotReject}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ],
             ],
           ),

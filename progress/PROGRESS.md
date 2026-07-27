@@ -1,6 +1,21 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 18 — 2026-07-27 · Phase 4 begins: trust scores and a deliberately narrow verifier
+**Done:**
+- **`supabase/migrations/20260727000003_trust.sql`** — `user_trust` counts approved/rejected submissions per account and recomputes a tier on every decision: `new` → `trusted` at 5 approvals → `verifier` at 20, each behind an **accuracy gate** (4:1 and 9:1), so volume alone never buys standing.
+- **Self-promotion is impossible by construction, not by a check.** The table has RLS on and *no* insert/update/delete policy at all; the only writer is a SECURITY DEFINER function. A test proves a verifier cannot even see another user's row, let alone write it.
+- **The verifier role is narrow on purpose** and that is the whole design: approve **updates to existing facilities only** (never mint a pin on the canonical map), approvals publish with `verified_at = NULL` — precisely what ADR-2's two-axis model exists for — cannot decide their own submissions, rate-limited to 30/hour, and **cannot reject anything**. Rejection stays admin-only because an approval is self-correcting (more reports keep arriving) while a rejection silently removes information from the queue, which is exactly what a hostile verifier would do.
+- **Trust is reversible.** The tier is recomputed, never latched, so an account that builds standing and then starts posting garbage loses it without an admin intervening. Promotions *and* demotions are written to the audit log.
+- **The queue UI mirrors every limit with the reason shown** — a verifier sees Reject greyed out with "Rejecting is admin-only", and Approve greyed out on a new-facility submission with "A new facility needs an admin". Mirrored, never substituted: the server check remains the authority.
+- **"Your standing" card in Profile** for everyone, not just verifiers — the point of a ladder is that the path is visible. Thresholds come from `trust_thresholds()` with the counts, so the progress bar can never disagree with the rules the user is judged by.
+- **14 new pgTAP negatives (39 total), and I checked they have teeth**: removing the "cannot create facilities" and "cannot self-approve" guards turns exactly those two assertions red.
+- 135 tests green (+12); analyze + custom_lint clean.
+
+**Needs the user:** apply `supabase/migrations/20260727000003_trust.sql` in the Supabase SQL editor. Until then the app falls back to `TrustStanding.unknown` (reads as "new"), which is why the card is informational and never blocking.
+
+**Next:** corroboration auto-verify — N independent agreeing reports publish without any admin — which is the other half of the bottleneck fix. Then the hardware-blocked items: two-device E2E chat smoke test, TalkBack/VoiceOver sweep, TLS pin bundle, production tile provider (ADR-13).
+---
 ## Session 17 — 2026-07-27 · E5 closed (audit log + batch approve) · E6 closed (critical-alert signals)
 **Done:**
 - **Audit-log viewer** — `features/verify/presentation/audit_log_screen.dart`, reached from an `Icons.history` action in the queue AppBar. The backend has written an append-only `audit_log` since ADR-14, but nothing in the app could read it, so verify-before-display had accountability on paper only. Read-only by design: `audit_log` has no update or delete policy at all, and putting edit affordances on the screen would imply otherwise. The append-only promise is stated in the UI, not just in the schema. Demo Mode serves five sample entries so it is explorable with no backend.
