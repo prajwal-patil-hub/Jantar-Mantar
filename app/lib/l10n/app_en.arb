@@ -49,6 +49,9 @@
   "@capacityFor": { "placeholders": { "count": { "type": "int" } } },
   "expiredRecheck": "expired — needs re-check",
 
+  "directionsFailed": "Could not open a map app. Coordinates: {coords}",
+  "@directionsFailed": { "placeholders": { "coords": { "type": "String" } } },
+  "copiedToClipboard": "Copied to clipboard",
   "reportFacilityTitle": "Report a facility",
   "updateFacilityTitle": "Update facility",
   "back": "Back",

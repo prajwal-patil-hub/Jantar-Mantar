@@ -23,24 +23,39 @@ class GroupsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.groupsTitle),
         actions: [
-          if (repo != null)
+          if (repo != null) ...[
             IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: l10n.refresh,
-              onPressed: () => ref.read(groupsRefreshProvider.notifier).bump(),
-            ),
-        ],
-      ),
-      floatingActionButton: repo == null
-          ? null
-          : FloatingActionButton.extended(
+              icon: const Icon(Icons.group_add),
+              tooltip: l10n.createGroup,
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (_) => const CreateGroupScreen(),
                 ),
               ),
-              icon: const Icon(Icons.group_add),
-              label: Text(l10n.createGroup),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: l10n.refresh,
+              onPressed: () => ref.read(groupsRefreshProvider.notifier).bump(),
+            ),
+          ],
+        ],
+      ),
+      // Lifted clear of the glass nav bar: HomeShell uses extendBody, so an
+      // unpadded FAB in a nested Scaffold sits underneath it and is invisible.
+      floatingActionButton: repo == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 72),
+              child: FloatingActionButton.extended(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const CreateGroupScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.group_add),
+                label: Text(l10n.createGroup),
+              ),
             ),
       body: repo == null
           ? _SignInGate(l10n: l10n)

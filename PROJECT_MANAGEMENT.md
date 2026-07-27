@@ -38,6 +38,7 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Full-screen high-contrast SOS: hold-to-send (2.5s radial countdown), release-early cancel, queued through the outbox, "I'm safe" reset
 - [x] Direct-call tiles (112 emergency · 108 ambulance · 15100 NALSA legal aid) via dialer; "Nearest medical" jumps to map filtered to medical
 - [ ] Share-location-with-trusted-contact — explicit per-use, needs location opt-in work
+- [x] Facility **Directions** (platform `geo:` handoff, OSM fallback — no hardcoded Google) and **Share** (public info only, clipboard fallback)
 ### E8. Auth (anonymous device keypair; role claims)
 - [x] Anonymous-by-default via Supabase anonymous sign-in (background, never blocks UI); admin role from server-set app_metadata
 - [x] Sync wired: SupabaseRemoteApi push (idempotent client_id), RemotePullService (facilities/capacity/alerts/verdicts), SyncService 60s cycle

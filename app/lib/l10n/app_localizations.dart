@@ -313,6 +313,18 @@ abstract class AppL10n {
   /// **'expired — needs re-check'**
   String get expiredRecheck;
 
+  /// No description provided for @directionsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open a map app. Coordinates: {coords}'**
+  String directionsFailed(String coords);
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
+
   /// No description provided for @reportFacilityTitle.
   ///
   /// In en, this message translates to:

@@ -130,6 +130,14 @@ class AppL10nHi extends AppL10n {
   String get expiredRecheck => 'समय समाप्त — दोबारा जाँच ज़रूरी';
 
   @override
+  String directionsFailed(String coords) {
+    return 'कोई मैप ऐप नहीं खुल सका। निर्देशांक: $coords';
+  }
+
+  @override
+  String get copiedToClipboard => 'क्लिपबोर्ड पर कॉपी किया गया';
+
+  @override
   String get reportFacilityTitle => 'सुविधा की रिपोर्ट करें';
 
   @override

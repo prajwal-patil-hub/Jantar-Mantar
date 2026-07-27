@@ -1,6 +1,15 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 15 — 2026-07-27 · Nearby full-height, Groups create action, Directions/Share
+**Done:**
+- **Nearby sheet now opens fully.** It was capped at `maxChildSize: 0.5`, so half the screen was the hard ceiling — the reported bug, not a gesture problem. Now three snap points (16% / 50% / 94%) and the tappable header cycles through them, which matters because flutter_map's pan gestures fight a drag started over the map. Stops at 94% deliberately: a sliver of map keeps the sheet visibly dismissible.
+- **Create group was invisible, and it was a real layout bug.** `HomeShell` uses `extendBody: true` for the glass nav bar, so a FAB in a nested Scaffold renders *underneath* it. Added the requested top-right action AND lifted the FAB by 72dp so both work.
+- **Directions and Share shipped** (were stubs showing "arrives in a later build"). Directions hands off via the platform `geo:` scheme so the user's own map app wins — deliberately not a hardcoded Google Maps URL (ADR-7, and the destination is exactly what shouldn't be routed through a third party by default); OpenStreetMap is the fallback and the web path. Share sends public facility info only — name, status, coordinates — never who reported it, and falls back to the clipboard where no share sheet exists.
+- 105 tests green; analyze + custom_lint clean; web build green.
+
+**Next:** admin authoring for *public* alerts (completes E6), audit-log viewer and batch actions (completes E5), then Phase 4 (trust scores, promotion rules).
+---
 ## Session 14 — 2026-07-26 · "Complete everything": broadcasts, QR scan, Phase-2 hardening, real test gates
 **Done:**
 - **Group broadcasts (ADR-21)** — reuse the alerts *presentation*, never the public alerts table (that would make group content server-readable and fetchable by non-members). The broadcast flag lives inside the ciphertext, so the server can't distinguish announcements from chatter. Untagged text stays a plain message → no migration, existing chat decodes unchanged. A test proves a user can't type a string that fakes one.

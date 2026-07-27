@@ -130,6 +130,14 @@ class AppL10nEn extends AppL10n {
   String get expiredRecheck => 'expired — needs re-check';
 
   @override
+  String directionsFailed(String coords) {
+    return 'Could not open a map app. Coordinates: $coords';
+  }
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
   String get reportFacilityTitle => 'Report a facility';
 
   @override

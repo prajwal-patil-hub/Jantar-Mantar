@@ -1,6 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/domain/freshness.dart';
@@ -153,12 +158,12 @@ class _FacilityDetailSheet extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton.icon(
-                    onPressed: () => _stub(context, l10n.directions),
+                    onPressed: () => _openDirections(context, facility),
                     icon: const Icon(Icons.directions_walk),
                     label: Text(l10n.directions),
                   ),
                   TextButton.icon(
-                    onPressed: () => _stub(context, l10n.share),
+                    onPressed: () => _share(context, facility, l10n),
                     icon: const Icon(Icons.share),
                     label: Text(l10n.share),
                   ),
@@ -171,11 +176,56 @@ class _FacilityDetailSheet extends ConsumerWidget {
     );
   }
 
-  void _stub(BuildContext context, String what) {
+  /// Hands the destination to whichever map app the user has chosen, via the
+  /// platform `geo:` scheme — deliberately NOT a hardcoded Google Maps link
+  /// (ADR-7 keeps Google out of the loop, and the destination is exactly the
+  /// kind of thing this app should not route through a third party by
+  /// default). Falls back to OpenStreetMap, which is also the web path.
+  Future<void> _openDirections(BuildContext context, Facility facility) async {
     final l10n = AppL10n.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.featureArrivesLater(what))));
+    final messenger = ScaffoldMessenger.of(context);
+    final lat = facility.lat;
+    final lng = facility.lng;
+
+    final candidates = <Uri>[
+      if (!kIsWeb) Uri.parse('geo:$lat,$lng?q=$lat,$lng'),
+      Uri.parse(
+        'https://www.openstreetmap.org/?mlat=$lat&mlon=$lng#map=18/$lat/$lng',
+      ),
+    ];
+
+    for (final uri in candidates) {
+      try {
+        if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+      } on Object {
+        // Try the next one.
+      }
+    }
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.directionsFailed('$lat, $lng'))),
+    );
+  }
+
+  /// Shares public facility info only — name, status and coordinates. Never
+  /// anything about who reported it.
+  Future<void> _share(
+    BuildContext context,
+    Facility facility,
+    AppL10n l10n,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final text =
+        '${facility.name} — ${facility.status.label(l10n)}\n'
+        'https://www.openstreetmap.org/?mlat=${facility.lat}'
+        '&mlon=${facility.lng}#map=18/${facility.lat}/${facility.lng}';
+    try {
+      await SharePlus.instance.share(ShareParams(text: text));
+    } on Object {
+      // No share sheet (some desktop/web contexts) — the clipboard always
+      // works, and losing the address entirely would be worse.
+      await Clipboard.setData(ClipboardData(text: text));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.copiedToClipboard)));
+    }
   }
 
   Future<void> _reportClosed(BuildContext context, WidgetRef ref) async {

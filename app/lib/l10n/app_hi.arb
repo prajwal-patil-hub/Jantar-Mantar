@@ -49,6 +49,9 @@
   "@capacityFor": { "placeholders": { "count": { "type": "int" } } },
   "expiredRecheck": "समय समाप्त — दोबारा जाँच ज़रूरी",
 
+  "directionsFailed": "कोई मैप ऐप नहीं खुल सका। निर्देशांक: {coords}",
+  "@directionsFailed": { "placeholders": { "coords": { "type": "String" } } },
+  "copiedToClipboard": "क्लिपबोर्ड पर कॉपी किया गया",
   "reportFacilityTitle": "सुविधा की रिपोर्ट करें",
   "updateFacilityTitle": "सुविधा अपडेट करें",
   "back": "पीछे",

@@ -28,7 +28,10 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
   final _controller = DraggableScrollableController();
 
   static const _collapsed = 0.16;
-  static const _expanded = 0.5;
+  static const _half = 0.5;
+  // Near-full rather than 1.0: leaving a sliver of map visible keeps the
+  // sheet obviously dismissible and preserves context.
+  static const _full = 0.94;
 
   @override
   void dispose() {
@@ -36,11 +39,17 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
     super.dispose();
   }
 
+  /// Tapping the header cycles collapsed -> half -> full -> collapsed, so the
+  /// full list is reachable without a drag (flutter_map's pan gestures compete
+  /// with a drag that starts over the map).
   void _toggle() {
     if (!_controller.isAttached) return;
-    final target = _controller.size > (_collapsed + _expanded) / 2
-        ? _collapsed
-        : _expanded;
+    final size = _controller.size;
+    final target = switch (size) {
+      _ when size < (_collapsed + _half) / 2 => _half,
+      _ when size < (_half + _full) / 2 => _full,
+      _ => _collapsed,
+    };
     _controller.animateTo(
       target,
       duration: const Duration(milliseconds: 250),
@@ -61,9 +70,9 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
       controller: _controller,
       initialChildSize: _collapsed,
       minChildSize: _collapsed,
-      maxChildSize: _expanded,
+      maxChildSize: _full,
       snap: true,
-      snapSizes: const [_collapsed, _expanded],
+      snapSizes: const [_collapsed, _half, _full],
       builder: (context, scrollController) {
         return GlassSurface(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
