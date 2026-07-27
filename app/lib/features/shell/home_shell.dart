@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,8 +36,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     // Restore the saved language (one-frame flash to system locale on the
     // very first launch only; cached thereafter).
     ref.read(localeProvider.notifier).load();
-    // Restore the saved Demo Mode choice.
-    ref.read(demoModeProvider.notifier).load();
+    // Restore the saved Demo Mode choice, then make the local sample data
+    // match it — this is what puts pins on the map and alerts in the feed on
+    // a release build (the hosted PWA), not just in debug.
+    unawaited(_syncDemoData());
+  }
+
+  Future<void> _syncDemoData() async {
+    await ref.read(demoModeProvider.notifier).load();
+    if (!mounted) return;
+    await applyDemoSeed(
+      ref.read(appDatabaseProvider),
+      on: ref.read(demoModeProvider),
+    );
   }
 
   static const _screens = [
