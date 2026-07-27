@@ -2,11 +2,24 @@ import 'package:drift/drift.dart';
 
 import 'app_database.dart';
 
-/// DEBUG-ONLY sample facilities around Jantar Mantar so the map has pins
-/// during development. Never runs in release builds; real data arrives via
-/// the verification pipeline once the backend lands.
-Future<void> seedDebugFacilities(AppDatabase db) async {
-  final existing = await db.select(db.facilities).get();
+/// Sample facilities, capacity readings and alerts around Jantar Mantar, so
+/// the map, detail sheet, freshness banding and Alerts feed are all explorable
+/// with no backend (ADR-18, Demo Mode).
+///
+/// Previously debug-only, which meant the hosted release build showed an empty
+/// map — the one part of the app Demo Mode did not cover. Tied to Demo Mode
+/// instead, and [removeDemoSeed] takes it all back out when Demo Mode is
+/// turned off, so sample pins can never be mistaken for real ones.
+///
+/// Every row id starts with [demoSeedPrefix]; that is what makes removal exact.
+const demoSeedPrefix = 'seed-';
+
+Future<void> seedDemoFacilities(AppDatabase db) async {
+  // Idempotent: only seed when none of our rows are present, so a user's own
+  // submissions are never disturbed.
+  final existing = await (db.select(
+    db.facilities,
+  )..where((f) => f.id.like('$demoSeedPrefix%'))).get();
   if (existing.isNotEmpty) return;
 
   final now = DateTime.now();
@@ -142,4 +155,20 @@ Future<void> seedDebugFacilities(AppDatabase db) async {
       ),
     ]),
   );
+}
+
+/// Removes every demo row, leaving anything the user created untouched.
+/// Capacity readings reference facilities, so they go first.
+Future<void> removeDemoSeed(AppDatabase db) async {
+  await db.transaction(() async {
+    await (db.delete(
+      db.capacityReadings,
+    )..where((c) => c.id.like('$demoSeedPrefix%'))).go();
+    await (db.delete(
+      db.facilities,
+    )..where((f) => f.id.like('$demoSeedPrefix%'))).go();
+    await (db.delete(
+      db.alerts,
+    )..where((a) => a.id.like('$demoSeedPrefix%'))).go();
+  });
 }

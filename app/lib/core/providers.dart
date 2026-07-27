@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,7 +13,7 @@ import 'data/submission_repository.dart';
 import 'data/supabase_remote_api.dart';
 import 'data/sync_worker.dart';
 import 'db/app_database.dart';
-import 'db/dev_seed.dart';
+import 'db/demo_seed.dart';
 import 'sync/sync_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -29,13 +28,24 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
       ),
     ),
   );
-  if (kDebugMode) {
-    // Sample pins for development only; streams refresh when it lands.
-    unawaited(seedDebugFacilities(db));
-  }
   ref.onDispose(db.close);
   return db;
 });
+
+/// Applies or removes the Demo Mode sample data (map pins, capacity readings,
+/// public alerts) to match [on].
+///
+/// Deliberately NOT wired into [appDatabaseProvider]: making the database
+/// depend on the demo flag would tear down and recreate the whole DB every
+/// time the toggle flips. Called from the shell once the saved choice loads,
+/// and again whenever the user changes it.
+Future<void> applyDemoSeed(AppDatabase db, {required bool on}) async {
+  if (on) {
+    await seedDemoFacilities(db);
+  } else {
+    await removeDemoSeed(db);
+  }
+}
 
 final facilityRepositoryProvider = Provider<FacilityRepository>(
   (ref) => FacilityRepository(ref.watch(appDatabaseProvider)),

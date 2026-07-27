@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/providers.dart';
 import '../../../core/security/panic_wipe_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
@@ -121,7 +122,12 @@ class ProfileScreen extends ConsumerWidget {
               title: Text(l10n.demoMode),
               subtitle: Text(l10n.demoModeSubtitle),
               value: ref.watch(demoModeProvider),
-              onChanged: (v) => ref.read(demoModeProvider.notifier).set(v),
+              onChanged: (v) async {
+                await ref.read(demoModeProvider.notifier).set(v);
+                // Add or remove the sample map pins and alerts to match, so
+                // demo data can never linger and be mistaken for real data.
+                await applyDemoSeed(ref.read(appDatabaseProvider), on: v);
+              },
             ),
           ),
           const SizedBox(height: 8),
