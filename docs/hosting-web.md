@@ -10,8 +10,16 @@ browser chrome (`web/manifest.json` is already set to `display: standalone`).
 URL: `https://prajwal-patil-hub.github.io/Jantar-Mantar/`
 
 No Mac, no Apple Developer account, no cost — the repo is public, so Pages is
-free. The workflow calls `configure-pages` with `enablement: true`, so Pages
-turns itself on the first time it runs; there is no settings step.
+free.
+
+### One-time setup (required)
+
+**Repo → Settings → Pages → Build and deployment → Source: "GitHub Actions".**
+
+This cannot be automated. The workflow's `GITHUB_TOKEN` is not permitted to
+create a Pages site (`Resource not accessible by integration`), so the first
+run fails with a 404 until the toggle is set. Once set, every push deploys
+automatically and you never touch it again.
 
 Demo Mode is ON by default, so every screen works immediately with sample data
 and no backend or login.
