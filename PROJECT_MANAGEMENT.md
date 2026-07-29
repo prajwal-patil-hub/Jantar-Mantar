@@ -91,6 +91,14 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] Phase-3 group work complete
 - **Bluetooth mesh chat: NOT building** (ADR-17)
 
+## Proposed — offline Wi-Fi transport (analysis only, no code)
+See `docs/research/offline-wifi-transport.md`. Buildable as **sync islands**, not a phone mesh: Android can host a local-only hotspot, **iOS cannot host at all**, web gets none of it. WPA2/WPA3 is not the security boundary — reuse the existing E2E envelopes and treat the link as hostile.
+- [ ] **Ed25519 sender signatures** — valuable on its own, and a prerequisite. Today `sender_id` is attested by RLS (`sender_id = auth.uid()`); with no server, any member could forge any other member's messages
+- [ ] Phase A — LAN sync over any existing AP (mDNS + TCP + Noise_IK). Cross-platform, no hotspot code, where nearly all the value is
+- [ ] Phase B — Android `startLocalOnlyHotspot()` + `WIFI:` QR to join (iOS Camera understands it natively)
+- [ ] Phase C — dedicated hub device (travel router / Pi). Recommended over B: no iOS limit, no phone battery cost, can mandate WPA3
+- **Non-goals:** iOS as host · iOS↔iOS Multipeer · multi-hop routing · web · calling it "a mesh" to users
+
 ## Definition of Done (every task)
 1. Works offline (or degrades gracefully with visible state)
 2. Relevant SECURITY.md checklist items ticked
