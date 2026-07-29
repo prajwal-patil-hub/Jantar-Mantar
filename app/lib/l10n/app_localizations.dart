@@ -694,8 +694,62 @@ abstract class AppL10n {
   /// No description provided for @shareLocationLater.
   ///
   /// In en, this message translates to:
-  /// **'Sharing location with a trusted contact arrives in a later build — always explicit, per use.'**
+  /// **'Explicit and per use. Your location is never stored on our servers — it goes straight to the app you pick.'**
   String get shareLocationLater;
+
+  /// No description provided for @shareMyLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my location'**
+  String get shareMyLocation;
+
+  /// No description provided for @shareLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your location once'**
+  String get shareLocationTitle;
+
+  /// No description provided for @shareLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This takes a single GPS reading and hands it to the app you choose — a message, a call, whatever you already use. It is not stored on this device and never reaches our servers. Anyone you send it to can see where you are.'**
+  String get shareLocationBody;
+
+  /// No description provided for @shareLocationConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Get my location'**
+  String get shareLocationConfirm;
+
+  /// No description provided for @shareLocationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'I am here: {url} (within {meters} m, at {time})'**
+  String shareLocationMessage(String url, int meters, String time);
+
+  /// No description provided for @locationServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is switched off on this device.'**
+  String get locationServiceOff;
+
+  /// No description provided for @locationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was declined. Nothing was shared.'**
+  String get locationDenied;
+
+  /// No description provided for @locationDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is blocked for this app in system settings.'**
+  String get locationDeniedForever;
+
+  /// No description provided for @locationTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get a location fix. Nothing was shared.'**
+  String get locationTimeout;
 
   /// No description provided for @couldNotDial.
   ///
@@ -858,6 +912,78 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Spam'**
   String get reasonSpam;
+
+  /// No description provided for @reporterHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporter'**
+  String get reporterHistory;
+
+  /// No description provided for @reporterRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent reports'**
+  String get reporterRecent;
+
+  /// No description provided for @reporterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports yet.'**
+  String get reporterNone;
+
+  /// No description provided for @reporterOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing held by an admin'**
+  String get reporterOnHold;
+
+  /// No description provided for @revokeVerifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke verifier'**
+  String get revokeVerifier;
+
+  /// No description provided for @revokeReasonPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is this standing being revoked?'**
+  String get revokeReasonPrompt;
+
+  /// No description provided for @revokeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This drops the account to New and holds it there. Approvals will keep counting but will not promote it again until an admin restores it.'**
+  String get revokeConfirmBody;
+
+  /// No description provided for @revokeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing revoked and held.'**
+  String get revokeDone;
+
+  /// No description provided for @restoreTrust.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore standing'**
+  String get restoreTrust;
+
+  /// No description provided for @restoreConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This lifts the hold and recomputes the level from the account\'s record. It does not hand back the old level automatically.'**
+  String get restoreConfirmBody;
+
+  /// No description provided for @restoreDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold lifted.'**
+  String get restoreDone;
+
+  /// No description provided for @moderationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not apply that: {error}'**
+  String moderationFailed(String error);
 
   /// No description provided for @yourStanding.
   ///

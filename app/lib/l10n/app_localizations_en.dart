@@ -353,7 +353,40 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get shareLocationLater =>
-      'Sharing location with a trusted contact arrives in a later build — always explicit, per use.';
+      'Explicit and per use. Your location is never stored on our servers — it goes straight to the app you pick.';
+
+  @override
+  String get shareMyLocation => 'Share my location';
+
+  @override
+  String get shareLocationTitle => 'Share your location once';
+
+  @override
+  String get shareLocationBody =>
+      'This takes a single GPS reading and hands it to the app you choose — a message, a call, whatever you already use. It is not stored on this device and never reaches our servers. Anyone you send it to can see where you are.';
+
+  @override
+  String get shareLocationConfirm => 'Get my location';
+
+  @override
+  String shareLocationMessage(String url, int meters, String time) {
+    return 'I am here: $url (within $meters m, at $time)';
+  }
+
+  @override
+  String get locationServiceOff => 'Location is switched off on this device.';
+
+  @override
+  String get locationDenied =>
+      'Location permission was declined. Nothing was shared.';
+
+  @override
+  String get locationDeniedForever =>
+      'Location is blocked for this app in system settings.';
+
+  @override
+  String get locationTimeout =>
+      'Could not get a location fix. Nothing was shared.';
 
   @override
   String couldNotDial(String number) {
@@ -444,6 +477,46 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get reasonSpam => 'Spam';
+
+  @override
+  String get reporterHistory => 'Reporter';
+
+  @override
+  String get reporterRecent => 'Recent reports';
+
+  @override
+  String get reporterNone => 'No reports yet.';
+
+  @override
+  String get reporterOnHold => 'Standing held by an admin';
+
+  @override
+  String get revokeVerifier => 'Revoke verifier';
+
+  @override
+  String get revokeReasonPrompt => 'Why is this standing being revoked?';
+
+  @override
+  String get revokeConfirmBody =>
+      'This drops the account to New and holds it there. Approvals will keep counting but will not promote it again until an admin restores it.';
+
+  @override
+  String get revokeDone => 'Standing revoked and held.';
+
+  @override
+  String get restoreTrust => 'Restore standing';
+
+  @override
+  String get restoreConfirmBody =>
+      'This lifts the hold and recomputes the level from the account\'s record. It does not hand back the old level automatically.';
+
+  @override
+  String get restoreDone => 'Hold lifted.';
+
+  @override
+  String moderationFailed(String error) {
+    return 'Could not apply that: $error';
+  }
 
   @override
   String get yourStanding => 'Your standing';

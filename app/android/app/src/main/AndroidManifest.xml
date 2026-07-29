@@ -1,6 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- usesCleartextTraffic=false: SECURITY.md networking rule — reject all
          non-HTTPS traffic regardless of Android version defaults. -->
+    <!-- Foreground only, and only for the explicit per-use "Share my
+         location" action in SOS. ACCESS_BACKGROUND_LOCATION is deliberately
+         NOT declared: this app must never be able to follow someone. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="CommonGround"
         android:name="${applicationName}"

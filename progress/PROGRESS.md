@@ -1,6 +1,19 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 20 — 2026-07-28 · E7 closed (share location) · moderator brake on promotion
+**Done:**
+- **Share my location (E7, ADR-28)** — the last non-hardware MVP gap. This is the **only** GPS in the app and the constraints are the feature: a consent sheet explains what one reading does and who can see it *before* the permission prompt appears; `getCurrentPosition` only, never a stream, never background, and `ACCESS_BACKGROUND_LOCATION` is deliberately absent from the manifest. The fix goes straight to the OS share sheet — never Drift, never the outbox, never Supabase, because "don't store precise user location server-side" is not satisfied by "we only keep it briefly". Link is OpenStreetMap, so the recipient does not have to tell Google where the sender is to read it.
+- **A denied or failed fix says so explicitly** ("Nothing was shared"). A share that silently does nothing would leave someone unsure whether their position went out, which is the worst possible ambiguity here.
+- **Moderator brake (ADR-27)** — automatic promotion only demotes accounts that are *wrong*; it says nothing about one that is accurate and hostile. `revoke_verifier` drops an account to New **and holds it there**. The hold is the entire point: without it the next approved report recomputes the tier and hands the badge straight back. The decisive test credits 30 approvals to a held account and asserts it is still New — and it goes red the moment the hold check is removed.
+- `restore_trust` **recomputes from the counters** rather than restoring the old badge, and `reporter_history` is SECURITY INVOKER so RLS still decides who may read whose submissions — a verifier calling it gets their own record and an empty list for anyone else. Reached from a person icon on each queue card.
+- Corrected a stale checkbox: E8's "secure storage + cert pinning + panic-wipe" had been done in Phase 2 but was never ticked.
+- 146 tests green (+11) and **61 pgTAP assertions**; analyze + custom_lint clean; web build green.
+
+**Needs the user:** apply the migrations in order — `..._trust.sql` → `..._corroboration.sql` → `..._moderation.sql`.
+
+**Next:** nothing left that this container can build. What remains is hardware- or network-bound: two-device E2E chat smoke test, TalkBack/VoiceOver sweep (`docs/accessibility-audit.md`), the TLS pin bundle generated from a trusted network, and choosing a production tile provider (ADR-13).
+---
 ## Session 19 — 2026-07-27 · Corroboration auto-verify
 **Done:**
 - **`supabase/migrations/20260727000004_corroboration.sql`** — an AFTER INSERT trigger: when 3 **distinct** reporters agree on the same facility AND the same status inside 20 minutes, it publishes with no human decision at all. Trust promotion (ADR-25) adds more people who *can* approve; this handles the case where nobody is available.

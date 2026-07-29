@@ -68,6 +68,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Used only to scan a group invite QR code. No photos or video are recorded or uploaded.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used only when you tap Share my location, to take one reading you send yourself. It is never stored or uploaded, and the app never uses location in the background.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Used only to attach a photo to a facility report. Location and camera metadata are removed before upload.</string>
 </dict>

@@ -21,6 +21,7 @@ class DemoPendingQueue extends Notifier<List<Map<String, Object?>>> {
     return [
       {
         'id': 'demo-sub-1',
+        'submitter_id': 'demo-user-asha',
         'created_at': at(4),
         'lat': 28.6281,
         'lng': 77.2163,
@@ -34,6 +35,7 @@ class DemoPendingQueue extends Notifier<List<Map<String, Object?>>> {
       },
       {
         'id': 'demo-sub-2',
+        'submitter_id': 'demo-user-ravi',
         'created_at': at(11),
         'lat': 28.6249,
         'lng': 77.2175,
@@ -47,6 +49,7 @@ class DemoPendingQueue extends Notifier<List<Map<String, Object?>>> {
       },
       {
         'id': 'demo-sub-3',
+        'submitter_id': 'demo-user-asha',
         'created_at': at(23),
         'lat': 28.6302,
         'lng': 77.2188,
@@ -59,6 +62,7 @@ class DemoPendingQueue extends Notifier<List<Map<String, Object?>>> {
       },
       {
         'id': 'demo-sub-4',
+        'submitter_id': 'demo-user-nadia',
         'created_at': at(38),
         'lat': 28.6260,
         'lng': 77.2140,
@@ -218,4 +222,65 @@ final demoAuditLogProvider = Provider<List<Map<String, Object?>>>((ref) {
       'ts': at(96),
     },
   ];
+});
+
+/// One reporter's record for the moderator screen (Phase 4, ADR-27).
+///
+/// `reporter_history` is SECURITY INVOKER on purpose — it only assembles rows
+/// the caller can already read, so a non-admin calling it gets their own
+/// record and an empty list for anyone else, enforced by RLS rather than by
+/// this screen being hidden.
+final reporterHistoryProvider = FutureProvider.autoDispose
+    .family<Map<String, Object?>, ({String userId, int tick})>((
+      ref,
+      args,
+    ) async {
+      if (ref.watch(demoModeProvider)) {
+        return ref.watch(demoReporterHistoryProvider);
+      }
+      final client = ref.watch(supabaseClientProvider);
+      if (client == null) throw StateError('Backend not configured.');
+      final result = await client.rpc<Object?>(
+        'reporter_history',
+        params: {'p_user': args.userId},
+      );
+      if (result is! Map) return const {};
+      return result.cast<String, Object?>();
+    });
+
+/// Sample reporter record so the moderator screen is explorable in Demo Mode.
+final demoReporterHistoryProvider = Provider<Map<String, Object?>>((ref) {
+  final now = DateTime.now();
+  String at(int m) => now.subtract(Duration(minutes: m)).toIso8601String();
+  return {
+    'tier': 'verifier',
+    'held': false,
+    'hold_reason': null,
+    'approved': 24,
+    'rejected': 2,
+    'recent': [
+      {
+        'id': 'demo-hist-1',
+        'state': 'approved',
+        'category': 'water',
+        'status': 'good',
+        'created_at': at(12),
+      },
+      {
+        'id': 'demo-hist-2',
+        'state': 'approved',
+        'category': 'food',
+        'status': 'low',
+        'created_at': at(48),
+      },
+      {
+        'id': 'demo-hist-3',
+        'state': 'rejected',
+        'reason': 'Duplicate',
+        'category': 'water',
+        'status': 'good',
+        'created_at': at(140),
+      },
+    ],
+  };
 });

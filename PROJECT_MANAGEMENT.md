@@ -17,7 +17,7 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] 14 new pgTAP negatives (**39 total**), verified to fail when the verifier guards are removed
 - [x] Multi-site: Delhi · London · Bengaluru selectable from the map (`MapConfig.sites`)
 - [x] **Corroboration auto-verify** (ADR-26) — `supabase/migrations/20260727000004_corroboration.sql`: 3 distinct **trusted** reporters agreeing on the same facility+status inside 20 minutes publishes with no human decision; never creates a facility, never sets `verified_at`, and **never credits trust** (so a ring cannot farm itself to verifier). 10 pgTAP negatives (**49 total**), verified to fail when the trust gate is removed
-- [ ] Moderator tooling beyond the queue (per-user history, revoke a verifier by hand)
+- [x] **Moderator tooling** (ADR-27) — `supabase/migrations/20260728000005_moderation.sql`: `revoke_verifier` drops an account to New **and holds it there** (a plain demotion self-reverses on the next approval), `restore_trust` lifts the hold and recomputes from the record, `reporter_history` is SECURITY INVOKER so RLS still decides who can read whose submissions. Reached from a person icon on each queue card. 12 pgTAP negatives (**61 total**)
 
 ## Epics → tasks (MVP)
 ### E1. Project scaffold
@@ -49,12 +49,12 @@ _Last updated: 2026-07-24 · Phase 0_
 ### E7. SOS screen
 - [x] Full-screen high-contrast SOS: hold-to-send (2.5s radial countdown), release-early cancel, queued through the outbox, "I'm safe" reset
 - [x] Direct-call tiles (112 emergency · 108 ambulance · 15100 NALSA legal aid) via dialer; "Nearest medical" jumps to map filtered to medical
-- [ ] Share-location-with-trusted-contact — explicit per-use, needs location opt-in work
+- [x] **Share-location-with-trusted-contact** (ADR-28) — consent sheet first, GPS second; one-shot `getCurrentPosition`, never a stream, never background, `ACCESS_BACKGROUND_LOCATION` deliberately not declared. The fix goes to the OS share sheet and nowhere else — never Drift, never the outbox, never Supabase. OSM link, not a vendor's
 - [x] Facility **Directions** (platform `geo:` handoff, OSM fallback — no hardcoded Google) and **Share** (public info only, clipboard fallback)
 ### E8. Auth (anonymous device keypair; role claims)
 - [x] Anonymous-by-default via Supabase anonymous sign-in (background, never blocks UI); admin role from server-set app_metadata
 - [x] Sync wired: SupabaseRemoteApi push (idempotent client_id), RemotePullService (facilities/capacity/alerts/verdicts), SyncService 60s cycle
-- [ ] flutter_secure_storage session hardening + cert pinning · [ ] panic-wipe
+- [x] flutter_secure_storage for keys/tokens · [x] cert-pinning mechanism (INACTIVE until a pin bundle is generated from a trusted network) · [x] panic-wipe
 ### E9. i18n (en/hi) + accessibility pass
 - [x] Flutter gen-l10n: en + hi ARB, every user-facing screen localized (nav, map, submit flow, detail sheet, alerts, SOS, profile, admin/verify)
 - [x] Bundled Noto Sans + Noto Sans Devanagari (Devanagari as font fallback); instant language toggle in Profile, persisted (ADR-15)

@@ -351,7 +351,39 @@ class AppL10nHi extends AppL10n {
 
   @override
   String get shareLocationLater =>
-      'किसी विश्वसनीय संपर्क के साथ स्थान साझा करना बाद के संस्करण में आएगा — हमेशा स्पष्ट, हर बार।';
+      'स्पष्ट और हर बार। आपका स्थान हमारे सर्वर पर कभी संग्रहीत नहीं होता — यह सीधे आपके चुने ऐप को जाता है।';
+
+  @override
+  String get shareMyLocation => 'मेरा स्थान साझा करें';
+
+  @override
+  String get shareLocationTitle => 'अपना स्थान एक बार साझा करें';
+
+  @override
+  String get shareLocationBody =>
+      'यह एक बार GPS पढ़ता है और आपके चुने हुए ऐप को दे देता है — संदेश, कॉल, जो भी आप उपयोग करते हैं। यह इस डिवाइस पर सहेजा नहीं जाता और हमारे सर्वर तक कभी नहीं पहुँचता। जिसे आप भेजेंगे वह देख सकेगा कि आप कहाँ हैं।';
+
+  @override
+  String get shareLocationConfirm => 'मेरा स्थान लें';
+
+  @override
+  String shareLocationMessage(String url, int meters, String time) {
+    return 'मैं यहाँ हूँ: $url ($meters मी. के भीतर, $time बजे)';
+  }
+
+  @override
+  String get locationServiceOff => 'इस डिवाइस पर स्थान बंद है।';
+
+  @override
+  String get locationDenied =>
+      'स्थान की अनुमति अस्वीकार की गई। कुछ भी साझा नहीं हुआ।';
+
+  @override
+  String get locationDeniedForever =>
+      'सिस्टम सेटिंग्स में इस ऐप के लिए स्थान अवरुद्ध है।';
+
+  @override
+  String get locationTimeout => 'स्थान नहीं मिल सका। कुछ भी साझा नहीं हुआ।';
 
   @override
   String couldNotDial(String number) {
@@ -442,6 +474,46 @@ class AppL10nHi extends AppL10n {
 
   @override
   String get reasonSpam => 'स्पैम';
+
+  @override
+  String get reporterHistory => 'रिपोर्टर';
+
+  @override
+  String get reporterRecent => 'हाल की रिपोर्टें';
+
+  @override
+  String get reporterNone => 'अभी तक कोई रिपोर्ट नहीं।';
+
+  @override
+  String get reporterOnHold => 'व्यवस्थापक द्वारा स्थिति रोकी गई';
+
+  @override
+  String get revokeVerifier => 'सत्यापनकर्ता वापस लें';
+
+  @override
+  String get revokeReasonPrompt => 'यह स्थिति क्यों वापस ली जा रही है?';
+
+  @override
+  String get revokeConfirmBody =>
+      'यह खाते को \'नया\' पर ले आता है और वहीं रोक देता है। स्वीकृतियाँ गिनी जाती रहेंगी पर व्यवस्थापक के बहाल करने तक पदोन्नति नहीं होगी।';
+
+  @override
+  String get revokeDone => 'स्थिति वापस ली गई और रोकी गई।';
+
+  @override
+  String get restoreTrust => 'स्थिति बहाल करें';
+
+  @override
+  String get restoreConfirmBody =>
+      'यह रोक हटाता है और खाते के रिकॉर्ड से स्तर की पुनर्गणना करता है। पुराना स्तर अपने आप वापस नहीं मिलता।';
+
+  @override
+  String get restoreDone => 'रोक हटाई गई।';
+
+  @override
+  String moderationFailed(String error) {
+    return 'लागू नहीं हो सका: $error';
+  }
 
   @override
   String get yourStanding => 'आपकी स्थिति';

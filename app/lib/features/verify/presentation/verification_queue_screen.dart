@@ -10,6 +10,7 @@ import '../../alerts/presentation/compose_alert_screen.dart';
 import '../../map/presentation/widgets/facility_visuals.dart';
 import '../application/verify_providers.dart';
 import 'audit_log_screen.dart';
+import 'reporter_screen.dart';
 
 /// Admin verification queue (ui-ux-spec §1.14/§1.15, MVP cut): oldest-first
 /// pending submissions with approve / reject-with-reason. Decisions call
@@ -123,6 +124,15 @@ class _VerificationQueueScreenState
       failures.isEmpty
           ? l10n.batchApproved(done)
           : l10n.batchPartial(done, failures.length),
+    );
+  }
+
+  /// Open the submitter's record. Admin-only in the UI, and admin-only on
+  /// the server too — `reporter_history` runs as the caller, so a verifier
+  /// calling it would simply get nothing back.
+  void _openReporter(String userId) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ReporterScreen(userId: userId)),
     );
   }
 
@@ -270,6 +280,7 @@ class _VerificationQueueScreenState
                   return _SubmissionCard(
                     row: rows[i],
                     isAdmin: isAdmin,
+                    onOpenReporter: _openReporter,
                     selectMode: _selectMode,
                     selected: _selected.contains(id),
                     onToggleSelected: _toggleSelected,
@@ -287,6 +298,7 @@ class _SubmissionCard extends StatelessWidget {
   const _SubmissionCard({
     required this.row,
     required this.isAdmin,
+    required this.onOpenReporter,
     required this.selectMode,
     required this.selected,
     required this.onToggleSelected,
@@ -296,6 +308,7 @@ class _SubmissionCard extends StatelessWidget {
 
   final Map<String, Object?> row;
   final bool isAdmin;
+  final void Function(String userId) onOpenReporter;
   final bool selectMode;
 
   /// A verifier can only approve a submission that updates a facility which
@@ -311,6 +324,7 @@ class _SubmissionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final id = row['id'] as String;
+    final submitterId = row['submitter_id'] as String?;
     final payload = (row['payload'] as Map?)?.cast<String, Object?>() ?? {};
     final categoryName = payload['category'] as String?;
     final category = FacilityType.values.asNameMap()[categoryName];
@@ -355,6 +369,14 @@ class _SubmissionCard extends StatelessWidget {
                     Text(
                       TimeOfDay.fromDateTime(createdAt).format(context),
                       style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  // "Who filed this?" is the question that decides a
+                  // borderline report, so it is one tap from the card.
+                  if (isAdmin && !selectMode && submitterId != null)
+                    IconButton(
+                      icon: const Icon(Icons.person_search_outlined),
+                      tooltip: l10n.reporterHistory,
+                      onPressed: () => onOpenReporter(submitterId),
                     ),
                 ],
               ),

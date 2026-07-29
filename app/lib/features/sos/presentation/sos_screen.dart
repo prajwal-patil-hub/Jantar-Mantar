@@ -6,6 +6,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
+import 'share_location_sheet.dart';
 
 /// SOS screen (ui-ux-spec §1.9): full-screen, high contrast, NO glass.
 /// Huge hold-to-send button with a radial countdown; direct-call tiles that
@@ -193,6 +194,11 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 icon: Icons.gavel_outlined,
                 label: l10n.callLegalAid(SosScreen.legalAidNumber),
                 onTap: () => _call(SosScreen.legalAidNumber),
+              ),
+              _CallTile(
+                icon: Icons.share_location,
+                label: l10n.shareMyLocation,
+                onTap: () => ShareLocationSheet.show(context),
               ),
               _CallTile(
                 icon: Icons.medical_information_outlined,
