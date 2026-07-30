@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jantar_mantar_sahayata/core/theme/status_colors.dart';
+import 'package:jantar_mantar_sahayata/core/theme/tokens.dart';
 import 'package:jantar_mantar_sahayata/features/alerts/presentation/widgets/alert_visuals.dart';
 
 /// Automates the colour half of the accessibility audit so a palette change
@@ -18,9 +19,14 @@ import 'package:jantar_mantar_sahayata/features/alerts/presentation/widgets/aler
 /// devices. See `docs/accessibility-audit.md`.
 void main() {
   const colors = StatusColors.standard;
-  const saffron = Color(0xFFFF6D1F); // ADR-10 accent
-  const lightSurface = Color(0xFFFFFBFE);
-  const darkSurface = Color(0xFF141218);
+  const saffron = AppTokens.accent; // ADR-10
+  // The grounds the app ACTUALLY paints. These were previously hardcoded
+  // near-white/near-black that no screen used, so the suite was measuring a
+  // surface that did not exist — found while adopting Soft Geometry
+  // (ADR-32). Measure the scaffold, not the card: it is the darker of the two
+  // on light and therefore the worst case.
+  const lightSurface = AppTokens.scaffoldLight;
+  const darkSurface = AppTokens.scaffoldDark;
 
   final swatches = <String, Color>{
     'good': colors.good,
@@ -55,7 +61,14 @@ void main() {
       // Deliberate: every darker amber that clears 3:1 collapses against the
       // red "Out" under CVD (see the note in StatusColors). Pinned so the
       // trade-off stays visible and cannot drift further.
-      expect(_contrast(colors.low, lightSurface), closeTo(1.92, 0.05));
+      //
+      // Was 1.92 against a near-white that the app never actually painted.
+      // Re-pinned at 1.56 against the real warm scaffold (ADR-32). The number
+      // got worse; the reasoning did not change, and the CVD separation this
+      // buys is asserted below and still passes. Amber on a warm ground is
+      // the weakest point of this palette and the icon + text rule is what
+      // carries it.
+      expect(_contrast(colors.low, lightSurface), closeTo(1.56, 0.05));
       expect(
         _contrast(colors.low, darkSurface),
         greaterThanOrEqualTo(bar),
@@ -63,11 +76,44 @@ void main() {
       );
     });
 
+    test('the filled-action tone is readable in both themes', () {
+      // Clay is the tone every CTA and filled surface uses (ADR-32), so its
+      // label contrast is a real body-text requirement, not a graphics one.
+      expect(
+        _contrast(AppTokens.onClay, AppTokens.clay),
+        greaterThanOrEqualTo(4.5),
+        reason: 'light: ${_ratio(AppTokens.onClay, AppTokens.clay)}',
+      );
+      // Inverted on purpose: in dark mode clay is lighter than the ground,
+      // so its label is dark ink. Cream here measures 2.83:1.
+      expect(
+        _contrast(AppTokens.onClayDark, AppTokens.clayDark),
+        greaterThanOrEqualTo(4.5),
+        reason: 'dark: ${_ratio(AppTokens.onClayDark, AppTokens.clayDark)}',
+      );
+    });
+
+    test('body ink clears 4.5:1 on both grounds', () {
+      // The warm palette is only safe if reading text on it is safe.
+      expect(_contrast(AppTokens.ink, lightSurface), greaterThanOrEqualTo(4.5));
+      expect(
+        _contrast(AppTokens.inkMuted, lightSurface),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        _contrast(AppTokens.inkDark, darkSurface),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
     test('the saffron accent is pinned, not silently redefined', () {
       // ADR-10 is the owner's explicit choice, made aware of the trade-offs.
       // As a foreground on light it measures under 3:1, which is exactly why
-      // ADR-10 forbids using the accent to convey status.
-      expect(_contrast(saffron, lightSurface), closeTo(2.75, 0.05));
+      // ADR-10 forbids using the accent to convey status. Re-pinned from 2.75
+      // for the warm scaffold (ADR-32) — saffron is not used as a foreground
+      // on this ground anyway; filled actions use clay with light-on-dark
+      // text, asserted separately below.
+      expect(_contrast(saffron, lightSurface), closeTo(2.23, 0.05));
       expect(_contrast(saffron, darkSurface), greaterThanOrEqualTo(bar));
     });
   });

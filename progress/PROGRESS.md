@@ -1,6 +1,20 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 24 — 2026-07-30 · Soft Geometry: a shape language extracted from reference images (ADR-32)
+**Done:**
+- **Extracted the geometry, not the pixels.** The supplied sheets reduce to one idea — a stadium field with a circular action attached, and five ways of joining them (lens split, notched knob, dropped tab, corner cap, bleeding disc) — plus a layout vocabulary of card-per-row, 22–28 px panels, pill CTAs and about double the vertical breathing room. Method and the reusable image→UI prompt are in `docs/research/ui-shape-language.md`.
+- **Drew all 21 screens** in the new language and published them as a wireframe artifact, theme-aware, viewable on a phone.
+- **Adopted it as tokens, not as screen styling.** Surface ramp, action tone and a radii scale go through `AppTheme`'s component themes, so card, chip, dialog, sheet, input, list tile and buttons all pick it up at once. `NotchedActionField` and `CappedSurface` cover the two joins the app uses — a shape language enforced by discipline drifts; one enforced by a shared widget cannot. Filled/outlined buttons are now pinned to the 56 dp emergency target rather than Material's default 40.
+- **`StatusColors` is untouched, and that was the main design decision.** Good/Low/Out/Unverified must stay separable under colour-blindness; a brown-on-tan monochrome collapses exactly the distinction the map exists for. The warm palette applies to chrome only.
+- **Measured every colour instead of asserting it, and three decisions changed because of it:** the light sand ground costs ~1 point of contrast but every swatch still clears 3:1; the warm dark ground `#160F0A` actually *raises* the weakest from 3.00 to 3.06 versus the old `#141218`; the first clay `#A5713F` put cream labels at 3.93:1 — under the body bar — so it darkened to `#8C5A29` at the same hue; and dark mode needed an inverted label token after cream-on-clay measured 2.83:1. **Both of those last two were caught by the tests, not by eye.**
+- **Found a real pre-existing bug:** `color_accessibility_test.dart` was measuring against a hardcoded near-white and near-black that no screen ever painted. It now reads `AppTokens` and measures the *scaffold* — the worse of the two light surfaces — so the numbers mean something.
+- 185 tests green (+2 new contrast assertions); analyze + custom_lint clean.
+
+**Not done, and stated rather than implied:** shapes 1, 3 and 5 are specified and drawn but not built as widgets — 2 and 4 cover current needs. Screens that hand-roll a container instead of using `Card`/`Chip`/`FilledButton` still need a per-screen pass; the theme covers the majority but not all of them.
+
+**Next:** the per-screen pass, then the server half of route reports.
+---
 ## Session 23 — 2026-07-30 · Route hazards: edges, not points (ADR-31, schema v4)
 **Done:**
 - **Closed the largest model gap the disaster research found.** The map only ever held points. The Venezuela case — an aftershock collapsing a bridge and cutting a parish off mid-response — cannot be expressed by a pin. Drift **v4** adds `RouteReports`: two endpoints, a condition, a cause, a mandatory expiry; drawn as a line under the marker layer.
