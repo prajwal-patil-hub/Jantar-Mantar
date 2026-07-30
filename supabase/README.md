@@ -4,18 +4,73 @@ Project: `https://orsqjucexvrefmexztay.supabase.co` (Mumbai, ADR-8).
 Everything privileged lives here — the app ships only the public URL +
 publishable key.
 
-## One-time setup (dashboard) — DO THESE NOW
+## Applying migrations
 
-1. **Apply the schema:** Dashboard → SQL Editor → paste the full contents of
-   `migrations/20260724000001_init.sql` → Run, then do the same with
-   `migrations/20260725000002_groups.sql` (groups + E2E chat). Apply them in
-   filename order. (Or `supabase db push` with the CLI if you link the project.)
-2. **Enable anonymous sign-ins:** Dashboard → Authentication → Sign In /
-   Up → enable **Anonymous sign-ins** (ADR-4: anonymous-by-default; the app
-   signs in anonymously in the background).
-3. **Create your admin account:** Dashboard → Authentication → Users →
-   Add user → email + password (this is your verifier login in the app).
-   Then make it admin — SQL Editor:
+### Step 0 — find out what is already applied
+
+Dashboard → **SQL Editor** → **New query** → paste the contents of
+`supabase/status.sql` → **Run**. You get one row of true/false:
+
+```
+ 1_init | 2_groups | 3_trust | 4_corroboration | 5_moderation | 6_signing_keys
+--------+----------+---------+-----------------+--------------+----------------
+ t      | t        | f       | f               | f            | f
+```
+
+Run only the `false` ones. Never guess from memory — this checks for the
+object each migration actually creates, so it cannot drift.
+
+### Step 1 — run the missing migrations, in filename order
+
+Order is not cosmetic: `4_corroboration` reads the `user_trust` table that
+`3_trust` creates, and `5_moderation` alters it.
+
+| # | File | Creates |
+|---|---|---|
+| 1 | `migrations/20260724000001_init.sql` | facilities, capacity, submissions, alerts, SOS, audit log, approve/reject RPCs |
+| 2 | `migrations/20260725000002_groups.sql` | groups, members, device keys, sealed key envelopes, invites, group pins, messages |
+| 3 | `migrations/20260727000003_trust.sql` | `user_trust`, tiers, `my_trust()`, verifier-aware `approve_submission` |
+| 4 | `migrations/20260727000004_corroboration.sql` | auto-verify trigger (needs #3) |
+| 5 | `migrations/20260728000005_moderation.sql` | `revoke_verifier`, `restore_trust`, `reporter_history` (alters #3's table) |
+| 6 | `migrations/20260728000006_signing_keys.sql` | `device_keys.signing_public_key` for Ed25519 sender signatures |
+
+For each one: SQL Editor → New query → paste the **whole file** → Run. Paste
+the entire file, never a fragment — several of these contain `$$`-quoted
+function bodies that break if split.
+
+### Step 2 — check it took
+
+Re-run `supabase/status.sql`. Every column should now read `t`.
+
+### If something goes wrong
+
+- **"already exists" on 1 or 2** — they are already applied. Skip them;
+  do not re-run. (Migrations **3–6 are safe to run twice**; 1 and 2 are not.)
+- **"relation public.user_trust does not exist" on 4 or 5** — you skipped 3.
+  Run 3 first.
+- **`42601: unterminated dollar-quoted string`** — a partial paste. Copy the
+  file again from the top.
+- **A migration failed halfway** — 3–6 are re-runnable, so fix the cause and
+  run the whole file again. Postgres runs each statement in its own
+  transaction here, so a later failure does not undo earlier statements.
+
+### Verify with real behaviour, not just the schema
+
+The local suite proves the policies do what they claim
+(`./supabase/tests/run_local.sh`, 64 assertions). On the live project, the
+quickest end-to-end check is: open the app → Profile → turn **Demo mode off**
+→ Profile shows "New reporter" instead of an error, which means `my_trust()`
+is reachable and #3 landed.
+
+## Other one-time dashboard setup
+
+1. **Enable anonymous sign-ins:** Authentication → Sign In / Up → enable
+   **Anonymous sign-ins** (ADR-4: anonymous-by-default; the app signs in
+   anonymously in the background). Without this the app stays in local-only
+   mode however many migrations are applied.
+2. **Create your admin account:** Authentication → Users → Add user → email +
+   password (this is your verifier login in the app). Then make it admin —
+   SQL Editor:
    ```sql
    update auth.users
      set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
@@ -23,7 +78,7 @@ publishable key.
    where email = 'YOUR_EMAIL_HERE';
    ```
    Roles live in `app_metadata` because clients can never write it
-   (SECURITY.md). Sign out/in in the app after changing the role.
+   (SECURITY.md). Sign out and back in in the app after changing the role.
 
 ## Security model
 

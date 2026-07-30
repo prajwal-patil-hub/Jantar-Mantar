@@ -118,6 +118,7 @@ begin
 end;
 $$;
 
+drop trigger if exists submissions_corroborate on public.submissions;
 create trigger submissions_corroborate
   after insert on public.submissions
   for each row execute function public.try_corroborate();

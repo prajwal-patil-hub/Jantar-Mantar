@@ -16,8 +16,9 @@
 -- straight back.
 
 alter table public.user_trust
-  add column held boolean not null default false,
-  add column hold_reason text check (char_length(hold_reason) <= 500);
+  add column if not exists held boolean not null default false,
+  add column if not exists hold_reason text
+    check (char_length(hold_reason) <= 500);
 
 -- A held account never gets promoted by the automatic path. bump_trust keeps
 -- counting (so the record stays honest) but stops re-tiering.

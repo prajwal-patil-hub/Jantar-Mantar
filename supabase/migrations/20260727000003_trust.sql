@@ -26,7 +26,7 @@
 
 -- ----------------------------------------------------------------- table
 
-create table public.user_trust (
+create table if not exists public.user_trust (
   user_id uuid primary key references auth.users(id) on delete cascade,
   approved_count integer not null default 0 check (approved_count >= 0),
   rejected_count integer not null default 0 check (rejected_count >= 0),
@@ -41,6 +41,7 @@ create table public.user_trust (
 -- DEFINER functions below.
 alter table public.user_trust enable row level security;
 
+drop policy if exists trust_read_own on public.user_trust;
 create policy trust_read_own on public.user_trust
   for select to authenticated
   using (user_id = auth.uid() or public.is_admin());

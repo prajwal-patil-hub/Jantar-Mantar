@@ -24,7 +24,7 @@
 -- what closes the downgrade attack.
 
 alter table public.device_keys
-  add column signing_public_key text
+  add column if not exists signing_public_key text
     check (char_length(signing_public_key) <= 128);
 
 -- No new policies needed and none wanted: device_keys already reads to any
