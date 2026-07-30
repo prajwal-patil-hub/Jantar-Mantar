@@ -427,5 +427,9 @@
   "webLimitedTitle": "Browser version — for trying it out",
   "webLimitedBody": "This build runs in a browser, so it cannot use the phone's secure key storage, offline map caching, or the camera. Encryption keys are kept in browser storage, which Safari can delete after about a week of not opening the app — that would permanently lose your group chat history. Use the installed app for anything real.",
   "demoMode": "Demo mode",
-  "demoModeSubtitle": "Explore every screen with sample data — no backend or login needed. Turn off to use the live backend."
+  "demoModeSubtitle": "Explore every screen with sample data — no backend or login needed. Turn off to use the live backend.",
+  "demoBannerSampleData": "Sample data — for exploring the app. Not real reports.",
+  "@demoBannerSampleData": {
+    "description": "Persistent banner shown on every screen while Demo Mode is on."
+  }
 }

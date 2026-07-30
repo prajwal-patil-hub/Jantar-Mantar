@@ -52,12 +52,40 @@ jobs:
 
       # The site lives at /<repo>/, so the base href must match or every asset
       # 404s.
+      #
+      # --no-web-resources-cdn is required, not an optimisation (ADR-37). By
+      # default Flutter loads CanvasKit from www.gstatic.com at runtime, which
+      # means: the app does not start at all if Google is unreachable — the
+      # exact network conditions this app is built for — and every cold load
+      # announces a visitor to a third party. It also makes the CSP
+      # unenforceable, since script-src would have to allow a Google origin.
       - name: Build web
         working-directory: app
         run: |
           flutter pub get
           flutter build web --release \
+            --no-web-resources-cdn \
             --base-href "${{ steps.pages.outputs.base_path }}/"
+
+      # Fail the deploy rather than publish a build that phones home or has
+      # lost its viewport tag. Both have shipped before.
+      - name: Verify the built page is self-contained
+        working-directory: app
+        run: |
+          # Assert the FLAG, not the absence of the string: the gstatic URL
+          # stays in flutter.js as the else-branch of
+          #   useLocalCanvasKit ? <local> : <cdn>
+          # so grepping for "gstatic.com" is a false positive on a correct
+          # build. What matters is which branch is taken.
+          grep -q '"useLocalCanvasKit":true' build/web/flutter_bootstrap.js \
+            || { echo "::error::useLocalCanvasKit is not set — the app would fetch CanvasKit from www.gstatic.com at runtime."; exit 1; }
+          test -f build/web/canvaskit/canvaskit.wasm \
+            || { echo "::error::canvaskit.wasm was not emitted locally."; exit 1; }
+          grep -q 'name="viewport"' build/web/index.html \
+            || { echo "::error::index.html lost its viewport meta tag."; exit 1; }
+          grep -q 'Content-Security-Policy' build/web/index.html \
+            || { echo "::error::index.html lost its CSP meta tag."; exit 1; }
+          echo "Self-contained: no CDN references, viewport and CSP present."
 
       - uses: actions/upload-pages-artifact@v3
         with:

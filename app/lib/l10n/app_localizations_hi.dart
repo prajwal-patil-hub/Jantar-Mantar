@@ -1250,4 +1250,8 @@ class AppL10nHi extends AppL10n {
   @override
   String get demoModeSubtitle =>
       'हर स्क्रीन को नमूना डेटा के साथ देखें — बैकएंड या लॉगिन की ज़रूरत नहीं। लाइव बैकएंड के लिए बंद करें।';
+
+  @override
+  String get demoBannerSampleData =>
+      'नमूना डेटा — ऐप देखने के लिए। ये वास्तविक रिपोर्ट नहीं हैं।';
 }

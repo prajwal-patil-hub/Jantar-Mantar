@@ -1252,4 +1252,8 @@ class AppL10nEn extends AppL10n {
   @override
   String get demoModeSubtitle =>
       'Explore every screen with sample data — no backend or login needed. Turn off to use the live backend.';
+
+  @override
+  String get demoBannerSampleData =>
+      'Sample data — for exploring the app. Not real reports.';
 }

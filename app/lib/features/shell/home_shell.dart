@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/demo/demo_mode.dart';
 import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
+import '../../core/widgets/demo_banner.dart';
 import '../../core/widgets/glass_surface.dart';
 import '../../core/widgets/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
@@ -75,7 +76,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       // to look identical (ADR-33).
       body: Column(
         children: [
-          const SafeArea(bottom: false, child: OfflineBanner()),
+          // Sample data outranks staleness: "this is not real" matters
+          // more than "this may be old" (ADR-38).
+          const SafeArea(bottom: false, child: DemoBanner()),
+          const OfflineBanner(),
           Expanded(child: _screens[_index]),
         ],
       ),

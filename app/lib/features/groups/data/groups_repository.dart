@@ -132,14 +132,10 @@ class GroupsRepository implements GroupsRepo {
         .single();
     final groupId = inserted['id'] as String;
 
-    // Creator is the first active admin.
-    await _client.from('group_members').insert({
-      'group_id': groupId,
-      'user_id': _uid,
-      'role': 'admin',
-      'state': 'active',
-      'joined_via': 'creator',
-    });
+    // The creator's admin row is seeded by an AFTER INSERT trigger on
+    // `groups`, not from here (ADR-36). The client used to assert its own
+    // role and state, which meant the insert policy had to permit that — and
+    // permitting it for the creator permitted it for everyone.
 
     // New group key, sealed to my own device key and cached locally.
     final groupKey = _crypto.generateGroupKey();
@@ -558,22 +554,19 @@ class GroupsRepository implements GroupsRepo {
   @override
   Future<String> joinByCode(String code) async {
     await ensureDeviceKeyPublished();
+    // One privileged call: validate the code, create the pending row and
+    // spend the invite use together (ADR-36). Doing it as resolve-then-insert
+    // required a client INSERT policy on group_members, and that policy was
+    // the escalation. It is also atomic — two devices racing on the last use
+    // can no longer both win.
     final resolved = await _client.rpc<List<dynamic>>(
-      'resolve_invite',
+      'join_by_invite',
       params: {'p_code': code},
     );
     if (resolved.isEmpty) {
       throw StateError('Invite is invalid, expired, or used up.');
     }
     final row = resolved.first as Map<String, Object?>;
-    final groupId = row['group_id'] as String;
-    await _client.from('group_members').insert({
-      'group_id': groupId,
-      'user_id': _uid,
-      'role': 'member',
-      'state': 'pending',
-      'joined_via': 'link',
-    });
     return row['group_name'] as String;
   }
 

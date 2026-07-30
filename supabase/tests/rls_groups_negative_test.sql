@@ -27,9 +27,9 @@ insert into public.groups (id, name, visibility, created_by)
 values ('11111111-1111-1111-1111-111111111111', 'Medical Volunteers',
         'hidden', '00000000-0000-0000-0000-0000000000a1');
 
-insert into public.group_members (group_id, user_id, role, state)
-values ('11111111-1111-1111-1111-111111111111',
-        '00000000-0000-0000-0000-0000000000a1', 'admin', 'active');
+-- No explicit membership insert: the AFTER INSERT trigger on `groups`
+-- seeds the creator as an active admin (ADR-36). Client-side inserts into
+-- group_members no longer exist.
 
 insert into public.group_key_envelopes (group_id, member_user_id, sealed)
 values ('11111111-1111-1111-1111-111111111111',
@@ -120,9 +120,7 @@ select throws_ok(
 -- 11. NEGATIVE: outsider cannot self-join as an ACTIVE member (they may only
 --     insert their own row; the default state is pending and approval is an
 --     admin-only update).
-insert into public.group_members (group_id, user_id, role, state)
-values ('11111111-1111-1111-1111-111111111111',
-        '00000000-0000-0000-0000-0000000000b1', 'member', 'pending');
+select public.join_by_invite('CODE1234');
 update public.group_members set state = 'active'
   where user_id = '00000000-0000-0000-0000-0000000000b1';
 select ok(
@@ -141,12 +139,10 @@ select ok(
 -- Rotation (ADR-19) is only meaningful if the server enforces who may do it
 -- and that a removed member really loses read access.
 
--- C joins properly: self-inserts a pending row, A approves it.
+-- C joins properly: redeems the invite (pending), A approves it.
 set local request.jwt.claims to
   '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{}}';
-insert into public.group_members (group_id, user_id, role, state)
-values ('11111111-1111-1111-1111-111111111111',
-        '00000000-0000-0000-0000-0000000000c1', 'member', 'pending');
+select public.join_by_invite('CODE1234');
 
 set local request.jwt.claims to
   '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated","app_metadata":{}}';

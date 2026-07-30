@@ -2232,6 +2232,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Explore every screen with sample data — no backend or login needed. Turn off to use the live backend.'**
   String get demoModeSubtitle;
+
+  /// Persistent banner shown on every screen while Demo Mode is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data — for exploring the app. Not real reports.'**
+  String get demoBannerSampleData;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
