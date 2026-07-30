@@ -93,6 +93,41 @@ void main() {
       );
     });
 
+    test('the card boundary is carried by the hairline, not by tone', () {
+      // Soft Geometry is tone-on-tone, and tone-on-tone measures badly: a
+      // shell card on the sand scaffold is only 1.15:1 (dark 1.11:1), well
+      // under the 3:1 WCAG 1.4.11 asks of a UI component boundary. Pinned so
+      // nobody "cleans up" the shadow and hairline as decoration — they are
+      // the only thing making a card perceptible as a card.
+      expect(
+        _contrast(AppTokens.surfaceLight, AppTokens.scaffoldLight),
+        closeTo(1.15, 0.03),
+        reason: 'tone alone cannot carry this',
+      );
+      expect(
+        _contrast(AppTokens.surfaceDark, AppTokens.scaffoldDark),
+        closeTo(1.11, 0.03),
+      );
+
+      // So the hairline has to. It must clear 3:1 against BOTH the card it
+      // outlines and the ground it sits on, or the edge disappears on one
+      // side of itself.
+      for (final ground in [AppTokens.surfaceLight, AppTokens.scaffoldLight]) {
+        expect(
+          _contrast(AppTokens.hairline, ground),
+          greaterThanOrEqualTo(3.0),
+          reason: _ratio(AppTokens.hairline, ground),
+        );
+      }
+      for (final ground in [AppTokens.surfaceDark, AppTokens.scaffoldDark]) {
+        expect(
+          _contrast(AppTokens.hairlineDark, ground),
+          greaterThanOrEqualTo(3.0),
+          reason: _ratio(AppTokens.hairlineDark, ground),
+        );
+      }
+    });
+
     test('body ink clears 4.5:1 on both grounds', () {
       // The warm palette is only safe if reading text on it is safe.
       expect(_contrast(AppTokens.ink, lightSurface), greaterThanOrEqualTo(4.5));

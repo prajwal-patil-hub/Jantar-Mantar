@@ -591,6 +591,15 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get offlineShowingSaved => 'Offline — showing saved data.';
+
+  @override
+  String get couldNotLoad => 'Could not load this. You may be offline.';
+
+  @override
+  String get queueClearBody => 'Nothing is waiting for review right now.';
+
+  @override
   String get washTitle => 'Against humanitarian minimums';
 
   @override

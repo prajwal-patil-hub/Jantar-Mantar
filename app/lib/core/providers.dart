@@ -15,6 +15,7 @@ import 'data/supabase_remote_api.dart';
 import 'data/sync_worker.dart';
 import 'db/app_database.dart';
 import 'db/demo_seed.dart';
+import 'demo/demo_mode.dart';
 import 'sync/sync_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -59,6 +60,30 @@ final submissionRepositoryProvider = Provider<SubmissionRepository>(
 final alertRepositoryProvider = Provider<AlertRepository>(
   (ref) => AlertRepository(ref.watch(appDatabaseProvider)),
 );
+
+/// Whether the app currently believes it can reach the backend (ADR-33).
+///
+/// True when we have no reason to think otherwise — unknown reads as online,
+/// so the offline strip only ever appears once a cycle has actually failed.
+/// Demo Mode is local by definition and never shows it.
+final isOnlineProvider = Provider<bool>((ref) {
+  if (ref.watch(demoModeProvider)) return true;
+  return ref.watch(syncReachabilityProvider).asData?.value ?? true;
+});
+
+/// Rebuilds when the sync service learns something new about reachability.
+final syncReachabilityProvider = StreamProvider<bool?>((ref) {
+  final service = ref.watch(syncServiceProvider);
+  final controller = StreamController<bool?>();
+  void emit() => controller.add(service.reachable.value);
+  service.reachable.addListener(emit);
+  emit();
+  ref.onDispose(() {
+    service.reachable.removeListener(emit);
+    controller.close();
+  });
+  return controller.stream;
+});
 
 final routeRepositoryProvider = Provider<RouteRepository>(
   (ref) => RouteRepository(ref.watch(appDatabaseProvider)),

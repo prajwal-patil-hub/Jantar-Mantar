@@ -588,6 +588,17 @@ class AppL10nHi extends AppL10n {
   }
 
   @override
+  String get offlineShowingSaved =>
+      'ऑफ़लाइन — सहेजा गया डेटा दिखाया जा रहा है।';
+
+  @override
+  String get couldNotLoad => 'यह लोड नहीं हो सका। आप ऑफ़लाइन हो सकते हैं।';
+
+  @override
+  String get queueClearBody =>
+      'अभी समीक्षा के लिए कुछ भी प्रतीक्षा में नहीं है।';
+
+  @override
   String get washTitle => 'मानवीय न्यूनतम मानकों के सामने';
 
   @override

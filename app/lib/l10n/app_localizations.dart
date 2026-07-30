@@ -1117,6 +1117,24 @@ abstract class AppL10n {
   /// **'{hours} h'**
   String ttlHours(int hours);
 
+  /// No description provided for @offlineShowingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing saved data.'**
+  String get offlineShowingSaved;
+
+  /// No description provided for @couldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this. You may be offline.'**
+  String get couldNotLoad;
+
+  /// No description provided for @queueClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is waiting for review right now.'**
+  String get queueClearBody;
+
   /// No description provided for @washTitle.
   ///
   /// In en, this message translates to:

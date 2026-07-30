@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n_labels.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/verify_providers.dart';
 
@@ -39,15 +40,22 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
         ],
       ),
       body: entries.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.queueLoadFailed('$e')),
-          ),
+        loading: () => LoadingStateView(semanticLabel: l10n.auditLog),
+        error: (e, _) => ErrorStateView(
+          message: l10n.couldNotLoad,
+          // The raw exception is folded away, not thrown at the user: it
+          // tells a volunteer nothing and leaks backend shape to anyone
+          // reading over their shoulder.
+          details: '$e',
+          onRetry: () => setState(() => _refreshTick++),
+          retryLabel: l10n.refresh,
         ),
         data: (rows) => rows.isEmpty
-            ? Center(child: Text(l10n.auditLogEmpty))
+            ? EmptyStateView(
+                icon: Icons.history_toggle_off,
+                title: l10n.auditLogEmpty,
+                body: l10n.auditLogAppendOnly,
+              )
             : ListView.separated(
                 padding: const EdgeInsets.all(12),
                 itemCount: rows.length + 1,

@@ -5,6 +5,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/presentation/compose_alert_screen.dart';
 import '../../map/presentation/widgets/facility_visuals.dart';
@@ -263,15 +264,19 @@ class _VerificationQueueScreenState
               ],
       ),
       body: pending.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.queueLoadFailed('$e')),
-          ),
+        loading: () => LoadingStateView(semanticLabel: l10n.verificationQueue),
+        error: (e, _) => ErrorStateView(
+          message: l10n.couldNotLoad,
+          details: '$e',
+          onRetry: () => setState(() => _refreshTick++),
+          retryLabel: l10n.refresh,
         ),
         data: (rows) => rows.isEmpty
-            ? Center(child: Text(l10n.queueClear))
+            ? EmptyStateView(
+                icon: Icons.inbox_outlined,
+                title: l10n.queueClear,
+                body: l10n.queueClearBody,
+              )
             : ListView.builder(
                 padding: const EdgeInsets.all(12),
                 itemCount: rows.length,

@@ -51,6 +51,36 @@ abstract final class AppTokens {
   static const Color glassFallbackLight = Color(0xD9FFFFFF); // white @ 85%
   static const Color glassFallbackDark = Color(0xD9111214);
 
+  // ---------------------------------------------------------------- depth
+  // Soft Geometry is tone-on-tone, and tone-on-tone measures badly: a shell
+  // card on the sand scaffold is **1.15:1**, dark is 1.11:1. Well under the
+  // 3:1 WCAG 1.4.11 wants for a UI component boundary. Depth here is not
+  // decoration — it is the only thing making a card perceptible as a card.
+  //
+  // Two mechanisms, because one is not enough:
+  //  · a warm-tinted shadow (a grey shadow on a warm ground reads muddy);
+  //  · a hairline, which is what carries it when shadows are unavailable —
+  //    outdoor/high-contrast mode, and bright direct sunlight where a soft
+  //    shadow is simply not visible.
+  static const Color shadowTint = Color(0x1F3B2A1E); // cocoa @ 12%
+  static const Color shadowTintDark = Color(0x66000000);
+
+  /// Hairline that reaches 3:1 against BOTH the card and the scaffold, so the
+  /// boundary is perceptible without a shadow. Deliberately not the muted-ink
+  /// tone: that reads as a divider, this reads as an edge.
+  static const Color hairline = Color(0xFF94794F); // 3.73 shell · 3.25 sand
+  static const Color hairlineDark = Color(0xFF8A7260); // 3.78 card · 4.21 grnd
+
+  /// Everyday raised surface: cards, sheets, the nav bar.
+  static List<BoxShadow> lift(Color tint) => [
+    BoxShadow(color: tint, blurRadius: 14, offset: const Offset(0, 4)),
+  ];
+
+  /// Things that float over the map — FABs, the peek sheet.
+  static List<BoxShadow> float(Color tint) => [
+    BoxShadow(color: tint, blurRadius: 24, offset: const Offset(0, 10)),
+  ];
+
   // Radii scale (ADR-32). One scale, applied through the theme, so the shape
   // language holds by construction instead of by per-screen discipline.
   static const double radiusChip = 14;

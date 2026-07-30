@@ -26,6 +26,17 @@ class SyncService {
   Timer? _timer;
   bool _cycleRunning = false;
 
+  /// Whether the last sync cycle reached the backend (ADR-33).
+  ///
+  /// Derived from what actually happened rather than from a connectivity
+  /// plugin, on purpose: "the radio says Wi-Fi" and "our backend answered"
+  /// are different facts, and during an internet shutdown they disagree in
+  /// exactly the way that matters. It also avoids a new Android permission.
+  ///
+  /// Starts null — unknown, not offline — so nothing claims to be stale
+  /// before the first cycle has had a chance to run.
+  final ValueNotifier<bool?> reachable = ValueNotifier<bool?>(null);
+
   /// No-op when Supabase isn't configured/initialised (tests, web fallback).
   void start() {
     if (_client == null || _timer != null) return;
@@ -46,8 +57,10 @@ class SyncService {
       await _ensureSignedIn(client);
       await _worker.processQueue();
       await _puller?.pullAll();
+      reachable.value = true;
     } on Object catch (e) {
       // Offline or backend not ready — queued writes stay queued.
+      reachable.value = false;
       debugPrint('sync cycle skipped: $e');
     } finally {
       _cycleRunning = false;

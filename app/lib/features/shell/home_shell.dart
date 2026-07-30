@@ -7,6 +7,7 @@ import '../../core/demo/demo_mode.dart';
 import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/glass_surface.dart';
+import '../../core/widgets/offline_banner.dart';
 import '../../l10n/app_localizations.dart';
 import '../alerts/application/critical_alert_signal.dart';
 import '../alerts/presentation/alerts_screen.dart';
@@ -69,7 +70,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final l10n = AppL10n.of(context);
     return Scaffold(
       extendBody: true,
-      body: _screens[_index],
+      // Above every tab, below nothing: the app has been offline-first since
+      // E2 and only group chat ever said so. A frozen map and a live map used
+      // to look identical (ADR-33).
+      body: Column(
+        children: [
+          const SafeArea(bottom: false, child: OfflineBanner()),
+          Expanded(child: _screens[_index]),
+        ],
+      ),
       bottomNavigationBar: GlassSurface(
         child: NavigationBar(
           backgroundColor: Colors.transparent,

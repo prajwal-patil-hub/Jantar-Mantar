@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/verify_providers.dart';
 
@@ -138,12 +139,12 @@ class _ReporterScreenState extends ConsumerState<ReporterScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.reporterHistory)),
       body: record.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(l10n.queueLoadFailed('$e')),
-          ),
+        loading: () => LoadingStateView(semanticLabel: l10n.reporterHistory),
+        error: (e, _) => ErrorStateView(
+          message: l10n.couldNotLoad,
+          details: '$e',
+          onRetry: () => setState(() => _tick++),
+          retryLabel: l10n.refresh,
         ),
         data: (data) {
           final held = data['held'] == true;

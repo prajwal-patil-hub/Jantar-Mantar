@@ -1,6 +1,21 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 25 — 2026-07-30 · Component-state audit: depth, the three async states, and offline (ADR-33)
+**Done:**
+- **Audited rather than guessed.** Counted actual occurrences across all 21 screens: `BoxShadow` in 2 files, `Semantics` in 4, zero `AnimatedSwitcher`/`Skeleton`/`SnackBarTheme`/`FocusNode`, and one `RefreshIndicator`. That is the gap list, not an opinion.
+- **Depth turned out to be a bug I introduced.** Soft Geometry is tone-on-tone, and a shell card on the sand scaffold measures **1.15:1** — dark 1.11:1 — against the 3:1 WCAG 1.4.11 wants for a component boundary. So cards were, strictly, invisible as cards. Fixed with two mechanisms because one is not enough: a warm-tinted shadow (grey on a warm ground reads muddy) and a hairline that clears 3:1 against *both* the card and the ground, which is what survives direct sunlight and the no-blur outdoor path. Both pinned in the test so neither gets tidied away as ornament.
+- **The three async states are one decision** — what a screen says when it has nothing to show. Empty was a lone centred sentence; loading was a spinner on a blank screen, indistinguishable from broken; error printed `'$e'` verbatim. `EmptyStateView`, `LoadingStateView` (skeleton in the shape of the content, staggered, still under reduced motion *and* battery saver) and `ErrorStateView` replace all three. **The raw exception never reaches the headline** — it tells a volunteer nothing and shows Postgres internals to whoever is reading over their shoulder — but it is folded behind a disclosure rather than discarded, so debugging still works. A test asserts both halves.
+- **Offline is finally stated.** The app has been offline-first since E2 and only group chat ever said so; a frozen map and a live map looked identical. `OfflineBanner` sits above every tab, driven by **whether the backend actually answered** rather than by a connectivity plugin — "the radio says Wi-Fi" and "the backend answered" disagree during exactly the internet shutdown this is built for, and it adds no Android permission. Unknown reads as online, so nothing claims staleness before the first cycle runs.
+- Snackbars and dividers themed — snackbars are this app's main feedback channel (every approve, reject, save and share ends in one) and were stock Material rectangles against the new palette.
+- **Found and fixed a real leak:** the skeleton's stagger used a bare `Future.delayed`, which left a pending timer past dispose and failed teardown in every widget test that mounted a loading screen. Now a cancellable `Timer`, with a regression test.
+- Wireframe artifact extended to 25 frames with the loading, empty, error and offline states.
+- 196 tests green (+11); analyze + custom_lint clean.
+
+**Still open, and named rather than implied:** no focus-visible treatment (`FocusNode` count is still zero), `Semantics` coverage is 4 files, no pull-to-refresh on most lists, and no shared transition/motion vocabulary. Those are the next component pass.
+
+**Next:** the per-screen pass (screens that hand-roll containers), then the server half of route reports.
+---
 ## Session 24 — 2026-07-30 · Soft Geometry: a shape language extracted from reference images (ADR-32)
 **Done:**
 - **Extracted the geometry, not the pixels.** The supplied sheets reduce to one idea — a stadium field with a circular action attached, and five ways of joining them (lens split, notched knob, dropped tab, corner cap, bleeding disc) — plus a layout vocabulary of card-per-row, 22–28 px panels, pill CTAs and about double the vertical breathing room. Method and the reusable image→UI prompt are in `docs/research/ui-shape-language.md`.
