@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/domain/freshness.dart';
+import '../../../core/domain/sphere_standards.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/status_colors.dart';
@@ -35,6 +36,16 @@ class _FacilityDetailSheet extends ConsumerWidget {
   const _FacilityDetailSheet({required this.facility});
 
   final Facility facility;
+
+  /// The camp's stated headcount comes from its shelter capacity reading.
+  /// Null when nobody has reported one — which the card renders as "not
+  /// enough information", never as a pass.
+  static int? _shelterPopulation(List<CapacityReading> readings) {
+    for (final r in readings) {
+      if (r.resource == ResourceType.shelter) return r.forPeople;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -114,6 +125,18 @@ class _FacilityDetailSheet extends ConsumerWidget {
                   ],
                 ),
               ],
+              // Relief-camp WASH adequacy (ADR-30). Only appears for a
+              // shelter with a stated population — see washAdequacy().
+              if (facility.type == FacilityType.shelter)
+                _WashAdequacyCard(
+                  adequacy: washAdequacy(
+                    camp: facility,
+                    people: _shelterPopulation(readings),
+                    nearby:
+                        ref.watch(facilitiesProvider).asData?.value ??
+                        const <Facility>[],
+                  ),
+                ),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -339,6 +362,140 @@ class _CapacityTile extends StatelessWidget {
             AppL10n.of(context).expiredRecheck,
             style: TextStyle(color: colors.unverified, fontSize: 12),
           ),
+      ],
+    );
+  }
+}
+
+/// Relief-camp WASH adequacy against the published humanitarian minimums
+/// (ADR-30). This is the number the Assam 2026 reporting shows nobody had:
+/// 15,000 people sharing six latrines is 2,500 per latrine against a
+/// first-phase maximum of 50.
+///
+/// Reads as an *indicator*, never a verdict — it names the standard, shows
+/// how many mapped facilities it counted, and says outright that partial map
+/// coverage means it is not a survey.
+class _WashAdequacyCard extends StatelessWidget {
+  const _WashAdequacyCard({required this.adequacy});
+
+  final WashAdequacy adequacy;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!adequacy.hasAnything) return const SizedBox.shrink();
+    final l10n = AppL10n.of(context);
+    final colors = Theme.of(context).extension<StatusColors>()!;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.rule, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.washTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _WashRow(
+              ratio: adequacy.latrines,
+              label: l10n.washLatrines,
+              standard: l10n.washLatrineStandard(latrineEmergencyMax),
+              value: (n) => l10n.washPerLatrine(n),
+              none: l10n.washNoLatrines,
+              colors: colors,
+            ),
+            const SizedBox(height: 6),
+            _WashRow(
+              ratio: adequacy.water,
+              label: l10n.washWater,
+              standard: l10n.washWaterStandard(
+                waterPointTapStandard,
+                waterPointPumpStandard,
+              ),
+              value: (n) => l10n.washPerWaterPoint(n),
+              none: l10n.washNoWater,
+              colors: colors,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.washCoverage(
+                adequacy.latrines.points + adequacy.water.points,
+                adequacy.radiusMeters.round(),
+              ),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WashRow extends StatelessWidget {
+  const _WashRow({
+    required this.ratio,
+    required this.label,
+    required this.standard,
+    required this.value,
+    required this.none,
+    required this.colors,
+  });
+
+  final WashRatio ratio;
+  final String label;
+  final String standard;
+  final String Function(int) value;
+  final String none;
+  final StatusColors colors;
+
+  @override
+  Widget build(BuildContext context) {
+    if (ratio.band == WashBand.unknown) return const SizedBox.shrink();
+
+    // Band is conveyed by icon + text as well as colour (accessibility rule);
+    // the colours reuse the status extension rather than the seed scheme.
+    final (icon, color) = switch (ratio.band) {
+      WashBand.meetsStandard => (Icons.check_circle_outline, colors.good),
+      WashBand.emergencyOnly => (Icons.error_outline, colors.low),
+      WashBand.belowStandard => (Icons.report_gmailerrorred, colors.out),
+      WashBand.unknown => (Icons.help_outline, colors.unverified),
+    };
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$label — '
+                '${ratio.peoplePerPoint == null ? none : value(ratio.peoplePerPoint!)}',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: color),
+              ),
+              Text(standard, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
+        ),
       ],
     );
   }

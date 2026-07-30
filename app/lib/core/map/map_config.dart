@@ -40,6 +40,13 @@ abstract final class MapConfig {
       name: 'Town Hall, Bengaluru',
       center: LatLng(12.96606, 77.58549),
     ),
+    // A flood-response site, not a protest one: the same facility model
+    // covers a relief camp (docs/research/disaster-response-adaptation.md).
+    ProtestSite(
+      id: 'guwahati',
+      name: 'Flood relief camps, Guwahati',
+      center: LatLng(26.14450, 91.73620),
+    ),
   ];
 }
 

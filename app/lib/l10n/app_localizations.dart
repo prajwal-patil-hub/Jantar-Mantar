@@ -991,6 +991,66 @@ abstract class AppL10n {
   /// **'Not verified as this sender'**
   String get senderUnverified;
 
+  /// No description provided for @washTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Against humanitarian minimums'**
+  String get washTitle;
+
+  /// No description provided for @washLatrines.
+  ///
+  /// In en, this message translates to:
+  /// **'Toilets'**
+  String get washLatrines;
+
+  /// No description provided for @washWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water points'**
+  String get washWater;
+
+  /// No description provided for @washPerLatrine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people per toilet'**
+  String washPerLatrine(int count);
+
+  /// No description provided for @washPerWaterPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people per water point'**
+  String washPerWaterPoint(int count);
+
+  /// No description provided for @washNoLatrines.
+  ///
+  /// In en, this message translates to:
+  /// **'none mapped here'**
+  String get washNoLatrines;
+
+  /// No description provided for @washNoWater.
+  ///
+  /// In en, this message translates to:
+  /// **'none mapped here'**
+  String get washNoWater;
+
+  /// No description provided for @washLatrineStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency maximum is {max} people per toilet.'**
+  String washLatrineStandard(int max);
+
+  /// No description provided for @washWaterStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard is {tap} people per tap, {pump} per hand pump.'**
+  String washWaterStandard(int tap, int pump);
+
+  /// No description provided for @washCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted {count} mapped facilities within {meters} m. The map is incomplete, so treat this as an indicator, not a survey.'**
+  String washCoverage(int count, int meters);
+
   /// No description provided for @yourStanding.
   ///
   /// In en, this message translates to:

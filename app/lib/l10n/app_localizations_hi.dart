@@ -519,6 +519,46 @@ class AppL10nHi extends AppL10n {
   String get senderUnverified => 'इस भेजने वाले के रूप में सत्यापित नहीं';
 
   @override
+  String get washTitle => 'मानवीय न्यूनतम मानकों के सामने';
+
+  @override
+  String get washLatrines => 'शौचालय';
+
+  @override
+  String get washWater => 'जल स्थल';
+
+  @override
+  String washPerLatrine(int count) {
+    return 'प्रति शौचालय $count लोग';
+  }
+
+  @override
+  String washPerWaterPoint(int count) {
+    return 'प्रति जल स्थल $count लोग';
+  }
+
+  @override
+  String get washNoLatrines => 'यहाँ कोई मानचित्रित नहीं';
+
+  @override
+  String get washNoWater => 'यहाँ कोई मानचित्रित नहीं';
+
+  @override
+  String washLatrineStandard(int max) {
+    return 'आपात अधिकतम प्रति शौचालय $max लोग है।';
+  }
+
+  @override
+  String washWaterStandard(int tap, int pump) {
+    return 'मानक: प्रति नल $tap लोग, प्रति हैंडपंप $pump।';
+  }
+
+  @override
+  String washCoverage(int count, int meters) {
+    return '$meters मी. के भीतर $count मानचित्रित सुविधाएँ गिनी गईं। मानचित्र अधूरा है, इसलिए इसे सर्वेक्षण नहीं, संकेतक मानें।';
+  }
+
+  @override
   String get yourStanding => 'आपकी स्थिति';
 
   @override

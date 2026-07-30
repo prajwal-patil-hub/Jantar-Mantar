@@ -522,6 +522,46 @@ class AppL10nEn extends AppL10n {
   String get senderUnverified => 'Not verified as this sender';
 
   @override
+  String get washTitle => 'Against humanitarian minimums';
+
+  @override
+  String get washLatrines => 'Toilets';
+
+  @override
+  String get washWater => 'Water points';
+
+  @override
+  String washPerLatrine(int count) {
+    return '$count people per toilet';
+  }
+
+  @override
+  String washPerWaterPoint(int count) {
+    return '$count people per water point';
+  }
+
+  @override
+  String get washNoLatrines => 'none mapped here';
+
+  @override
+  String get washNoWater => 'none mapped here';
+
+  @override
+  String washLatrineStandard(int max) {
+    return 'Emergency maximum is $max people per toilet.';
+  }
+
+  @override
+  String washWaterStandard(int tap, int pump) {
+    return 'Standard is $tap people per tap, $pump per hand pump.';
+  }
+
+  @override
+  String washCoverage(int count, int meters) {
+    return 'Counted $count mapped facilities within $meters m. The map is incomplete, so treat this as an indicator, not a survey.';
+  }
+
+  @override
   String get yourStanding => 'Your standing';
 
   @override

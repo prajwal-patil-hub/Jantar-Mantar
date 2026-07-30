@@ -19,6 +19,14 @@ _Last updated: 2026-07-24 · Phase 0_
 - [x] **Corroboration auto-verify** (ADR-26) — `supabase/migrations/20260727000004_corroboration.sql`: 3 distinct **trusted** reporters agreeing on the same facility+status inside 20 minutes publishes with no human decision; never creates a facility, never sets `verified_at`, and **never credits trust** (so a ring cannot farm itself to verifier). 10 pgTAP negatives (**49 total**), verified to fail when the trust gate is removed
 - [x] **Moderator tooling** (ADR-27) — `supabase/migrations/20260728000005_moderation.sql`: `revoke_verifier` drops an account to New **and holds it there** (a plain demotion self-reverses on the next approval), `restore_trust` lifts the hold and recomputes from the record, `reporter_history` is SECURITY INVOKER so RLS still decides who can read whose submissions. Reached from a person icon on each queue card. 12 pgTAP negatives (**61 total**)
 
+## Proposed — disaster response (flood / earthquake)
+Research: `docs/research/disaster-response-adaptation.md` (grounded in July 2026 Assam flood and June 2026 Venezuela earthquake reporting). The data model already fits; **the threat model does not transfer unchanged** — see §3 of that doc, including a **never-build list** (no evacuated-homes layer, no public vulnerability register, no missing-persons board, no free-text URLs/payment details in pins, no client-side relaxation of verification).
+- [x] **Sphere/UNHCR WASH adequacy ratios** (ADR-30) — `core/domain/sphere_standards.dart` + a card in the facility sheet. Computes people-per-latrine and people-per-water-point for a relief camp from existing map data; refuses to guess; a broken latrine counts as zero. Guwahati demo site seeded so it is explorable
+- [ ] **Road / route status** — "this bridge is gone" needs edges, not pins. The largest genuine model gap; the Venezuela aftershock that cut Caraballeda off is the case
+- [ ] **CAP ingest, read-only** — official SACHET/CAP alerts in a visually distinct channel. Hostile-input discipline required (allowlisted origin, DTD/entities disabled, size+depth caps); never mixed with crowd reports
+- [ ] **Camp-level needs signalling, aggregate only** — attacks the documented "visibility bias" where camps on an official's itinerary get the attention. Never per-person needs
+- [ ] **Deployment profiles** — build/config-time, server-attested, never a client toggle: alert sound on by default for disaster deployments, off for protest ones
+
 ## Epics → tasks (MVP)
 ### E1. Project scaffold
 - [x] Confirm backend: **Supabase** (ADR-8 confirmed 2026-07-24)

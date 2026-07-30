@@ -274,6 +274,93 @@ Future<void> seedDemoFacilities(AppDatabase db) async {
         77.5854,
         verifiedAgo: const Duration(minutes: 11),
       ),
+
+      // --- Guwahati: a flood relief camp, sized on the July 2026 Assam
+      // reporting (a camp of thousands with a handful of latrines). Exists so
+      // the WASH adequacy card (ADR-30) has something real-shaped to compute
+      // against, including two broken toilets that must NOT count as
+      // provision.
+      sample(
+        'seed-ghy-camp-1',
+        'Relief camp — Pandu HS School',
+        FacilityType.shelter,
+        FacilityStatus.low,
+        26.14450,
+        91.73620,
+        verifiedAgo: const Duration(minutes: 26),
+      ),
+      sample(
+        'seed-ghy-toilet-1',
+        'Camp latrines — block A',
+        FacilityType.toilet,
+        FacilityStatus.good,
+        26.14472,
+        91.73648,
+        verifiedAgo: const Duration(minutes: 31),
+      ),
+      sample(
+        'seed-ghy-toilet-2',
+        'Camp latrines — block B',
+        FacilityType.toilet,
+        FacilityStatus.low,
+        26.14418,
+        91.73591,
+        verifiedAgo: const Duration(minutes: 18),
+      ),
+      sample(
+        'seed-ghy-toilet-3',
+        'Camp latrines — block C (overflowing)',
+        FacilityType.toilet,
+        FacilityStatus.out,
+        26.14495,
+        91.73600,
+        verifiedAgo: const Duration(minutes: 9),
+      ),
+      sample(
+        'seed-ghy-toilet-4',
+        'Camp latrines — block D (locked)',
+        FacilityType.toilet,
+        FacilityStatus.closed,
+        26.14405,
+        91.73665,
+        verifiedAgo: const Duration(hours: 3),
+      ),
+      sample(
+        'seed-ghy-water-1',
+        'Hand pump — camp gate',
+        FacilityType.water,
+        FacilityStatus.good,
+        26.14460,
+        91.73580,
+        verifiedAgo: const Duration(minutes: 7),
+      ),
+      sample(
+        'seed-ghy-water-2',
+        'Tanker point — camp yard',
+        FacilityType.water,
+        FacilityStatus.low,
+        26.14430,
+        91.73670,
+        verifiedAgo: const Duration(minutes: 14),
+      ),
+      sample(
+        'seed-ghy-medical-1',
+        'Health post — ORS and diarrhoea care',
+        FacilityType.medical,
+        FacilityStatus.good,
+        26.14487,
+        91.73555,
+        verifiedAgo: const Duration(minutes: 22),
+      ),
+      sample(
+        'seed-ghy-danger-1',
+        'Road under water — Pandu approach',
+        FacilityType.danger,
+        FacilityStatus.closed,
+        26.14330,
+        91.73720,
+        verifiedAgo: const Duration(minutes: 40),
+      ),
     ]),
   );
 
@@ -324,6 +411,27 @@ Future<void> seedDemoFacilities(AppDatabase db) async {
         verifiedAt: Value(now.subtract(const Duration(minutes: 48))),
         expiresAt: now.add(const Duration(minutes: 20)),
         createdAt: now.subtract(const Duration(minutes: 48)),
+      ),
+      // 8,000 people against two usable latrines = 4,000 per latrine, 80×
+      // the emergency maximum of 50. Deliberately close to the real Assam
+      // figures the card was built for.
+      CapacityReadingsCompanion.insert(
+        id: 'seed-reading-ghy-1',
+        facilityId: 'seed-ghy-camp-1',
+        resource: ResourceType.shelter,
+        forPeople: 8000,
+        verifiedAt: Value(now.subtract(const Duration(minutes: 26))),
+        expiresAt: now.add(const Duration(minutes: 34)),
+        createdAt: now.subtract(const Duration(minutes: 26)),
+      ),
+      CapacityReadingsCompanion.insert(
+        id: 'seed-reading-ghy-2',
+        facilityId: 'seed-ghy-water-1',
+        resource: ResourceType.water,
+        forPeople: 400,
+        verifiedAt: Value(now.subtract(const Duration(minutes: 7))),
+        expiresAt: now.add(const Duration(minutes: 50)),
+        createdAt: now.subtract(const Duration(minutes: 7)),
       ),
       CapacityReadingsCompanion.insert(
         id: 'seed-reading-blr-1',
