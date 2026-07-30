@@ -6,15 +6,48 @@ publishable key.
 
 ## Applying migrations
 
+### The short way — one paste (works on a phone)
+
+`supabase/apply_all.sql` is every migration concatenated in order, and **it is
+safe to run more than once**. Every statement is `create ... if not exists`,
+`drop ... if exists` or `create or replace`, so it does not matter which
+migrations your project already has — running it on a fully migrated project
+changes nothing. Verified by applying it three times in a row to the same
+database.
+
+On an iPhone:
+
+1. Open the raw file and copy all of it:
+   `https://raw.githubusercontent.com/prajwal-patil-hub/Jantar-Mantar/main/supabase/apply_all.sql`
+   → tap and hold → **Select All** → **Copy**. (Use the *raw* URL. GitHub's
+   normal file view adds line numbers to the copied text, which will not run.)
+2. `supabase.com/dashboard` → your project → **SQL Editor** → **New query**.
+3. Paste → **Run**.
+4. New query → paste `supabase/status.sql` → **Run**. Every column must read
+   `t`.
+
+The editor is usable on a phone in landscape. It is a big paste, so give it a
+few seconds. If it stops partway, fix the error it names and run the whole
+thing again — that is exactly what the idempotency is for.
+
+`apply_all.sql` is **generated** by `supabase/build_apply_all.sh`. The
+migrations remain the single source of truth; regenerate after adding one, or
+the two will drift apart.
+
+### The careful way — one migration at a time
+
+Prefer this on a laptop, or when something has already gone wrong and you want
+to see exactly which step fails.
+
 ### Step 0 — find out what is already applied
 
 Dashboard → **SQL Editor** → **New query** → paste the contents of
 `supabase/status.sql` → **Run**. You get one row of true/false:
 
 ```
- 1_init | 2_groups | 3_trust | 4_corroboration | 5_moderation | 6_signing_keys
---------+----------+---------+-----------------+--------------+----------------
- t      | t        | f       | f               | f            | f
+ 1_init | 2_groups | 3_trust | 4_corroboration | 5_moderation | 6_signing_keys | 7_join_hardening
+--------+----------+---------+-----------------+--------------+----------------+------------------
+ t      | t        | f       | f               | f            | f              | f
 ```
 
 Run only the `false` ones. Never guess from memory — this checks for the
@@ -33,6 +66,7 @@ Order is not cosmetic: `4_corroboration` reads the `user_trust` table that
 | 4 | `migrations/20260727000004_corroboration.sql` | auto-verify trigger (needs #3) |
 | 5 | `migrations/20260728000005_moderation.sql` | `revoke_verifier`, `restore_trust`, `reporter_history` (alters #3's table) |
 | 6 | `migrations/20260728000006_signing_keys.sql` | `device_keys.signing_public_key` for Ed25519 sender signatures |
+| 7 | `migrations/20260730000007_join_hardening.sql` | **Security fix (ADR-36)** — removes the client self-join policy, adds `join_by_invite()` and the creator trigger |
 
 For each one: SQL Editor → New query → paste the **whole file** → Run. Paste
 the entire file, never a fragment — several of these contain `$$`-quoted

@@ -16,4 +16,17 @@ select
     where table_schema = 'public'
       and table_name = 'device_keys'
       and column_name = 'signing_public_key'
-  ) as "6_signing_keys";
+  ) as "6_signing_keys",
+  -- ADR-36. Two conditions, because either one alone is a half-applied fix
+  -- and the half that matters is the REMOVAL: join_by_invite can exist while
+  -- the vulnerable self-insert policy is still there, and then the hole is
+  -- open even though the new function looks present.
+  (
+    to_regproc('public.join_by_invite') is not null
+    and not exists (
+      select 1 from pg_policies
+      where schemaname = 'public'
+        and tablename = 'group_members'
+        and policyname = 'members_self_join'
+    )
+  ) as "7_join_hardening";

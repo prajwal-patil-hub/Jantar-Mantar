@@ -42,6 +42,7 @@ create table if not exists public.user_trust (
 alter table public.user_trust enable row level security;
 
 drop policy if exists trust_read_own on public.user_trust;
+drop policy if exists trust_read_own on public.user_trust;
 create policy trust_read_own on public.user_trust
   for select to authenticated
   using (user_id = auth.uid() or public.is_admin());

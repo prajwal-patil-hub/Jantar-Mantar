@@ -20,7 +20,7 @@ $$;
 
 -- ------------------------------------------------------------------ tables
 
-create table public.facilities (
+create table if not exists public.facilities (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 120),
   type text not null check (
@@ -34,7 +34,7 @@ create table public.facilities (
   updated_at timestamptz not null default now()
 );
 
-create table public.capacity_readings (
+create table if not exists public.capacity_readings (
   id uuid primary key default gen_random_uuid(),
   facility_id uuid not null references public.facilities(id) on delete cascade,
   resource text not null check (resource in ('water','food','shelter')),
@@ -44,10 +44,10 @@ create table public.capacity_readings (
   expires_at timestamptz not null,
   created_at timestamptz not null default now()
 );
-create index capacity_readings_facility_idx
+create index if not exists capacity_readings_facility_idx
   on public.capacity_readings(facility_id, created_at desc);
 
-create table public.submissions (
+create table if not exists public.submissions (
   id uuid primary key default gen_random_uuid(),
   -- Client-generated id: makes offline sync retries idempotent.
   client_id text not null unique check (char_length(client_id) <= 64),
@@ -63,10 +63,10 @@ create table public.submissions (
   reason text check (char_length(reason) <= 500),
   created_at timestamptz not null default now()
 );
-create index submissions_pending_idx
+create index if not exists submissions_pending_idx
   on public.submissions(state, created_at) where state = 'pending';
 
-create table public.alerts (
+create table if not exists public.alerts (
   id uuid primary key default gen_random_uuid(),
   severity text not null check (severity in ('info','warn','critical')),
   body text not null check (char_length(body) between 1 and 500),
@@ -78,7 +78,7 @@ create table public.alerts (
   expires_at timestamptz not null
 );
 
-create table public.sos_signals (
+create table if not exists public.sos_signals (
   id uuid primary key default gen_random_uuid(),
   client_id text not null unique check (char_length(client_id) <= 64),
   fired_at timestamptz not null,
@@ -87,7 +87,7 @@ create table public.sos_signals (
 );
 
 -- Append-only; writes happen inside SECURITY DEFINER functions only.
-create table public.audit_log (
+create table if not exists public.audit_log (
   id bigint generated always as identity primary key,
   actor_id uuid,
   action text not null,
@@ -109,40 +109,49 @@ alter table public.sos_signals enable row level security;
 alter table public.audit_log enable row level security;
 
 -- Public verified map: anyone (including signed-out) can read.
+drop policy if exists facilities_read on public.facilities;
 create policy facilities_read on public.facilities
   for select to anon, authenticated using (true);
 
+drop policy if exists capacity_read on public.capacity_readings;
 create policy capacity_read on public.capacity_readings
   for select to anon, authenticated using (true);
 
+drop policy if exists alerts_read on public.alerts;
 create policy alerts_read on public.alerts
   for select to anon, authenticated using (true);
 
 -- Submissions: users insert their own pending rows and read only their own;
 -- admins read all. State changes ONLY via the decision functions below.
+drop policy if exists submissions_insert_own on public.submissions;
 create policy submissions_insert_own on public.submissions
   for insert to authenticated
   with check (submitter_id = auth.uid() and state = 'pending');
 
+drop policy if exists submissions_read_own on public.submissions;
 create policy submissions_read_own on public.submissions
   for select to authenticated
   using (submitter_id = auth.uid() or public.is_admin());
 
 -- Alerts: only admins broadcast.
+drop policy if exists alerts_admin_insert on public.alerts;
 create policy alerts_admin_insert on public.alerts
   for insert to authenticated
   with check (public.is_admin());
 
 -- SOS: users file their own; only admins see them.
+drop policy if exists sos_insert_own on public.sos_signals;
 create policy sos_insert_own on public.sos_signals
   for insert to authenticated
   with check (created_by = auth.uid());
 
+drop policy if exists sos_admin_read on public.sos_signals;
 create policy sos_admin_read on public.sos_signals
   for select to authenticated
   using (public.is_admin());
 
 -- Audit log: admins read; nobody writes directly (functions only).
+drop policy if exists audit_admin_read on public.audit_log;
 create policy audit_admin_read on public.audit_log
   for select to authenticated
   using (public.is_admin());

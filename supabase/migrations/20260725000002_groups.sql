@@ -11,13 +11,13 @@
 
 -- Each user's X25519 public key (for sealing group keys to them). Public keys
 -- only — private keys never leave the device.
-create table public.device_keys (
+create table if not exists public.device_keys (
   user_id uuid primary key default auth.uid() references auth.users(id),
   public_key text not null check (char_length(public_key) <= 128),
   updated_at timestamptz not null default now()
 );
 
-create table public.groups (
+create table if not exists public.groups (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 80),
   description text check (char_length(description) <= 500),
@@ -26,7 +26,7 @@ create table public.groups (
   created_at timestamptz not null default now()
 );
 
-create table public.group_members (
+create table if not exists public.group_members (
   group_id uuid not null references public.groups(id) on delete cascade,
   user_id uuid not null default auth.uid() references auth.users(id),
   role text not null default 'member' check (role in ('admin','member')),
@@ -36,11 +36,11 @@ create table public.group_members (
   created_at timestamptz not null default now(),
   primary key (group_id, user_id)
 );
-create index group_members_user_idx on public.group_members(user_id, state);
+create index if not exists group_members_user_idx on public.group_members(user_id, state);
 
 -- The group key, sealed (ECIES) to one member's device key. Epoch supports
 -- future key rotation on membership change.
-create table public.group_key_envelopes (
+create table if not exists public.group_key_envelopes (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   member_user_id uuid not null references auth.users(id),
@@ -49,10 +49,10 @@ create table public.group_key_envelopes (
   created_at timestamptz not null default now(),
   unique (group_id, member_user_id, key_epoch)
 );
-create index group_envelopes_member_idx
+create index if not exists group_envelopes_member_idx
   on public.group_key_envelopes(member_user_id, group_id);
 
-create table public.group_invites (
+create table if not exists public.group_invites (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   code text not null unique check (char_length(code) between 6 and 64),
@@ -66,7 +66,7 @@ create table public.group_invites (
 
 -- Group-private pins ("amenities": meeting points, supplies). Never promotable
 -- to the public map; enforced here at the DB layer, not just the UI.
-create table public.group_pins (
+create table if not exists public.group_pins (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   type text not null check (type in ('meeting','supply','medical','water','food','custom')),
@@ -80,7 +80,7 @@ create table public.group_pins (
 );
 
 -- E2E chat: ciphertext only (AES-GCM under the group key).
-create table public.group_messages (
+create table if not exists public.group_messages (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   sender_id uuid not null default auth.uid() references auth.users(id),
@@ -88,7 +88,7 @@ create table public.group_messages (
   key_epoch integer not null default 1,
   created_at timestamptz not null default now()
 );
-create index group_messages_group_idx on public.group_messages(group_id, created_at);
+create index if not exists group_messages_group_idx on public.group_messages(group_id, created_at);
 
 -- ------------------------------------------------------------- membership helpers
 -- Created after the tables they read (language sql = validated at creation).
@@ -122,59 +122,79 @@ alter table public.group_messages enable row level security;
 
 -- device_keys: anyone signed in can read a public key (needed to seal to it);
 -- a user writes only their own.
+drop policy if exists device_keys_read on public.device_keys;
 create policy device_keys_read on public.device_keys
   for select to authenticated using (true);
+drop policy if exists device_keys_upsert on public.device_keys;
 create policy device_keys_upsert on public.device_keys
   for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists device_keys_update on public.device_keys;
 create policy device_keys_update on public.device_keys
   for update to authenticated using (user_id = auth.uid());
 
 -- groups: members read; public groups are discoverable; creator inserts.
+drop policy if exists groups_read on public.groups;
 create policy groups_read on public.groups
   for select to authenticated
   using (visibility = 'public' or public.is_group_member(id));
+drop policy if exists groups_insert on public.groups;
 create policy groups_insert on public.groups
   for insert to authenticated with check (created_by = auth.uid());
+drop policy if exists groups_admin_update on public.groups;
 create policy groups_admin_update on public.groups
   for update to authenticated using (public.is_group_admin(id));
 
 -- group_members: a member sees the roster of groups they belong to; a user can
 -- insert their OWN pending row (join request) or the creator seeds admin.
+drop policy if exists members_read on public.group_members;
 create policy members_read on public.group_members
   for select to authenticated
   using (user_id = auth.uid() or public.is_group_member(group_id));
+drop policy if exists members_self_join on public.group_members;
 create policy members_self_join on public.group_members
   for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists members_admin_manage on public.group_members;
 create policy members_admin_manage on public.group_members
   for update to authenticated using (public.is_group_admin(group_id));
+drop policy if exists members_admin_delete on public.group_members;
 create policy members_admin_delete on public.group_members
   for delete to authenticated using (public.is_group_admin(group_id));
 
 -- envelopes: a member reads envelopes sealed to them; admins create them.
+drop policy if exists envelopes_read_own on public.group_key_envelopes;
 create policy envelopes_read_own on public.group_key_envelopes
   for select to authenticated using (member_user_id = auth.uid());
+drop policy if exists envelopes_admin_insert on public.group_key_envelopes;
 create policy envelopes_admin_insert on public.group_key_envelopes
   for insert to authenticated with check (public.is_group_admin(group_id));
 
 -- invites: members read; admins manage.
+drop policy if exists invites_member_read on public.group_invites;
 create policy invites_member_read on public.group_invites
   for select to authenticated using (public.is_group_member(group_id));
+drop policy if exists invites_admin_insert on public.group_invites;
 create policy invites_admin_insert on public.group_invites
   for insert to authenticated with check (public.is_group_admin(group_id));
+drop policy if exists invites_admin_update on public.group_invites;
 create policy invites_admin_update on public.group_invites
   for update to authenticated using (public.is_group_admin(group_id));
 
 -- pins: members read/write within their group.
+drop policy if exists pins_member_read on public.group_pins;
 create policy pins_member_read on public.group_pins
   for select to authenticated using (public.is_group_member(group_id));
+drop policy if exists pins_member_insert on public.group_pins;
 create policy pins_member_insert on public.group_pins
   for insert to authenticated with check (public.is_group_member(group_id));
+drop policy if exists pins_admin_delete on public.group_pins;
 create policy pins_admin_delete on public.group_pins
   for delete to authenticated using (public.is_group_admin(group_id));
 
 -- messages: members read all group messages and send as themselves.
+drop policy if exists messages_member_read on public.group_messages;
 create policy messages_member_read on public.group_messages
   for select to authenticated using (public.is_group_member(group_id));
+drop policy if exists messages_member_send on public.group_messages;
 create policy messages_member_send on public.group_messages
   for insert to authenticated
   with check (public.is_group_member(group_id) and sender_id = auth.uid());
