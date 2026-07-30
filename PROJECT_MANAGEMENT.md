@@ -93,7 +93,7 @@ _Last updated: 2026-07-24 · Phase 0_
 
 ## Proposed — offline Wi-Fi transport (analysis only, no code)
 See `docs/research/offline-wifi-transport.md`. Buildable as **sync islands**, not a phone mesh: Android can host a local-only hotspot, **iOS cannot host at all**, web gets none of it. WPA2/WPA3 is not the security boundary — reuse the existing E2E envelopes and treat the link as hostile.
-- [ ] **Ed25519 sender signatures** — valuable on its own, and a prerequisite. Today `sender_id` is attested by RLS (`sender_id = auth.uid()`); with no server, any member could forge any other member's messages
+- [x] **Ed25519 sender signatures** (ADR-29) — `supabase/migrations/20260728000006_signing_keys.sql` + `core/crypto/`. Messages are now attributed cryptographically, not by the server's word. Signature binds group + epoch, `_reseal` re-signs across rotations, and an unsigned message from a sender who HAS published a key is treated as invalid (closes the downgrade). 3 new pgTAP negatives (**64 total**)
 - [ ] Phase A — LAN sync over any existing AP (mDNS + TCP + Noise_IK). Cross-platform, no hotspot code, where nearly all the value is
 - [ ] Phase B — Android `startLocalOnlyHotspot()` + `WIFI:` QR to join (iOS Camera understands it natively)
 - [ ] Phase C — dedicated hub device (travel router / Pi). Recommended over B: no iOS limit, no phone battery cost, can mandate WPA3

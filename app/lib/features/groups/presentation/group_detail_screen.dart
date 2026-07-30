@@ -345,8 +345,45 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
                   ],
                 ),
               ),
+            // Only shown when the signature actually FAILED (ADR-29). Most
+            // messages during rollout are legitimately unverifiable, and
+            // flagging those too would train people to ignore this.
+            if (m.senderUnverified)
+              _UnverifiedSender(text: l10n.senderUnverified),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "Not from who it says" — a failed signature, or an unsigned message from a
+/// sender who has published a signing key (the downgrade case). Icon + text +
+/// colour, never colour alone.
+class _UnverifiedSender extends StatelessWidget {
+  const _UnverifiedSender({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.gpp_bad_outlined, size: 14, color: scheme.error),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: scheme.error),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,7 +5,7 @@
 -- Run against a local stack: supabase start && supabase test db
 
 begin;
-select plan(15);
+select plan(18);
 
 -- Three users. A owns a group; B is an outsider; C is an ordinary member,
 -- used for the key-rotation authority tests at the end.
@@ -19,8 +19,9 @@ set local role authenticated;
 set local request.jwt.claims to
   '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated","app_metadata":{}}';
 
-insert into public.device_keys (user_id, public_key)
-values ('00000000-0000-0000-0000-0000000000a1', 'A-PUBLIC-KEY');
+insert into public.device_keys (user_id, public_key, signing_public_key)
+values ('00000000-0000-0000-0000-0000000000a1', 'A-PUBLIC-KEY',
+        'A-SIGNING-KEY');
 
 insert into public.groups (id, name, visibility, created_by)
 values ('11111111-1111-1111-1111-111111111111', 'Medical Volunteers',
@@ -188,6 +189,40 @@ set local request.jwt.claims to
 select ok(
   (select count(*) from public.group_messages) = 0,
   'a removed member can no longer read group messages'
+);
+
+-- 16. NEGATIVE (ADR-29): nobody can publish a signing key on someone else's
+--     behalf. This is THE control that makes signatures mean anything — a
+--     forged key row would let the attacker sign as that member and have it
+--     verify.
+select throws_ok(
+  $$insert into public.device_keys (user_id, public_key, signing_public_key)
+    values ('00000000-0000-0000-0000-0000000000a1', 'fake', 'fake-signing')$$,
+  '42501', null,
+  'cannot publish a device/signing key for another user'
+);
+
+-- 17. NEGATIVE: nor overwrite an existing member's signing key. With no
+--     matching update policy row this is a silent no-op, so assert the value.
+update public.device_keys set signing_public_key = 'swapped'
+  where user_id = '00000000-0000-0000-0000-0000000000a1';
+reset role;
+select is(
+  (select signing_public_key from public.device_keys
+     where user_id = '00000000-0000-0000-0000-0000000000a1'),
+  'A-SIGNING-KEY',
+  'cannot swap another member''s signing key'
+);
+
+-- 18. POSITIVE: every member CAN read the roster's signing keys — verification
+--     is impossible otherwise.
+set local role authenticated;
+set local request.jwt.claims to
+  '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated","app_metadata":{}}';
+select ok(
+  (select count(*) from public.device_keys
+     where user_id = '00000000-0000-0000-0000-0000000000a1') = 1,
+  'a member can read another member''s signing key to verify with'
 );
 
 select * from finish();

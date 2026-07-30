@@ -179,6 +179,7 @@
   "restoreDone": "Hold lifted.",
   "moderationFailed": "Could not apply that: {error}",
   "@moderationFailed": { "placeholders": { "error": { "type": "String" } } },
+  "senderUnverified": "Not verified as this sender",
   "yourStanding": "Your standing",
   "tierNew": "New reporter",
   "tierTrusted": "Trusted reporter",

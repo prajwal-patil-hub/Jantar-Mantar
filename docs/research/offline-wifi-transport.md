@@ -122,7 +122,7 @@ does not hold the epoch key: they can copy the bytes and learn nothing.
 **Do not invent a second crypto system for the LAN.** That is the whole
 recommendation.
 
-### The one real gap: sender authentication
+### The one real gap: sender authentication — **now closed (ADR-29)**
 
 Today `encryptMessage` is AES-GCM under a **shared group key**. That proves a
 message came from *someone holding the group key* — it does not prove *which
@@ -134,17 +134,16 @@ could originate a message claiming to be from any other member. In a protest
 context — where a forged "the medical tent has moved to X" from a trusted
 organiser is a plausible attack — that is not acceptable.
 
-Fix: give each device an **Ed25519 signing key** alongside its X25519 identity
-key, publish it in `device_keys`, and sign `(group_id, epoch, msg_id,
-ciphertext)`. Receivers verify against the group roster's public keys.
-Notes:
+**Built 2026-07-28 (ADR-29), ahead of any transport decision**, because it
+upgrades the Supabase path from server-attested to cryptographically attested
+sender identity — which is what an E2E system should offer anyway. Each device
+publishes an Ed25519 key in `device_keys.signing_public_key` and signs a blob
+covering the group id, the key epoch and the whole AEAD box. The signature
+lives **inside the envelope**, not in a database column, specifically so it
+rides any transport — including this one — unchanged.
 
-- X25519 keys cannot sign directly. Either add a separate Ed25519 key (simple,
-  needs a `device_keys` column + migration) or adopt XEdDSA (not exposed by the
-  `cryptography` package). **Add a separate key.**
-- This is worth doing **regardless of whether the LAN transport ships** — it
-  upgrades the Supabase path from server-attested to cryptographically attested
-  sender identity, which is what an E2E system should offer anyway.
+That removes the blocking objection to Phase A: a LAN peer's messages are now
+self-attributing, with no server in the path.
 
 ### Channel security on top (defence in depth)
 
@@ -221,8 +220,8 @@ calling any of this "a mesh" in user-facing copy.
 
 ## 6. Verdict
 
-Worth building, in this order: **Ed25519 sender signatures first** (valuable on
-its own), then **Phase A**, then **Phase C**. Phase B only if a hub device is
+Worth building, in this order: ~~Ed25519 sender signatures first~~ **(done —
+ADR-29)**, then **Phase A**, then **Phase C**. Phase B only if a hub device is
 not realistic for the deployment.
 
 What should *not* happen is a phone-to-phone "mesh" framing. It over-promises

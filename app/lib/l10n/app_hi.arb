@@ -179,6 +179,7 @@
   "restoreDone": "रोक हटाई गई।",
   "moderationFailed": "लागू नहीं हो सका: {error}",
   "@moderationFailed": { "placeholders": { "error": { "type": "String" } } },
+  "senderUnverified": "इस भेजने वाले के रूप में सत्यापित नहीं",
   "yourStanding": "आपकी स्थिति",
   "tierNew": "नया रिपोर्टर",
   "tierTrusted": "विश्वसनीय रिपोर्टर",

@@ -45,8 +45,58 @@ class GroupsRepository implements GroupsRepo {
     await _client.from('device_keys').upsert({
       'user_id': _uid,
       'public_key': pub,
+      // Ed25519 half (ADR-29): what lets other members verify a message came
+      // from this device rather than merely from someone holding the group
+      // key. RLS restricts writes to auth.uid(), so nobody can publish a
+      // signing key on someone else's behalf.
+      'signing_public_key': await _identity.signingPublicKeyBase64(),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     });
+  }
+
+  /// The group's roster of Ed25519 signing keys, cached in the OS keystore so
+  /// verification still works with no network. Public data, but the keystore
+  /// is already wiped by panic-wipe, which is the behaviour we want.
+  String _signersKey(String groupId) => 'group_signers_$groupId';
+
+  Future<Map<String, List<int>>> _cachedSigners(String groupId) async {
+    final raw = await _keyStore.read(_signersKey(groupId));
+    if (raw == null) return {};
+    try {
+      final map = jsonDecode(raw) as Map<String, Object?>;
+      return {
+        for (final entry in map.entries)
+          entry.key: base64Decode(entry.value! as String),
+      };
+    } on Object {
+      return {};
+    }
+  }
+
+  Future<Map<String, List<int>>> _syncSigners(String groupId) async {
+    final memberRows = await _client
+        .from('group_members')
+        .select('user_id')
+        .eq('group_id', groupId);
+    final ids = [
+      for (final row in List<Map<String, Object?>>.from(memberRows))
+        row['user_id'] as String,
+    ];
+    if (ids.isEmpty) return _cachedSigners(groupId);
+
+    final keyRows = await _client
+        .from('device_keys')
+        .select('user_id, signing_public_key')
+        .inFilter('user_id', ids);
+    final encoded = <String, String>{
+      for (final row in List<Map<String, Object?>>.from(keyRows))
+        if (row['signing_public_key'] != null)
+          row['user_id'] as String: row['signing_public_key'] as String,
+    };
+    await _keyStore.write(_signersKey(groupId), jsonEncode(encoded));
+    return {
+      for (final entry in encoded.entries) entry.key: base64Decode(entry.value),
+    };
   }
 
   @override
@@ -241,10 +291,17 @@ class GroupsRepository implements GroupsRepo {
   @override
   Future<List<GroupMessage>> cachedMessages(String groupId) async {
     final keys = await _localGroupKeys(groupId);
+    final signers = await _cachedSigners(groupId);
     final rows = await _cache.load(groupId);
     final out = <GroupMessage>[];
     for (final row in rows) {
-      final clear = await _tryDecrypt(keys[row.keyEpoch], row.ciphertext);
+      final opened = await _tryOpen(
+        keys[row.keyEpoch],
+        row.ciphertext,
+        context: _sigContext(groupId, row.keyEpoch),
+        senderSigningKey: signers[row.senderId],
+      );
+      final clear = opened?.plaintext;
       final payload = clear == null ? null : GroupMessagePayload.decode(clear);
       out.add(
         GroupMessage(
@@ -255,6 +312,7 @@ class GroupsRepository implements GroupsRepo {
           mine: row.senderId == _uid,
           pending: row.pending,
           broadcastSeverity: payload?.broadcastSeverity,
+          signature: opened?.signature ?? SenderSignature.unsigned,
         ),
       );
     }
@@ -267,6 +325,7 @@ class GroupsRepository implements GroupsRepo {
     // happened while this device was offline. Offline, [cachedMessages] just
     // shows whatever epochs we already hold.
     await _syncGroupKeys(groupId);
+    await _syncSigners(groupId);
     await _flushPending(groupId);
 
     final rows = await _client
@@ -319,6 +378,8 @@ class GroupsRepository implements GroupsRepo {
     final ciphertext = await _crypto.encryptMessage(
       groupKey: keys[epoch]!,
       plaintext: payload.encode(),
+      signingKey: await _identity.signingKey(),
+      context: _sigContext(groupId, epoch),
     );
     await _cache.queueOutgoing(
       CachedGroupMessagesCompanion.insert(
@@ -355,6 +416,8 @@ class GroupsRepository implements GroupsRepo {
           ciphertext: ciphertext,
           from: keys[epoch],
           to: keys[current],
+          groupId: groupId,
+          toEpoch: current,
         );
         if (resealed != null) {
           ciphertext = resealed;
@@ -391,10 +454,16 @@ class GroupsRepository implements GroupsRepo {
 
   /// Decrypt under the old epoch and re-encrypt under the new one. Returns
   /// null if either key is missing, in which case the message goes out as-is.
+  ///
+  /// Re-signs as well as re-encrypts: the signature is bound to the epoch, so
+  /// carrying the old one over would make our own queued message verify as
+  /// invalid on every recipient's device.
   Future<String?> _reseal({
     required String ciphertext,
     required List<int>? from,
     required List<int>? to,
+    required String groupId,
+    required int toEpoch,
   }) async {
     if (from == null || to == null) return null;
     try {
@@ -402,18 +471,34 @@ class GroupsRepository implements GroupsRepo {
         groupKey: from,
         packed: ciphertext,
       );
-      return _crypto.encryptMessage(groupKey: to, plaintext: clear);
+      return _crypto.encryptMessage(
+        groupKey: to,
+        plaintext: clear,
+        signingKey: await _identity.signingKey(),
+        context: _sigContext(groupId, toEpoch),
+      );
     } on Object {
       return null;
     }
   }
 
-  Future<String?> _tryDecrypt(List<int>? groupKey, String ciphertext) async {
+  /// Binds a signature to one group and one key epoch, so a signed message
+  /// cannot be lifted into another group or replayed under a different epoch.
+  String _sigContext(String groupId, int epoch) => '$groupId|$epoch';
+
+  Future<OpenedMessage?> _tryOpen(
+    List<int>? groupKey,
+    String ciphertext, {
+    required String context,
+    required List<int>? senderSigningKey,
+  }) async {
     if (groupKey == null) return null;
     try {
-      return await _crypto.decryptMessage(
+      return await _crypto.openMessage(
         groupKey: groupKey,
         packed: ciphertext,
+        senderSigningPublicKey: senderSigningKey,
+        context: context,
       );
     } on Object {
       return null; // Tamper / wrong epoch → "can't decrypt" placeholder.

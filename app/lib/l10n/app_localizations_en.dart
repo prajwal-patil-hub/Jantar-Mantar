@@ -519,6 +519,9 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get senderUnverified => 'Not verified as this sender';
+
+  @override
   String get yourStanding => 'Your standing';
 
   @override

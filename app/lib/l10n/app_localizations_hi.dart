@@ -516,6 +516,9 @@ class AppL10nHi extends AppL10n {
   }
 
   @override
+  String get senderUnverified => 'इस भेजने वाले के रूप में सत्यापित नहीं';
+
+  @override
   String get yourStanding => 'आपकी स्थिति';
 
   @override

@@ -1,6 +1,21 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 21 — 2026-07-28 · Ed25519 sender signatures (ADR-29)
+**Done:**
+- **Found the gap while analysing the Wi-Fi transport, then closed it.** Group messages are AES-GCM under a key *shared by the whole group* — that proves a message came from someone holding the key, not from **which member**. Sender identity was being attested by the server (`messages_member_send` enforces `sender_id = auth.uid()`). Real control, but it is the server's word, and it is exactly the guarantee that disappears the moment the transport is not a server. The plausible attack here is a forged "the medical tent has moved" from a trusted organiser.
+- **Each device now publishes an Ed25519 signing key** (`device_keys.signing_public_key`) alongside its X25519 identity — two keys because an X25519 key cannot sign — and signs a domain-separated blob covering **group id + key epoch + the whole AEAD box**. So a signature cannot be lifted into another group or replayed under another epoch, both asserted.
+- **`_reseal` now re-signs as well as re-encrypts.** A message queued offline before a key rotation (ADR-20) is re-sealed to the new epoch on send; carrying the old signature over would have made our own message verify as *invalid* on every recipient's device. Caught while writing the epoch-binding test.
+- **The downgrade case is the subtle half.** Simply not signing is indistinguishable from an old client — *unless* the sender has already published a key. So "unsigned from a sender who has a key" = **invalid**; "unsigned from a sender with no key" = merely **unsigned**. Only `invalid` reaches the UI: during rollout most messages are legitimately unverifiable, and warning on all of them would train people to ignore the one warning that matters.
+- **The RLS rule that already existed is what makes any of this mean anything** — `device_keys` writes only to `user_id = auth.uid()`, so nobody can publish a signing key on someone else's behalf. Now asserted by three new pgTAP negatives (forge a key row, swap an existing one, and the positive that members *can* read the roster to verify with).
+- Signature lives **inside the envelope**, not in a `group_messages` column, so it rides any transport — including the proposed LAN one — for free.
+- Panic-wipe already used `keyStore.deleteAll()`, so the new seed and the cached signer rosters are covered; a test asserts a wiped device gets a different signing key.
+- **155 tests green (+9) and 64 pgTAP assertions.** Verified the crypto tests bite: stubbing `_verify` to always return `valid` turns all five forgery/downgrade/binding tests red.
+
+**Needs the user:** apply `supabase/migrations/20260728000006_signing_keys.sql` (after trust → corroboration → moderation). It is an additive nullable column; existing installs keep working and start signing the next time they open the app.
+
+**Next:** unchanged and still hardware-bound — two-device E2E chat smoke test (now also the way to see signatures verify end to end), TalkBack/VoiceOver sweep, TLS pin bundle from a trusted network, production tile provider. The Wi-Fi transport itself is still a decision, not a task: `docs/research/offline-wifi-transport.md`.
+---
 ## Session 20 — 2026-07-28 · E7 closed (share location) · moderator brake on promotion
 **Done:**
 - **Share my location (E7, ADR-28)** — the last non-hardware MVP gap. This is the **only** GPS in the app and the constraints are the feature: a consent sheet explains what one reading does and who can see it *before* the permission prompt appears; `getCurrentPosition` only, never a stream, never background, and `ACCESS_BACKGROUND_LOCATION` is deliberately absent from the manifest. The fix goes straight to the OS share sheet — never Drift, never the outbox, never Supabase, because "don't store precise user location server-side" is not satisfied by "we only keep it briefly". Link is OpenStreetMap, so the recipient does not have to tell Google where the sender is to read it.

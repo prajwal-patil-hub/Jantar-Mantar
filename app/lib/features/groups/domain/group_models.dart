@@ -1,3 +1,4 @@
+import '../../../core/crypto/e2e_crypto.dart' show SenderSignature;
 import '../../../core/db/app_database.dart' show AlertSeverity;
 
 /// Plain models for the groups feature (server-backed; Phase 3).
@@ -84,6 +85,7 @@ class GroupMessage {
     required this.mine,
     this.pending = false,
     this.broadcastSeverity,
+    this.signature = SenderSignature.unsigned,
   });
 
   final String id;
@@ -103,6 +105,14 @@ class GroupMessage {
   /// Encrypted and stored locally, but not yet accepted by the server — the
   /// bubble shows a "Sending…" marker (icon + text, never colour alone).
   final bool pending;
+
+  /// Whether this message could be attributed to the member it claims to be
+  /// from (ADR-29). Only [SenderSignature.invalid] is surfaced in the UI:
+  /// during rollout most messages are legitimately unverifiable, and warning
+  /// on all of them would train people to ignore the warning that matters.
+  final SenderSignature signature;
+
+  bool get senderUnverified => signature == SenderSignature.invalid;
 }
 
 class GroupPin {

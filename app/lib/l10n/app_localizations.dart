@@ -985,6 +985,12 @@ abstract class AppL10n {
   /// **'Could not apply that: {error}'**
   String moderationFailed(String error);
 
+  /// No description provided for @senderUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified as this sender'**
+  String get senderUnverified;
+
   /// No description provided for @yourStanding.
   ///
   /// In en, this message translates to:
