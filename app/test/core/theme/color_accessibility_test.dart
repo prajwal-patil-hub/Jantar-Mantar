@@ -22,9 +22,12 @@ void main() {
   const saffron = AppTokens.accent; // ADR-10
   // The grounds the app ACTUALLY paints. These were previously hardcoded
   // near-white/near-black that no screen used, so the suite was measuring a
-  // surface that did not exist — found while adopting Soft Geometry
-  // (ADR-32). Measure the scaffold, not the card: it is the darker of the two
-  // on light and therefore the worst case.
+  // surface that did not exist — found while adopting Soft Geometry (ADR-32).
+  //
+  // These two are the scaffolds, kept as named shorthands for the tests that
+  // genuinely want one ground per theme. Status colours are measured against
+  // all four grounds below — see the note there for why the scaffold alone
+  // was never the worst case.
   const lightSurface = AppTokens.scaffoldLight;
   const darkSurface = AppTokens.scaffoldDark;
 
@@ -41,19 +44,36 @@ void main() {
     // WCAG 2.1 AA for meaningful graphics and large/bold text.
     const bar = 3.0;
 
-    // These must clear the bar on BOTH surfaces, in both themes.
+    // Every ground the app actually paints a status colour onto — not just
+    // the scaffold.
+    //
+    // This used to measure the scaffold only, on the reasoning that it is
+    // "the darker of the two on light and therefore the worst case". That is
+    // true on light and **false on dark**, where the card is the *lighter*
+    // ground and therefore the harder one. A map pin paints its glyph on
+    // `colorScheme.surface` — the card — so the untested ground was the one
+    // carrying the most status colour in the app.
+    //
+    // Measuring it found `unverified` at 2.75:1 on the dark card while
+    // passing 3.06:1 on the dark scaffold. Two grounds were never enough.
+    const grounds = <String, Color>{
+      'light scaffold': AppTokens.scaffoldLight,
+      'light card': AppTokens.surfaceLight,
+      'dark scaffold': AppTokens.scaffoldDark,
+      'dark card': AppTokens.surfaceDark,
+    };
+
     for (final name in ['good', 'out', 'unverified', 'info']) {
-      test('$name is legible on light and dark', () {
-        expect(
-          _contrast(swatches[name]!, lightSurface),
-          greaterThanOrEqualTo(bar),
-          reason: 'light: ${_ratio(swatches[name]!, lightSurface)}',
-        );
-        expect(
-          _contrast(swatches[name]!, darkSurface),
-          greaterThanOrEqualTo(bar),
-          reason: 'dark: ${_ratio(swatches[name]!, darkSurface)}',
-        );
+      test('$name is legible on every ground it is painted on', () {
+        for (final ground in grounds.entries) {
+          expect(
+            _contrast(swatches[name]!, ground.value),
+            greaterThanOrEqualTo(bar),
+            reason:
+                '$name on ${ground.key}: '
+                '${_ratio(swatches[name]!, ground.value)}',
+          );
+        }
       });
     }
 
@@ -69,11 +89,21 @@ void main() {
       // the weakest point of this palette and the icon + text rule is what
       // carries it.
       expect(_contrast(colors.low, lightSurface), closeTo(1.56, 0.05));
+      // The card is the kinder light ground and still nowhere near the bar,
+      // so the exemption is not an artefact of measuring the scaffold.
       expect(
-        _contrast(colors.low, darkSurface),
-        greaterThanOrEqualTo(bar),
-        reason: 'it must at least be strong on dark',
+        _contrast(colors.low, AppTokens.surfaceLight),
+        closeTo(1.79, 0.05),
       );
+      for (final dark in [AppTokens.scaffoldDark, AppTokens.surfaceDark]) {
+        expect(
+          _contrast(colors.low, dark),
+          greaterThanOrEqualTo(bar),
+          reason:
+              'it must at least be strong on dark: '
+              '${_ratio(colors.low, dark)}',
+        );
+      }
     });
 
     test('the filled-action tone is readable in both themes', () {

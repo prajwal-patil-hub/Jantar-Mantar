@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../core/map/tile_providers.dart';
+import '../../../../core/theme/tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../map/application/map_providers.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
@@ -92,7 +93,7 @@ class _LocationStepState extends ConsumerState<LocationStep> {
         SizedBox(
           height: 280,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppTokens.radiusCard),
             child: Stack(
               children: [
                 FlutterMap(

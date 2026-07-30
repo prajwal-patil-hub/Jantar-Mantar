@@ -25,6 +25,7 @@ void main() {
           )).overrideWith((ref) async => record),
         ],
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
           home: const ReporterScreen(userId: 'u1'),
@@ -138,6 +139,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
           home: const VerificationQueueScreen(),

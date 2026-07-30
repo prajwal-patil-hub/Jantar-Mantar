@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../../../core/db/app_database.dart';
+import '../../../../core/theme/status_colors.dart';
 import 'facility_visuals.dart';
 
 /// Grey "Pending (yours)" pin for the submitter's own queued submissions
@@ -25,7 +26,10 @@ class PendingMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const grey = Color(0xFF9E9E9E);
+    // The "unverified" status colour, not a private grey. This pin used to
+    // hardcode #9E9E9E — the exact value StatusColors abandoned for measuring
+    // under 3:1 — so the token got fixed twice and the pin never moved.
+    final grey = Theme.of(context).extension<StatusColors>()!.unverified;
     return Semantics(
       label: 'Your pending submission, awaiting verification',
       child: Opacity(
@@ -54,7 +58,7 @@ class PendingMarker extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surface,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.schedule_send, size: 16, color: grey),
+                child: Icon(Icons.schedule_send, size: 16, color: grey),
               ),
             ),
           ],

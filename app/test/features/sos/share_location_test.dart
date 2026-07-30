@@ -32,6 +32,7 @@ void main() {
       ProviderScope(
         overrides: [locationServiceProvider.overrideWithValue(service)],
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
           home: const Scaffold(body: ShareLocationSheet()),

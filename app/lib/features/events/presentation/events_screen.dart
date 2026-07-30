@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/status_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../alerts/presentation/widgets/alert_visuals.dart';
 
 /// Events list (ui-ux-spec §1.6). Renders sample events so the screen is
 /// explorable; server-backed events land with their own epic. All strings go
@@ -126,20 +128,16 @@ class _EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final scheme = Theme.of(context).colorScheme;
-    // Status is colour + icon + text (never colour alone).
+    final colors = Theme.of(context).extension<StatusColors>()!;
+    // Status is colour + icon + text (never colour alone). The three tones
+    // come from the audited palette rather than from literals that happened
+    // to match it — a copied hex does not follow the token when the token is
+    // corrected, and the contrast suite cannot see it at all.
     final (Color color, IconData icon, String label) = switch (event.status) {
-      _EventStatus.live => (
-        const Color(0xFFC62828),
-        Icons.podcasts,
-        l10n.eventLive,
-      ),
-      _EventStatus.today => (
-        const Color(0xFFF9A825),
-        Icons.today,
-        l10n.eventToday,
-      ),
+      _EventStatus.live => (colors.out, Icons.podcasts, l10n.eventLive),
+      _EventStatus.today => (colors.low, Icons.today, l10n.eventToday),
       _EventStatus.upcoming => (
-        const Color(0xFF1976D2),
+        AlertSeverityVisuals.infoBlue,
         Icons.event_outlined,
         l10n.eventUpcoming,
       ),

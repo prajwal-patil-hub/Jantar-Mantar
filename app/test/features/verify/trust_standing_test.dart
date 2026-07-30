@@ -79,6 +79,7 @@ void main() {
             trustStandingProvider.overrideWith((ref) async => standing),
           ],
           child: MaterialApp(
+            theme: testAppTheme(),
             localizationsDelegates: testLocalizationsDelegates,
             supportedLocales: testSupportedLocales,
             home: const Scaffold(body: StandingCard()),

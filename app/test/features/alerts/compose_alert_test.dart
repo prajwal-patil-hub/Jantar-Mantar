@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
-import 'package:jantar_mantar_sahayata/core/theme/status_colors.dart';
 import 'package:jantar_mantar_sahayata/features/alerts/presentation/compose_alert_screen.dart';
 
 import '../../support/l10n_harness.dart';
@@ -20,13 +19,9 @@ void main() {
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
-          // Status colours are a ThemeExtension deliberately kept outside the
-          // seed scheme, so a bare MaterialApp does not carry them.
-          theme: ThemeData(
-            extensions: const <ThemeExtension<dynamic>>[StatusColors.standard],
-          ),
           home: const ComposeAlertScreen(),
         ),
       ),

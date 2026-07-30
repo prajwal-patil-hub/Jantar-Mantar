@@ -1,6 +1,23 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 27 — 2026-07-30 · The token vs the literal: six hardcoded status colours, one of them a live accessibility defect (ADR-35)
+**Done:**
+- **Audited rather than guessed, again.** Counted every `Color(0x…)` and every `BorderRadius.circular(n)` across `lib/features`. Six status literals, seventeen hand-rolled radii. Each file looked fine on its own, which is precisely why nothing had caught them.
+- **One of the six was a live defect.** `PendingMarker` painted `#9E9E9E` — the exact grey `StatusColors` had abandoned for failing the 3:1 bar. The token had been corrected twice; the pin moved neither time. Measured today: **2.43:1 on the light card**. The contrast suite could not see it, because the suite measures tokens and the pin was not using one.
+- **Then the fix exposed a hole in the suite itself.** It measured the two scaffolds only, on the stated reasoning that the scaffold is "the darker of the two on light and therefore the worst case". True on light. **False on dark**, where the card is the *lighter* ground — and a map pin paints its glyph on the card. Measuring all four grounds found `unverified` at **2.75:1 on the dark card** while comfortably passing 3.06:1 on the dark scaffold. The ground carrying the most status colour in the app was the one nobody measured.
+- **`unverified` moves `#616161` → `#767472`.** Not a taste call: it is the value that clears 3:1 on all four painted grounds (worst 3.66:1) *and* improves CVD separation from the other statuses, 0.183 → 0.248. Better on both axes, warm-biased so it belongs to the Soft Geometry ramp rather than sitting on top of it.
+- **A source scan now fails the build if a status hex reappears** outside the two files allowed to name one, and refuses both retired greys outright. A source scan and not a widget test, because a literal that equals its token renders identically — no widget test can ever see this bug class. Mutation-tested: reinstating the map literal produces `map_screen.dart:318 uses 0xFFC62828 — use StatusColors.out`.
+- **Radii routed through `AppTokens`.** The find worth naming: alert cards and group broadcast cards passed an explicit shape in order to carry a severity border, and the override silently took the radius with it — they rendered at **12 while every other card in the app rendered at 22**. Pinned by a test that mutation-testing confirms goes red at 12.
+- **Chat bubbles got the tail from the approved wireframe**, which the implementation never received, plus their own named tokens. Mirrored for RTL, because "my side" is a reading-direction idea. Which side a message came from now survives without relying on fill colour — the same principle as status never being colour alone.
+- **Nine test files were building a `MaterialApp` with no theme at all** — stock radii, stock colours, and no `StatusColors` extension, i.e. testing a widget tree that does not ship. That is why removing the hardcoded hexes broke eleven tests: the widgets started asking the theme for something the tests never supplied. `testAppTheme()` in the harness fixes it, and one test that had hand-rolled a `ThemeData` carrying only the extension no longer needs its workaround.
+- Wireframe artifact at **27 frames**; the two accessibility frames carry the measured before/after table.
+- 235 tests green (+4); analyze + custom_lint clean; web release builds.
+
+**Deliberately left alone, so it does not read as drift:** map markers and the SOS screen keep their own radii. Both are separate vocabularies on purpose — a pin is not a card, and SOS deliberately ignores the theme — and the shape test does not cover them.
+
+**Next:** the server half of route reports (table + RLS + verification), then read-only CAP ingest.
+---
 ## Session 26 — 2026-07-30 · Automated the interaction half of the accessibility audit — and it found a serious bug (ADR-34)
 **Done:**
 - **Ran the three guideline matchers Flutter ships and this project never used** — tap-target size, labelled tappables, rendered text contrast — over eight real screens. ADR-23 did this for colour; the interaction half was still a manual ritual, and `FocusNode` appearing zero times across the codebase is what that produces.

@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../../core/theme/status_colors.dart';
+import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../groups/application/groups_providers.dart';
 import '../../routes/presentation/report_route_screen.dart';
@@ -201,7 +203,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       color: Theme.of(
                         context,
                       ).colorScheme.surface.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppTokens.radiusChip),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8),
@@ -314,7 +316,7 @@ class _SosButton extends StatelessWidget {
       label: 'SOS emergency',
       button: true,
       child: Material(
-        color: const Color(0xFFC62828),
+        color: Theme.of(context).extension<StatusColors>()!.out,
         shape: const CircleBorder(),
         elevation: 4,
         child: InkWell(

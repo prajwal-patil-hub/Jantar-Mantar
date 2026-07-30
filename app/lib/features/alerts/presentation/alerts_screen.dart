@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/theme/status_colors.dart';
+import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../groups/application/groups_providers.dart';
 import '../application/alerts_providers.dart';
@@ -81,7 +82,7 @@ class _GroupBroadcastCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         side: BorderSide(color: color, width: 1.5),
       ),
       child: Padding(
@@ -146,7 +147,7 @@ class _AlertCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         side: BorderSide(color: color, width: 1.5),
       ),
       child: Padding(

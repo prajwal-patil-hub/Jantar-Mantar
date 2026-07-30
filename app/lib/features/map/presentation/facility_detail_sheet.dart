@@ -13,6 +13,7 @@ import '../../../core/domain/sphere_standards.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/status_colors.dart';
+import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/glass_surface.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
@@ -75,7 +76,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppTokens.radiusPill),
                   ),
                 ),
               ),
@@ -102,7 +103,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: colors.low.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppTokens.radiusChip),
                     border: Border.all(color: colors.low),
                   ),
                   child: Row(
@@ -304,7 +305,7 @@ class _StatusPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         border: Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTokens.radiusPill),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -393,7 +394,7 @@ class _WashAdequacyCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -95,6 +95,7 @@ Future<void> _pumpChat(WidgetTester tester, _OfflineRepo repo) async {
     ProviderScope(
       overrides: [groupsRepositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(
+        theme: testAppTheme(),
         localizationsDelegates: testLocalizationsDelegates,
         supportedLocales: testSupportedLocales,
         home: const GroupDetailScreen(group: _group),

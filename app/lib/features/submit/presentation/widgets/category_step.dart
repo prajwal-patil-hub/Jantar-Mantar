@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/db/app_database.dart';
 import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../core/theme/tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
@@ -67,9 +68,9 @@ class _CategoryCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         onTap: onTap,
         child: SizedBox(
           height: 88,

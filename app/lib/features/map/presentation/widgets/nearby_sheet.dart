@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/theme/status_colors.dart';
+import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/glass_surface.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/map_providers.dart';
@@ -91,7 +92,9 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
                         height: 4,
                         decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.outlineVariant,
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(
+                            AppTokens.radiusPill,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),

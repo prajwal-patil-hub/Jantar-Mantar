@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/status_colors.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
@@ -169,8 +170,12 @@ class _SosScreenState extends ConsumerState<SosScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
-    const red = Color(0xFFC62828);
-    const surface = Color(0xFF111214);
+    // Read straight off the constant, not off the theme: this screen renders
+    // identically in light and dark on purpose, and StatusColors is
+    // theme-invariant by design — so the token can be honoured without the
+    // screen becoming theme-dependent. What it must NOT be is a copied hex.
+    final red = StatusColors.standard.out;
+    const surface = Color(0xFF111214); // deliberate near-black, not a token
 
     return Scaffold(
       backgroundColor: surface,
@@ -185,11 +190,13 @@ class _SosScreenState extends ConsumerState<SosScreen>
           // The hero gets a guaranteed share of the height and the secondary
           // tiles give way, not the other way round (ADR-34).
           //
-          // Before this, the whole column was fixed and the hero was whatever
-          // was left over — which on a 360×640 phone, an explicit target, was
-          // literally **zero**. FittedBox(scaleDown) hid that by shrinking the
-          // hero into a 41 px stub. A control someone reaches for in an
-          // emergency does not get to be the thing that shrinks.
+          // Before this, the whole column was fixed and the hero took
+          // whatever was left over. Measured disc diameter, before → after:
+          // 360×640 overflowed outright → 220; 390×844 165 → 220;
+          // 800×600 41 → 212. FittedBox(scaleDown) is what hid it — scaling
+          // a control away is not the same as fitting it, and a control
+          // someone reaches for in an emergency does not get to be the thing
+          // that shrinks.
           child: LayoutBuilder(
             builder: (context, constraints) {
               final heroHeight = (constraints.maxHeight * _heroShare).clamp(

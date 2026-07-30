@@ -28,6 +28,7 @@ void main() {
         mapTileProviderProvider.overrideWith((ref) => StubTileProvider()),
       ],
       child: MaterialApp(
+        theme: testAppTheme(),
         localizationsDelegates: testLocalizationsDelegates,
         supportedLocales: testSupportedLocales,
         home: SubmitFlowScreen(

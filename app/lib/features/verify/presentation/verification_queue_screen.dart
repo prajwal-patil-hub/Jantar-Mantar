@@ -5,6 +5,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/status_colors.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/presentation/compose_alert_screen.dart';
@@ -421,7 +422,9 @@ class _SubmissionCard extends StatelessWidget {
                       child: FilledButton.icon(
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 48),
-                          backgroundColor: const Color(0xFF2E7D32),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).extension<StatusColors>()!.good,
                         ),
                         onPressed: _canApprove ? () => onApprove(id) : null,
                         icon: const Icon(Icons.check),
@@ -433,7 +436,9 @@ class _SubmissionCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(0, 48),
-                          foregroundColor: const Color(0xFFC62828),
+                          foregroundColor: Theme.of(
+                            context,
+                          ).extension<StatusColors>()!.out,
                         ),
                         onPressed: isAdmin ? () => onReject(id) : null,
                         icon: const Icon(Icons.close),

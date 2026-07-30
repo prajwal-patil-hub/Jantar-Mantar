@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:latlong2/latlong.dart';
 
 import '../../../core/db/app_database.dart' show AlertSeverity;
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/theme/status_colors.dart';
+import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/presentation/widgets/alert_visuals.dart';
 import '../application/groups_providers.dart';
@@ -317,7 +317,21 @@ class _ChatTabState extends ConsumerState<_ChatTab> {
         constraints: const BoxConstraints(maxWidth: 320),
         decoration: BoxDecoration(
           color: m.mine ? scheme.primaryContainer : scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(12),
+          // The tail squares off the corner nearest the speaker, so which
+          // side a message came from survives without relying on the fill
+          // colour — the same reason status is never colour alone. Mirrors
+          // for RTL because "my side" is a reading-direction idea, not a
+          // fixed edge.
+          borderRadius: BorderRadiusDirectional.only(
+            topStart: const Radius.circular(AppTokens.radiusBubble),
+            topEnd: const Radius.circular(AppTokens.radiusBubble),
+            bottomStart: Radius.circular(
+              m.mine ? AppTokens.radiusBubble : AppTokens.radiusBubbleTail,
+            ),
+            bottomEnd: Radius.circular(
+              m.mine ? AppTokens.radiusBubbleTail : AppTokens.radiusBubble,
+            ),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -406,7 +420,7 @@ class _BroadcastCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         side: BorderSide(color: color, width: 1.5),
       ),
       child: Padding(

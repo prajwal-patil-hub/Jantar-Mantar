@@ -95,6 +95,16 @@ abstract final class AppTokens {
   static const double radiusPanel = 28;
   static const double radiusPill = 999;
 
+  /// Chat bubbles are the one surface the card radius does not fit — at 22 a
+  /// short message reads as a lozenge. Named here rather than left as a bare
+  /// `12` in the chat screen, because an unnamed number is how the scale
+  /// leaks: alert cards had drifted to 12 too, and nothing said they were
+  /// meant to differ from every other card in the app.
+  static const double radiusBubble = 16;
+
+  /// The bubble's speaker-side corner, squared off into a tail.
+  static const double radiusBubbleTail = 5;
+
   // Touch targets (emergency UX: generous under stress).
   static const double minTouchTarget = 48;
   static const double primaryTouchTarget = 56;

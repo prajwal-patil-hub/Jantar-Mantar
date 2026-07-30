@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Shows a group invite as a scannable QR plus the copyable code.
@@ -36,7 +37,7 @@ Future<void> showInviteSheet(BuildContext context, String code) {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTokens.radiusCard),
                 ),
                 child: QrImageView(
                   data: code,

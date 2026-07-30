@@ -19,6 +19,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
           home: const VerificationQueueScreen(),
@@ -151,6 +152,7 @@ void main() {
             ),
           ],
           child: MaterialApp(
+            theme: testAppTheme(),
             localizationsDelegates: testLocalizationsDelegates,
             supportedLocales: testSupportedLocales,
             home: const VerificationQueueScreen(),

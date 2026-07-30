@@ -129,6 +129,7 @@ void main() {
         // No Supabase client at all — demo mode must still work.
         overrides: [appDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
+          theme: testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
           home: const GroupsScreen(),

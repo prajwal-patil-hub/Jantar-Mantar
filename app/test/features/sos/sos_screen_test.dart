@@ -21,6 +21,7 @@ void main() {
     return ProviderScope(
       overrides: [appDatabaseProvider.overrideWithValue(db)],
       child: MaterialApp(
+        theme: testAppTheme(),
         localizationsDelegates: testLocalizationsDelegates,
         supportedLocales: testSupportedLocales,
         home: const SosScreen(),
