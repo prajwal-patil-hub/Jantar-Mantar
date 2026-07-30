@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/build_info.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/locale_provider.dart';
 import '../../../core/providers.dart';
@@ -200,6 +201,18 @@ class ProfileScreen extends ConsumerWidget {
               enabled: false,
               leading: const Icon(Icons.settings_outlined),
               title: Text(l10n.settingsComingLater),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Which build is this? The hosted app redeploys to the same URL, so
+          // a stale phone and an up-to-date one look identical. Compare this
+          // against the commit on GitHub to know for certain.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text(
+              BuildInfo.label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
         ],

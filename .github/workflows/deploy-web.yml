@@ -65,6 +65,8 @@ jobs:
           flutter pub get
           flutter build web --release \
             --no-web-resources-cdn \
+            --dart-define=BUILD_COMMIT="$(git rev-parse --short HEAD)" \
+            --dart-define=BUILD_TIME="$(date -u '+%Y-%m-%d %H:%M UTC')" \
             --base-href "${{ steps.pages.outputs.base_path }}/"
 
       # Fail the deploy rather than publish a build that phones home or has
@@ -91,8 +93,14 @@ jobs:
         with:
           path: app/build/web
 
+  # Only main publishes. Branch pushes still BUILD (which is the useful part —
+  # it runs the self-contained check above), but GitHub Pages accepts a
+  # deployment from one source only, so a branch deploy is rejected in about a
+  # second and every push left a red run behind it. A permanently failing job
+  # is worse than no job: it teaches you to ignore the red dot.
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -100,3 +108,11 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Where it landed
+        run: |
+          echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**${{ steps.deployment.outputs.page_url }}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit \`${GITHUB_SHA::7}\` — check it matches the build stamp in Profile." >> "$GITHUB_STEP_SUMMARY"
