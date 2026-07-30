@@ -277,22 +277,26 @@ class _VerificationQueueScreenState
                 title: l10n.queueClear,
                 body: l10n.queueClearBody,
               )
-            : ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: rows.length,
-                itemBuilder: (context, i) {
-                  final id = rows[i]['id'] as String;
-                  return _SubmissionCard(
-                    row: rows[i],
-                    isAdmin: isAdmin,
-                    onOpenReporter: _openReporter,
-                    selectMode: _selectMode,
-                    selected: _selected.contains(id),
-                    onToggleSelected: _toggleSelected,
-                    onApprove: _approve,
-                    onReject: _reject,
-                  );
-                },
+            : RefreshIndicator(
+                onRefresh: () async => setState(() => _refreshTick++),
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(12),
+                  itemCount: rows.length,
+                  itemBuilder: (context, i) {
+                    final id = rows[i]['id'] as String;
+                    return _SubmissionCard(
+                      row: rows[i],
+                      isAdmin: isAdmin,
+                      onOpenReporter: _openReporter,
+                      selectMode: _selectMode,
+                      selected: _selected.contains(id),
+                      onToggleSelected: _toggleSelected,
+                      onApprove: _approve,
+                      onReject: _reject,
+                    );
+                  },
+                ),
               ),
       ),
     );

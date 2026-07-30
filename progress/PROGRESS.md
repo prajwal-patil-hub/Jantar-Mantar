@@ -1,6 +1,21 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 26 — 2026-07-30 · Automated the interaction half of the accessibility audit — and it found a serious bug (ADR-34)
+**Done:**
+- **Ran the three guideline matchers Flutter ships and this project never used** — tap-target size, labelled tappables, rendered text contrast — over eight real screens. ADR-23 did this for colour; the interaction half was still a manual ritual, and `FocusNode` appearing zero times across the codebase is what that produces.
+- **It immediately found that the SOS hero was broken on small phones.** The disc was `FittedBox(scaleDown)` around a fixed 220 px circle taking whatever height the fixed chrome left over, so it got the leftovers. Measured, not estimated — disc diameter before → after: **360×640 overflowed outright** (no measurable disc; a device CLAUDE.md names as an explicit target) → 220; **390×844: 165** → 220; **800×600: 41** → 212. The app's most important button was, in practice, unusable on a small screen, and `FittedBox` is what hid it — scaling a control away is not the same as fitting it.
+- **Fixed by inverting the layout priority:** the hero takes a guaranteed 42% of the body height (bounded 112–260) and the *secondary* call tiles scroll instead. Pinned by a test at three real device sizes, asserting the disc is ≥48 dp, square (a squashed ellipse means a parent is clipping it) and on-screen.
+- **A wrong first attempt, kept as a comment because it is a trap:** putting the hero in a `SingleChildScrollView` fixed the size and broke the *function* — a scrollable ancestor joins the gesture arena and swallows the long-press. An emergency control also should not move. Caught by an existing test, not by inspection.
+- **The map was an unlabelled interactive region** on every screen with one, so a screen reader announced an unnamed control mid-screen. Labelled.
+- **Visible focus, from nothing (WCAG 2.4.7):** a saffron ring resolved per-state through the button themes. Saffron because ADR-10 forbids the accent conveying status, so a focus ring cannot be mistaken for good/low/out, and because it holds on both grounds. Tested by resolving what buttons actually inherit and pressing Tab, not by reading the theme map.
+- Pull-to-refresh on the admin lists, with the AppBar button kept for anyone who cannot perform a pull gesture.
+- Wireframe artifact extended to **27 frames** — added the focus-ring specimen and the SOS hero layout law, plus the measured before/after table above. 231 tests green (+35); analyze + custom_lint clean.
+
+**Still manual and still on the board:** TalkBack/VoiceOver traversal **order** on real OEM devices. A label existing is not the same as a sensible reading order, and no matcher checks that. `Semantics` coverage is now better but not complete — the guideline test only proves tappables are labelled, not that every informational region is.
+
+**Next:** the per-screen pass for screens that hand-roll containers, then the server half of route reports.
+---
 ## Session 25 — 2026-07-30 · Component-state audit: depth, the three async states, and offline (ADR-33)
 **Done:**
 - **Audited rather than guessed.** Counted actual occurrences across all 21 screens: `BoxShadow` in 2 files, `Semantics` in 4, zero `AnimatedSwitcher`/`Skeleton`/`SnackBarTheme`/`FocusNode`, and one `RefreshIndicator`. That is the gap list, not an opinion.

@@ -599,6 +599,14 @@ class AppL10nHi extends AppL10n {
       'अभी समीक्षा के लिए कुछ भी प्रतीक्षा में नहीं है।';
 
   @override
+  String get mapSemanticsPick =>
+      'मानचित्र। जिस स्थान की बात है वहाँ क्रॉसहेयर ले जाने के लिए खींचें।';
+
+  @override
+  String get sosSemanticsHold =>
+      'SOS। भेजने के लिए ढाई सेकंड दबाए रखें। रद्द करने के लिए छोड़ दें।';
+
+  @override
   String get washTitle => 'मानवीय न्यूनतम मानकों के सामने';
 
   @override

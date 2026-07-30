@@ -113,46 +113,53 @@ class _ReportRouteScreenState extends ConsumerState<ReportRouteScreen> {
           Expanded(
             child: Stack(
               children: [
-                FlutterMap(
-                  options: MapOptions(
-                    initialCenter: _center,
-                    initialZoom: 16,
-                    minZoom: MapConfig.minZoom,
-                    maxZoom: MapConfig.maxZoom,
-                    onPositionChanged: (camera, _) => _center = camera.center,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: MapConfig.urlTemplate,
-                      userAgentPackageName: MapConfig.userAgentPackageName,
-                      tileProvider: ref.watch(mapTileProviderProvider),
+                // FlutterMap's gesture layer is interactive and carries no
+                // label, so a screen reader announces an unnamed control in
+                // the middle of the screen. Caught by the labelled-tappable
+                // guideline (ADR-34).
+                Semantics(
+                  label: l10n.mapSemanticsPick,
+                  child: FlutterMap(
+                    options: MapOptions(
+                      initialCenter: _center,
+                      initialZoom: 16,
+                      minZoom: MapConfig.minZoom,
                       maxZoom: MapConfig.maxZoom,
+                      onPositionChanged: (camera, _) => _center = camera.center,
                     ),
-                    if (_placed)
-                      PolylineLayer(
-                        polylines: [
-                          Polyline(
-                            points: [_start!, _end!],
-                            color: _condition.colorOf(colors),
-                            strokeWidth: 6,
-                          ),
+                    children: [
+                      TileLayer(
+                        urlTemplate: MapConfig.urlTemplate,
+                        userAgentPackageName: MapConfig.userAgentPackageName,
+                        tileProvider: ref.watch(mapTileProviderProvider),
+                        maxZoom: MapConfig.maxZoom,
+                      ),
+                      if (_placed)
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: [_start!, _end!],
+                              color: _condition.colorOf(colors),
+                              strokeWidth: 6,
+                            ),
+                          ],
+                        ),
+                      MarkerLayer(
+                        markers: [
+                          for (final point in [_start, _end])
+                            if (point != null)
+                              Marker(
+                                point: point,
+                                child: Icon(
+                                  Icons.circle,
+                                  size: 14,
+                                  color: _condition.colorOf(colors),
+                                ),
+                              ),
                         ],
                       ),
-                    MarkerLayer(
-                      markers: [
-                        for (final point in [_start, _end])
-                          if (point != null)
-                            Marker(
-                              point: point,
-                              child: Icon(
-                                Icons.circle,
-                                size: 14,
-                                color: _condition.colorOf(colors),
-                              ),
-                            ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const IgnorePointer(
                   child: Center(child: Icon(Icons.add, size: 32)),

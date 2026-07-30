@@ -56,23 +56,30 @@ class _AuditLogScreenState extends ConsumerState<AuditLogScreen> {
                 title: l10n.auditLogEmpty,
                 body: l10n.auditLogAppendOnly,
               )
-            : ListView.separated(
-                padding: const EdgeInsets.all(12),
-                itemCount: rows.length + 1,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, i) {
-                  if (i == rows.length) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        l10n.auditLogAppendOnly,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    );
-                  }
-                  return _AuditTile(row: rows[i]);
-                },
+            // Pull-to-refresh: the gesture people already try. The AppBar
+            // button stays for anyone using a screen reader or a keyboard,
+            // for whom a pull gesture is not reachable.
+            : RefreshIndicator(
+                onRefresh: () async => setState(() => _refreshTick++),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(12),
+                  itemCount: rows.length + 1,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    if (i == rows.length) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          l10n.auditLogAppendOnly,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      );
+                    }
+                    return _AuditTile(row: rows[i]);
+                  },
+                ),
               ),
       ),
     );

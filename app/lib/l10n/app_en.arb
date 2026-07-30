@@ -205,6 +205,8 @@
   "offlineShowingSaved": "Offline — showing saved data.",
   "couldNotLoad": "Could not load this. You may be offline.",
   "queueClearBody": "Nothing is waiting for review right now.",
+  "mapSemanticsPick": "Map. Drag to move the crosshair to the place you mean.",
+  "sosSemanticsHold": "SOS. Hold for two and a half seconds to send. Release to cancel.",
   "washTitle": "Against humanitarian minimums",
   "washLatrines": "Toilets",
   "washWater": "Water points",

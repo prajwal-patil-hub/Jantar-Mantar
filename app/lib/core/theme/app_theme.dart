@@ -38,6 +38,21 @@ abstract final class AppTheme {
     return _base(scheme, AppTokens.scaffoldDark);
   }
 
+  /// A saffron ring on focus and nothing otherwise, so keyboard and
+  /// switch-control users can see where they are (ADR-34). Resolved per
+  /// state rather than set flat, because a permanent ring reads as an error.
+  static WidgetStateProperty<BorderSide?> _focusSide({BorderSide? rest}) {
+    return WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.focused)) {
+        return const BorderSide(
+          color: AppTokens.focusRing,
+          width: AppTokens.focusRingWidth,
+        );
+      }
+      return rest;
+    });
+  }
+
   /// Soft Geometry (ADR-32): one radii scale applied through component
   /// themes, so every card, sheet, chip and button picks it up without a
   /// single screen restating it.
@@ -101,14 +116,31 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           shape: const StadiumBorder(),
           minimumSize: const Size(0, AppTokens.primaryTouchTarget),
-        ),
+        ).copyWith(side: _focusSide()),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          shape: const StadiumBorder(),
-          minimumSize: const Size(0, AppTokens.primaryTouchTarget),
-        ),
+        style:
+            OutlinedButton.styleFrom(
+              shape: const StadiumBorder(),
+              minimumSize: const Size(0, AppTokens.primaryTouchTarget),
+            ).copyWith(
+              side: _focusSide(rest: BorderSide(color: hairline)),
+            ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          shape: const StadiumBorder(),
+          minimumSize: const Size(0, AppTokens.minTouchTarget),
+        ).copyWith(side: _focusSide()),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size.square(AppTokens.minTouchTarget),
+        ).copyWith(side: _focusSide()),
+      ),
+      // The ring itself, for anything that paints its own focus (ink wells,
+      // list tiles). WCAG 2.4.7 — this app had no visible focus state at all.
+      focusColor: AppTokens.focusRing.withValues(alpha: 0.16),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: scheme.surface,
         shape: const RoundedRectangleBorder(

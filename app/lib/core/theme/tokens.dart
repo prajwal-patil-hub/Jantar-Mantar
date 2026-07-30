@@ -81,6 +81,13 @@ abstract final class AppTokens {
     BoxShadow(color: tint, blurRadius: 24, offset: const Offset(0, 10)),
   ];
 
+  /// Keyboard / switch-control focus ring (ADR-34). WCAG 2.4.7 requires a
+  /// visible focus indicator, and the app had none — `FocusNode` appeared
+  /// zero times. Saffron rather than clay: the ring must not be mistakable
+  /// for a filled action, and it is never used to convey status.
+  static const Color focusRing = accent;
+  static const double focusRingWidth = 3;
+
   // Radii scale (ADR-32). One scale, applied through the theme, so the shape
   // language holds by construction instead of by per-screen discipline.
   static const double radiusChip = 14;

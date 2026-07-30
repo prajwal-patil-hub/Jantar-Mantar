@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map/application/map_providers.dart';
 import 'share_location_sheet.dart';
@@ -66,6 +67,105 @@ class _SosScreenState extends ConsumerState<SosScreen>
     }
   }
 
+  /// Ideal and minimum diameter for the hold disc. The floor is double the
+  /// 48 dp guideline on purpose: this is a control someone operates while
+  /// running, in the rain, possibly one-handed.
+  static const double _idealDiscSize = 220;
+  static const double _minDiscSize = 96;
+
+  /// Share of the body height reserved for the hero, and the bounds it may
+  /// not leave. 42% keeps the disc dominant without crowding out the call
+  /// tiles on a tall screen.
+  static const double _heroShare = 0.42;
+  static const double _minHeroHeight = 112;
+  static const double _maxHeroHeight = 260;
+
+  double _discSize(double heroHeight, double maxWidth) {
+    final available = heroHeight < maxWidth ? heroHeight : maxWidth;
+    return available.clamp(_minDiscSize, _idealDiscSize);
+  }
+
+  Widget _hero(AppL10n l10n, Color red, double size) {
+    if (_fired) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.check_circle, color: Colors.white, size: 72),
+          const SizedBox(height: 16),
+          Text(
+            l10n.sosQueued,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.white),
+              minimumSize: const Size(160, AppTokens.minTouchTarget),
+            ),
+            onPressed: () {
+              _hold.reset();
+              setState(() => _fired = false);
+            },
+            child: Text(l10n.imSafeReset),
+          ),
+        ],
+      );
+    }
+
+    final big = size > 150;
+    return GestureDetector(
+      onLongPressStart: (_) => _hold.forward(),
+      onLongPressEnd: (_) {
+        if (!_fired) _hold.reset();
+      },
+      onLongPressCancel: () {
+        if (!_fired) _hold.reset();
+      },
+      child: Semantics(
+        label: l10n.sosSemanticsHold,
+        button: true,
+        child: AnimatedBuilder(
+          animation: _hold,
+          builder: (context, _) => SizedBox(
+            width: size,
+            height: size,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CircularProgressIndicator(
+                  value: _hold.value,
+                  strokeWidth: big ? 10 : 7,
+                  color: Colors.white,
+                  backgroundColor: Colors.white24,
+                ),
+                Container(
+                  margin: EdgeInsets.all(big ? 18 : 12),
+                  decoration: BoxDecoration(color: red, shape: BoxShape.circle),
+                  child: Center(
+                    child: Text(
+                      l10n.sosHoldToSend,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: big ? 24 : 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
@@ -82,141 +182,94 @@ class _SosScreenState extends ConsumerState<SosScreen>
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              Text(
-                _fired ? l10n.sosQueuedInstruction : l10n.sosHoldInstruction,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              const SizedBox(height: 24),
-              Expanded(
-                // scaleDown keeps the hero content visible on any screen
-                // height instead of overflowing (small devices, landscape).
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: _fired
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.check_circle,
-                              color: Colors.white,
-                              size: 96,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              l10n.sosQueued,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                side: const BorderSide(color: Colors.white),
-                                minimumSize: const Size(160, 48),
-                              ),
-                              onPressed: () {
-                                _hold.reset();
-                                setState(() => _fired = false);
-                              },
-                              child: Text(l10n.imSafeReset),
-                            ),
-                          ],
-                        )
-                      : GestureDetector(
-                          onLongPressStart: (_) => _hold.forward(),
-                          onLongPressEnd: (_) {
-                            if (!_fired) _hold.reset();
+          // The hero gets a guaranteed share of the height and the secondary
+          // tiles give way, not the other way round (ADR-34).
+          //
+          // Before this, the whole column was fixed and the hero was whatever
+          // was left over — which on a 360×640 phone, an explicit target, was
+          // literally **zero**. FittedBox(scaleDown) hid that by shrinking the
+          // hero into a 41 px stub. A control someone reaches for in an
+          // emergency does not get to be the thing that shrinks.
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final heroHeight = (constraints.maxHeight * _heroShare).clamp(
+                _minHeroHeight,
+                _maxHeroHeight,
+              );
+              return Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    _fired
+                        ? l10n.sosQueuedInstruction
+                        : l10n.sosHoldInstruction,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: heroHeight,
+                    child: Center(
+                      child: _hero(
+                        l10n,
+                        red,
+                        _discSize(heroHeight, constraints.maxWidth),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Secondary actions. These scroll when the screen is short;
+                  // the hero above never does, because a scrollable ancestor
+                  // would also join the gesture arena and swallow the hold.
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        _CallTile(
+                          icon: Icons.local_police_outlined,
+                          label: l10n.callPolice(SosScreen.emergencyNumber),
+                          onTap: () => _call(SosScreen.emergencyNumber),
+                        ),
+                        _CallTile(
+                          icon: Icons.medical_services_outlined,
+                          label: l10n.callAmbulance(SosScreen.ambulanceNumber),
+                          onTap: () => _call(SosScreen.ambulanceNumber),
+                        ),
+                        _CallTile(
+                          icon: Icons.gavel_outlined,
+                          label: l10n.callLegalAid(SosScreen.legalAidNumber),
+                          onTap: () => _call(SosScreen.legalAidNumber),
+                        ),
+                        _CallTile(
+                          icon: Icons.share_location,
+                          label: l10n.shareMyLocation,
+                          onTap: () => ShareLocationSheet.show(context),
+                        ),
+                        _CallTile(
+                          icon: Icons.medical_information_outlined,
+                          label: l10n.nearestMedical,
+                          onTap: () {
+                            ref
+                                .read(mapFilterProvider.notifier)
+                                .select(FacilityType.medical);
+                            Navigator.of(context).pop();
                           },
-                          onLongPressCancel: () {
-                            if (!_fired) _hold.reset();
-                          },
-                          child: Semantics(
-                            label: 'SOS, hold to send',
-                            button: true,
-                            child: AnimatedBuilder(
-                              animation: _hold,
-                              builder: (context, _) => SizedBox(
-                                width: 220,
-                                height: 220,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    CircularProgressIndicator(
-                                      value: _hold.value,
-                                      strokeWidth: 10,
-                                      color: Colors.white,
-                                      backgroundColor: Colors.white24,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.all(18),
-                                      decoration: const BoxDecoration(
-                                        color: red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          l10n.sosHoldToSend,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.shareLocationLater,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
                           ),
                         ),
-                ),
-              ),
-              _CallTile(
-                icon: Icons.local_police_outlined,
-                label: l10n.callPolice(SosScreen.emergencyNumber),
-                onTap: () => _call(SosScreen.emergencyNumber),
-              ),
-              _CallTile(
-                icon: Icons.medical_services_outlined,
-                label: l10n.callAmbulance(SosScreen.ambulanceNumber),
-                onTap: () => _call(SosScreen.ambulanceNumber),
-              ),
-              _CallTile(
-                icon: Icons.gavel_outlined,
-                label: l10n.callLegalAid(SosScreen.legalAidNumber),
-                onTap: () => _call(SosScreen.legalAidNumber),
-              ),
-              _CallTile(
-                icon: Icons.share_location,
-                label: l10n.shareMyLocation,
-                onTap: () => ShareLocationSheet.show(context),
-              ),
-              _CallTile(
-                icon: Icons.medical_information_outlined,
-                label: l10n.nearestMedical,
-                onTap: () {
-                  ref
-                      .read(mapFilterProvider.notifier)
-                      .select(FacilityType.medical);
-                  Navigator.of(context).pop();
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.shareLocationLater,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

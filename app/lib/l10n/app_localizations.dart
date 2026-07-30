@@ -1135,6 +1135,18 @@ abstract class AppL10n {
   /// **'Nothing is waiting for review right now.'**
   String get queueClearBody;
 
+  /// No description provided for @mapSemanticsPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Map. Drag to move the crosshair to the place you mean.'**
+  String get mapSemanticsPick;
+
+  /// No description provided for @sosSemanticsHold.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS. Hold for two and a half seconds to send. Release to cancel.'**
+  String get sosSemanticsHold;
+
   /// No description provided for @washTitle.
   ///
   /// In en, this message translates to:

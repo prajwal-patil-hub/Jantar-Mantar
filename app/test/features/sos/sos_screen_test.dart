@@ -40,6 +40,13 @@ void main() {
     expect(find.textContaining('112'), findsOneWidget);
     expect(find.textContaining('108'), findsOneWidget);
     expect(find.textContaining('15100'), findsOneWidget);
+    // The secondary tiles scroll on a short screen now — the hero keeps its
+    // height instead (ADR-34) — so the last one may start below the fold.
+    await tester.scrollUntilVisible(
+      find.text('Nearest medical on map'),
+      120,
+      scrollable: find.byType(Scrollable).last,
+    );
     expect(find.text('Nearest medical on map'), findsOneWidget);
 
     await flushTimers(tester);
@@ -84,5 +91,62 @@ void main() {
     expect(await db.select(db.syncQueueEntries).get(), isEmpty);
 
     await flushTimers(tester);
+  });
+
+  /// The hero must stay usable at every size this app targets — including
+  /// low-end Android, which CLAUDE.md names explicitly.
+  ///
+  /// Regression: the SOS disc used to be whatever height was left over after
+  /// fixed chrome, wrapped in FittedBox(scaleDown). On a 360×640 phone that
+  /// left it **zero** pixels tall, and the FittedBox hid it by scaling the
+  /// whole hero away. The app's most important control was, in practice,
+  /// invisible on a small screen.
+  group('the hold control survives small screens', () {
+    for (final device in const {
+      'small Android 360×640': Size(360, 640),
+      'iPhone 390×844': Size(390, 844),
+      'short/wide 800×600': Size(800, 600),
+    }.entries) {
+      testWidgets(device.key, (tester) async {
+        tester.view.physicalSize = device.value;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(app());
+        await tester.pump();
+
+        final disc = tester.getRect(find.byType(CircularProgressIndicator));
+        expect(
+          disc.height,
+          greaterThanOrEqualTo(48),
+          reason: 'below the tap-target minimum on ${device.key}',
+        );
+        expect(disc.width, greaterThanOrEqualTo(48));
+        // Square: a squashed ellipse means the parent is clipping it.
+        expect(disc.height, closeTo(disc.width, 1));
+        // And still reachable, not pushed off the bottom.
+        expect(disc.bottom, lessThanOrEqualTo(device.value.height));
+
+        await flushTimers(tester);
+      });
+    }
+
+    testWidgets('holding still works on a small phone', (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(app());
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('SOS\nHold to send')),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pump(const Duration(milliseconds: 2600));
+      await gesture.up();
+      await tester.pump();
+
+      expect(find.text('SOS queued'), findsOneWidget);
+      await flushTimers(tester);
+    });
   });
 }

@@ -36,22 +36,29 @@ class _PickLocationScreenState extends ConsumerState<PickLocationScreen> {
           Expanded(
             child: Stack(
               children: [
-                FlutterMap(
-                  options: MapOptions(
-                    initialCenter: _center,
-                    initialZoom: 17,
-                    minZoom: MapConfig.minZoom,
-                    maxZoom: MapConfig.maxZoom,
-                    onPositionChanged: (camera, _) => _center = camera.center,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: MapConfig.urlTemplate,
-                      userAgentPackageName: MapConfig.userAgentPackageName,
-                      tileProvider: ref.watch(mapTileProviderProvider),
+                // FlutterMap's gesture layer is interactive and carries no
+                // label, so a screen reader announces an unnamed control in
+                // the middle of the screen. Caught by the labelled-tappable
+                // guideline (ADR-34).
+                Semantics(
+                  label: l10n.mapSemanticsPick,
+                  child: FlutterMap(
+                    options: MapOptions(
+                      initialCenter: _center,
+                      initialZoom: 17,
+                      minZoom: MapConfig.minZoom,
                       maxZoom: MapConfig.maxZoom,
+                      onPositionChanged: (camera, _) => _center = camera.center,
                     ),
-                  ],
+                    children: [
+                      TileLayer(
+                        urlTemplate: MapConfig.urlTemplate,
+                        userAgentPackageName: MapConfig.userAgentPackageName,
+                        tileProvider: ref.watch(mapTileProviderProvider),
+                        maxZoom: MapConfig.maxZoom,
+                      ),
+                    ],
+                  ),
                 ),
                 const IgnorePointer(
                   child: Center(

@@ -600,6 +600,14 @@ class AppL10nEn extends AppL10n {
   String get queueClearBody => 'Nothing is waiting for review right now.';
 
   @override
+  String get mapSemanticsPick =>
+      'Map. Drag to move the crosshair to the place you mean.';
+
+  @override
+  String get sosSemanticsHold =>
+      'SOS. Hold for two and a half seconds to send. Release to cancel.';
+
+  @override
   String get washTitle => 'Against humanitarian minimums';
 
   @override
