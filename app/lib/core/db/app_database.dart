@@ -16,13 +16,14 @@ part 'app_database.g.dart';
     Alerts,
     SyncQueueEntries,
     CachedGroupMessages,
+    RouteReports,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -38,6 +39,12 @@ class AppDatabase extends _$AppDatabase {
       // v3: group-key epoch, so rotated keys can still decrypt old history.
       if (from == 2) {
         await m.addColumn(cachedGroupMessages, cachedGroupMessages.keyEpoch);
+      }
+      // v4: route reports (ADR-31). Same lesson as v2 — createTable does not
+      // create the index, and the expiry sweep runs on every map read.
+      if (from < 4) {
+        await m.createTable(routeReports);
+        await m.create(idxRouteReportsExpiry);
       }
     },
   );

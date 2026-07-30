@@ -114,3 +114,37 @@ class SyncQueueEntries extends Table {
   DateTimeColumn get nextAttemptAt => dateTime()();
   DateTimeColumn get createdAt => dateTime()();
 }
+
+/// A stretch of route reported as impassable or hard to pass (ADR-31).
+///
+/// The map has always held *points*; a disaster needs *edges*. The case that
+/// forced this: during the June 2026 Venezuela earthquakes an aftershock
+/// collapsed a bridge and cut a whole parish off mid-response. A facility pin
+/// cannot express "the way there is gone".
+///
+/// Modelled as a single segment (two endpoints) rather than a polyline or a
+/// routable graph: enough to draw "do not go along here", small enough to
+/// sync over a bad link, and simple enough to place with two drags.
+///
+/// [expiresAt] is **not nullable on purpose**. A stale blockage is not a
+/// harmless leftover — it diverts people away from what may be the only
+/// viable road, so every report has to age out and be re-asserted.
+@DataClassName('RouteReport')
+@TableIndex(name: 'idx_route_reports_expiry', columns: {#expiresAt})
+class RouteReports extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get condition => textEnum<RouteCondition>()();
+  TextColumn get cause => textEnum<RouteCause>()();
+  RealColumn get startLat => real()();
+  RealColumn get startLng => real()();
+  RealColumn get endLat => real()();
+  RealColumn get endLng => real()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get verifiedAt => dateTime().nullable()();
+  DateTimeColumn get expiresAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}

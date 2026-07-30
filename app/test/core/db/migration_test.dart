@@ -6,6 +6,7 @@ import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
 import 'generated_migrations/schema.dart';
 import 'generated_migrations/schema_v1.dart' as v1;
 import 'generated_migrations/schema_v2.dart' as v2;
+import 'generated_migrations/schema_v3.dart' as v3;
 
 /// Migrations are the one thing a user cannot retry: get them wrong and an
 /// installed app either crashes on launch or silently drops data. These run
@@ -20,17 +21,19 @@ void main() {
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
   test('every step upgrades to the current schema', () async {
-    // Covers v1→v2, v2→v3 and the full v1→v3 path in one sweep, and asserts
-    // the resulting schema matches what the current code expects exactly.
-    for (final start in [1, 2]) {
+    // Covers every single step and every long jump (v1→v4, v2→v4, v3→v4) in
+    // one sweep, and asserts the resulting schema matches what the current
+    // code expects exactly — including indexes, which createTable does not
+    // bring with it.
+    for (final start in [1, 2, 3]) {
       final connection = await verifier.startAt(start);
       final db = AppDatabase(connection);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 3);
+      await verifier.migrateAndValidate(db, 4);
     }
   });
 
-  test('v1 → v3 keeps the data a real user already had', () async {
+  test('v1 → v4 keeps the data a real user already had', () async {
     final schema = await verifier.schemaAt(1);
     final old = v1.DatabaseAtV1(schema.newConnection());
 
@@ -70,6 +73,25 @@ void main() {
     expect(submissions.single.payload, contains('queued before the upgrade'));
     final facilities = await migrated.select(migrated.facilities).get();
     expect(facilities.single.name, 'Water point, Gate 2');
+
+    // And the tables added since are usable, not just present.
+    await migrated
+        .into(migrated.routeReports)
+        .insert(
+          RouteReportsCompanion.insert(
+            id: 'r1',
+            name: 'Pandu approach road',
+            condition: RouteCondition.impassable,
+            cause: RouteCause.flood,
+            startLat: 26.1433,
+            startLng: 91.7372,
+            endLat: 26.1441,
+            endLng: 91.7385,
+            expiresAt: DateTime.utc(2026, 7, 30, 12),
+            updatedAt: DateTime.utc(2026, 7, 30),
+          ),
+        );
+    expect(await migrated.select(migrated.routeReports).get(), hasLength(1));
 
     // And the table v2 introduced is now usable.
     await migrated
@@ -115,6 +137,37 @@ void main() {
         (await migrated.select(migrated.cachedGroupMessages).get()).single;
     expect(row.ciphertext, 'CIPHER-FROM-V2');
     expect(row.keyEpoch, 1);
+  });
+
+  test('v3 → v4 adds route reports without disturbing cached chat', () async {
+    final schema = await verifier.schemaAt(3);
+    final old = v3.DatabaseAtV3(schema.newConnection());
+
+    await old
+        .into(old.cachedGroupMessages)
+        .insert(
+          RawValuesInsertable({
+            'id': Variable('m1'),
+            'group_id': Variable('g1'),
+            'sender_id': Variable('u1'),
+            'ciphertext': Variable('CIPHER-FROM-V3'),
+            'key_epoch': Variable(4),
+            'created_at': Variable(_epoch(DateTime.utc(2026, 7, 28))),
+          }),
+        );
+    await old.close();
+
+    final migrated = AppDatabase(schema.newConnection());
+    addTearDown(migrated.close);
+
+    // Chat history — including its epoch, without which it cannot be
+    // decrypted — has to come through untouched.
+    final cached = await migrated.select(migrated.cachedGroupMessages).get();
+    expect(cached.single.ciphertext, 'CIPHER-FROM-V3');
+    expect(cached.single.keyEpoch, 4);
+
+    // The new table exists and is empty, not missing.
+    expect(await migrated.select(migrated.routeReports).get(), isEmpty);
   });
 }
 

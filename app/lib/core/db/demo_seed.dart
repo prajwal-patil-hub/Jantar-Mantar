@@ -445,6 +445,55 @@ Future<void> seedDemoFacilities(AppDatabase db) async {
     ]),
   );
 
+  // Route hazards (ADR-31): the Venezuela case — an aftershock took out a
+  // bridge and cut a parish off. One impassable, one difficult, one reopened,
+  // so all three renderings are visible in Demo Mode.
+  await db.batch(
+    (b) => b.insertAll(db.routeReports, [
+      RouteReportsCompanion.insert(
+        id: 'seed-route-ghy-1',
+        name: 'Pandu approach road',
+        condition: RouteCondition.impassable,
+        cause: RouteCause.flood,
+        startLat: 26.14330,
+        startLng: 91.73720,
+        endLat: 26.14210,
+        endLng: 91.73900,
+        note: const Value('Waist-deep at the culvert. Do not attempt on foot.'),
+        verifiedAt: Value(now.subtract(const Duration(minutes: 35))),
+        expiresAt: now.add(const Duration(hours: 6)),
+        updatedAt: now.subtract(const Duration(minutes: 35)),
+      ),
+      RouteReportsCompanion.insert(
+        id: 'seed-route-ghy-2',
+        name: 'Bridge to north bank',
+        condition: RouteCondition.difficult,
+        cause: RouteCause.debris,
+        startLat: 26.14560,
+        startLng: 91.73500,
+        endLat: 26.14680,
+        endLng: 91.73410,
+        note: const Value('Single lane past the fallen tree.'),
+        verifiedAt: Value(now.subtract(const Duration(minutes: 12))),
+        expiresAt: now.add(const Duration(hours: 2)),
+        updatedAt: now.subtract(const Duration(minutes: 12)),
+      ),
+      RouteReportsCompanion.insert(
+        id: 'seed-route-ghy-3',
+        name: 'Market lane',
+        condition: RouteCondition.cleared,
+        cause: RouteCause.flood,
+        startLat: 26.14390,
+        startLng: 91.73450,
+        endLat: 26.14300,
+        endLng: 91.73380,
+        verifiedAt: Value(now.subtract(const Duration(minutes: 50))),
+        expiresAt: now.add(const Duration(hours: 4)),
+        updatedAt: now.subtract(const Duration(minutes: 50)),
+      ),
+    ]),
+  );
+
   await db.batch(
     (b) => b.insertAll(db.alerts, [
       AlertsCompanion.insert(
@@ -517,5 +566,8 @@ Future<void> removeDemoSeed(AppDatabase db) async {
     await (db.delete(
       db.alerts,
     )..where((a) => a.id.like('$demoSeedPrefix%'))).go();
+    await (db.delete(
+      db.routeReports,
+    )..where((r) => r.id.like('$demoSeedPrefix%'))).go();
   });
 }

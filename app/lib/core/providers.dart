@@ -8,6 +8,7 @@ import 'data/alert_repository.dart';
 import 'data/facility_repository.dart';
 import 'data/remote_pull_service.dart';
 import 'data/remote_sync_api.dart';
+import 'data/route_repository.dart';
 import 'data/sos_repository.dart';
 import 'data/submission_repository.dart';
 import 'data/supabase_remote_api.dart';
@@ -57,6 +58,10 @@ final submissionRepositoryProvider = Provider<SubmissionRepository>(
 
 final alertRepositoryProvider = Provider<AlertRepository>(
   (ref) => AlertRepository(ref.watch(appDatabaseProvider)),
+);
+
+final routeRepositoryProvider = Provider<RouteRepository>(
+  (ref) => RouteRepository(ref.watch(appDatabaseProvider)),
 );
 
 final sosRepositoryProvider = Provider<SosRepository>(

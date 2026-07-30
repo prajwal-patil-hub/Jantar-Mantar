@@ -3269,6 +3269,715 @@ class CachedGroupMessagesCompanion extends UpdateCompanion<CachedGroupMessage> {
   }
 }
 
+class $RouteReportsTable extends RouteReports
+    with TableInfo<$RouteReportsTable, RouteReport> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RouteReportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RouteCondition, String>
+  condition = GeneratedColumn<String>(
+    'condition',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<RouteCondition>($RouteReportsTable.$convertercondition);
+  @override
+  late final GeneratedColumnWithTypeConverter<RouteCause, String> cause =
+      GeneratedColumn<String>(
+        'cause',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RouteCause>($RouteReportsTable.$convertercause);
+  static const VerificationMeta _startLatMeta = const VerificationMeta(
+    'startLat',
+  );
+  @override
+  late final GeneratedColumn<double> startLat = GeneratedColumn<double>(
+    'start_lat',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startLngMeta = const VerificationMeta(
+    'startLng',
+  );
+  @override
+  late final GeneratedColumn<double> startLng = GeneratedColumn<double>(
+    'start_lng',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endLatMeta = const VerificationMeta('endLat');
+  @override
+  late final GeneratedColumn<double> endLat = GeneratedColumn<double>(
+    'end_lat',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endLngMeta = const VerificationMeta('endLng');
+  @override
+  late final GeneratedColumn<double> endLng = GeneratedColumn<double>(
+    'end_lng',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _verifiedAtMeta = const VerificationMeta(
+    'verifiedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> verifiedAt = GeneratedColumn<DateTime>(
+    'verified_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+    'expires_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    condition,
+    cause,
+    startLat,
+    startLng,
+    endLat,
+    endLng,
+    note,
+    verifiedAt,
+    expiresAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'route_reports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RouteReport> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('start_lat')) {
+      context.handle(
+        _startLatMeta,
+        startLat.isAcceptableOrUnknown(data['start_lat']!, _startLatMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startLatMeta);
+    }
+    if (data.containsKey('start_lng')) {
+      context.handle(
+        _startLngMeta,
+        startLng.isAcceptableOrUnknown(data['start_lng']!, _startLngMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startLngMeta);
+    }
+    if (data.containsKey('end_lat')) {
+      context.handle(
+        _endLatMeta,
+        endLat.isAcceptableOrUnknown(data['end_lat']!, _endLatMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endLatMeta);
+    }
+    if (data.containsKey('end_lng')) {
+      context.handle(
+        _endLngMeta,
+        endLng.isAcceptableOrUnknown(data['end_lng']!, _endLngMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endLngMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('verified_at')) {
+      context.handle(
+        _verifiedAtMeta,
+        verifiedAt.isAcceptableOrUnknown(data['verified_at']!, _verifiedAtMeta),
+      );
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expiresAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RouteReport map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RouteReport(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      condition: $RouteReportsTable.$convertercondition.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}condition'],
+        )!,
+      ),
+      cause: $RouteReportsTable.$convertercause.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}cause'],
+        )!,
+      ),
+      startLat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_lat'],
+      )!,
+      startLng: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}start_lng'],
+      )!,
+      endLat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}end_lat'],
+      )!,
+      endLng: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}end_lng'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      verifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}verified_at'],
+      ),
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expires_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RouteReportsTable createAlias(String alias) {
+    return $RouteReportsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<RouteCondition, String, String>
+  $convertercondition = const EnumNameConverter<RouteCondition>(
+    RouteCondition.values,
+  );
+  static JsonTypeConverter2<RouteCause, String, String> $convertercause =
+      const EnumNameConverter<RouteCause>(RouteCause.values);
+}
+
+class RouteReport extends DataClass implements Insertable<RouteReport> {
+  final String id;
+  final String name;
+  final RouteCondition condition;
+  final RouteCause cause;
+  final double startLat;
+  final double startLng;
+  final double endLat;
+  final double endLng;
+  final String? note;
+  final DateTime? verifiedAt;
+  final DateTime expiresAt;
+  final DateTime updatedAt;
+  const RouteReport({
+    required this.id,
+    required this.name,
+    required this.condition,
+    required this.cause,
+    required this.startLat,
+    required this.startLng,
+    required this.endLat,
+    required this.endLng,
+    this.note,
+    this.verifiedAt,
+    required this.expiresAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    {
+      map['condition'] = Variable<String>(
+        $RouteReportsTable.$convertercondition.toSql(condition),
+      );
+    }
+    {
+      map['cause'] = Variable<String>(
+        $RouteReportsTable.$convertercause.toSql(cause),
+      );
+    }
+    map['start_lat'] = Variable<double>(startLat);
+    map['start_lng'] = Variable<double>(startLng);
+    map['end_lat'] = Variable<double>(endLat);
+    map['end_lng'] = Variable<double>(endLng);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || verifiedAt != null) {
+      map['verified_at'] = Variable<DateTime>(verifiedAt);
+    }
+    map['expires_at'] = Variable<DateTime>(expiresAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  RouteReportsCompanion toCompanion(bool nullToAbsent) {
+    return RouteReportsCompanion(
+      id: Value(id),
+      name: Value(name),
+      condition: Value(condition),
+      cause: Value(cause),
+      startLat: Value(startLat),
+      startLng: Value(startLng),
+      endLat: Value(endLat),
+      endLng: Value(endLng),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      verifiedAt: verifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verifiedAt),
+      expiresAt: Value(expiresAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory RouteReport.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RouteReport(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      condition: $RouteReportsTable.$convertercondition.fromJson(
+        serializer.fromJson<String>(json['condition']),
+      ),
+      cause: $RouteReportsTable.$convertercause.fromJson(
+        serializer.fromJson<String>(json['cause']),
+      ),
+      startLat: serializer.fromJson<double>(json['startLat']),
+      startLng: serializer.fromJson<double>(json['startLng']),
+      endLat: serializer.fromJson<double>(json['endLat']),
+      endLng: serializer.fromJson<double>(json['endLng']),
+      note: serializer.fromJson<String?>(json['note']),
+      verifiedAt: serializer.fromJson<DateTime?>(json['verifiedAt']),
+      expiresAt: serializer.fromJson<DateTime>(json['expiresAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'condition': serializer.toJson<String>(
+        $RouteReportsTable.$convertercondition.toJson(condition),
+      ),
+      'cause': serializer.toJson<String>(
+        $RouteReportsTable.$convertercause.toJson(cause),
+      ),
+      'startLat': serializer.toJson<double>(startLat),
+      'startLng': serializer.toJson<double>(startLng),
+      'endLat': serializer.toJson<double>(endLat),
+      'endLng': serializer.toJson<double>(endLng),
+      'note': serializer.toJson<String?>(note),
+      'verifiedAt': serializer.toJson<DateTime?>(verifiedAt),
+      'expiresAt': serializer.toJson<DateTime>(expiresAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  RouteReport copyWith({
+    String? id,
+    String? name,
+    RouteCondition? condition,
+    RouteCause? cause,
+    double? startLat,
+    double? startLng,
+    double? endLat,
+    double? endLng,
+    Value<String?> note = const Value.absent(),
+    Value<DateTime?> verifiedAt = const Value.absent(),
+    DateTime? expiresAt,
+    DateTime? updatedAt,
+  }) => RouteReport(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    condition: condition ?? this.condition,
+    cause: cause ?? this.cause,
+    startLat: startLat ?? this.startLat,
+    startLng: startLng ?? this.startLng,
+    endLat: endLat ?? this.endLat,
+    endLng: endLng ?? this.endLng,
+    note: note.present ? note.value : this.note,
+    verifiedAt: verifiedAt.present ? verifiedAt.value : this.verifiedAt,
+    expiresAt: expiresAt ?? this.expiresAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  RouteReport copyWithCompanion(RouteReportsCompanion data) {
+    return RouteReport(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      condition: data.condition.present ? data.condition.value : this.condition,
+      cause: data.cause.present ? data.cause.value : this.cause,
+      startLat: data.startLat.present ? data.startLat.value : this.startLat,
+      startLng: data.startLng.present ? data.startLng.value : this.startLng,
+      endLat: data.endLat.present ? data.endLat.value : this.endLat,
+      endLng: data.endLng.present ? data.endLng.value : this.endLng,
+      note: data.note.present ? data.note.value : this.note,
+      verifiedAt: data.verifiedAt.present
+          ? data.verifiedAt.value
+          : this.verifiedAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RouteReport(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('condition: $condition, ')
+          ..write('cause: $cause, ')
+          ..write('startLat: $startLat, ')
+          ..write('startLng: $startLng, ')
+          ..write('endLat: $endLat, ')
+          ..write('endLng: $endLng, ')
+          ..write('note: $note, ')
+          ..write('verifiedAt: $verifiedAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    condition,
+    cause,
+    startLat,
+    startLng,
+    endLat,
+    endLng,
+    note,
+    verifiedAt,
+    expiresAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RouteReport &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.condition == this.condition &&
+          other.cause == this.cause &&
+          other.startLat == this.startLat &&
+          other.startLng == this.startLng &&
+          other.endLat == this.endLat &&
+          other.endLng == this.endLng &&
+          other.note == this.note &&
+          other.verifiedAt == this.verifiedAt &&
+          other.expiresAt == this.expiresAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RouteReportsCompanion extends UpdateCompanion<RouteReport> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<RouteCondition> condition;
+  final Value<RouteCause> cause;
+  final Value<double> startLat;
+  final Value<double> startLng;
+  final Value<double> endLat;
+  final Value<double> endLng;
+  final Value<String?> note;
+  final Value<DateTime?> verifiedAt;
+  final Value<DateTime> expiresAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const RouteReportsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.condition = const Value.absent(),
+    this.cause = const Value.absent(),
+    this.startLat = const Value.absent(),
+    this.startLng = const Value.absent(),
+    this.endLat = const Value.absent(),
+    this.endLng = const Value.absent(),
+    this.note = const Value.absent(),
+    this.verifiedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RouteReportsCompanion.insert({
+    required String id,
+    required String name,
+    required RouteCondition condition,
+    required RouteCause cause,
+    required double startLat,
+    required double startLng,
+    required double endLat,
+    required double endLng,
+    this.note = const Value.absent(),
+    this.verifiedAt = const Value.absent(),
+    required DateTime expiresAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       condition = Value(condition),
+       cause = Value(cause),
+       startLat = Value(startLat),
+       startLng = Value(startLng),
+       endLat = Value(endLat),
+       endLng = Value(endLng),
+       expiresAt = Value(expiresAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<RouteReport> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? condition,
+    Expression<String>? cause,
+    Expression<double>? startLat,
+    Expression<double>? startLng,
+    Expression<double>? endLat,
+    Expression<double>? endLng,
+    Expression<String>? note,
+    Expression<DateTime>? verifiedAt,
+    Expression<DateTime>? expiresAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (condition != null) 'condition': condition,
+      if (cause != null) 'cause': cause,
+      if (startLat != null) 'start_lat': startLat,
+      if (startLng != null) 'start_lng': startLng,
+      if (endLat != null) 'end_lat': endLat,
+      if (endLng != null) 'end_lng': endLng,
+      if (note != null) 'note': note,
+      if (verifiedAt != null) 'verified_at': verifiedAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RouteReportsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<RouteCondition>? condition,
+    Value<RouteCause>? cause,
+    Value<double>? startLat,
+    Value<double>? startLng,
+    Value<double>? endLat,
+    Value<double>? endLng,
+    Value<String?>? note,
+    Value<DateTime?>? verifiedAt,
+    Value<DateTime>? expiresAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return RouteReportsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      condition: condition ?? this.condition,
+      cause: cause ?? this.cause,
+      startLat: startLat ?? this.startLat,
+      startLng: startLng ?? this.startLng,
+      endLat: endLat ?? this.endLat,
+      endLng: endLng ?? this.endLng,
+      note: note ?? this.note,
+      verifiedAt: verifiedAt ?? this.verifiedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (condition.present) {
+      map['condition'] = Variable<String>(
+        $RouteReportsTable.$convertercondition.toSql(condition.value),
+      );
+    }
+    if (cause.present) {
+      map['cause'] = Variable<String>(
+        $RouteReportsTable.$convertercause.toSql(cause.value),
+      );
+    }
+    if (startLat.present) {
+      map['start_lat'] = Variable<double>(startLat.value);
+    }
+    if (startLng.present) {
+      map['start_lng'] = Variable<double>(startLng.value);
+    }
+    if (endLat.present) {
+      map['end_lat'] = Variable<double>(endLat.value);
+    }
+    if (endLng.present) {
+      map['end_lng'] = Variable<double>(endLng.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (verifiedAt.present) {
+      map['verified_at'] = Variable<DateTime>(verifiedAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RouteReportsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('condition: $condition, ')
+          ..write('cause: $cause, ')
+          ..write('startLat: $startLat, ')
+          ..write('startLng: $startLng, ')
+          ..write('endLat: $endLat, ')
+          ..write('endLng: $endLng, ')
+          ..write('note: $note, ')
+          ..write('verifiedAt: $verifiedAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3283,9 +3992,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CachedGroupMessagesTable cachedGroupMessages =
       $CachedGroupMessagesTable(this);
+  late final $RouteReportsTable routeReports = $RouteReportsTable(this);
   late final Index idxCachedGroupMessagesGroup = Index(
     'idx_cached_group_messages_group',
     'CREATE INDEX idx_cached_group_messages_group ON cached_group_messages (group_id)',
+  );
+  late final Index idxRouteReportsExpiry = Index(
+    'idx_route_reports_expiry',
+    'CREATE INDEX idx_route_reports_expiry ON route_reports (expires_at)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3298,7 +4012,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     alerts,
     syncQueueEntries,
     cachedGroupMessages,
+    routeReports,
     idxCachedGroupMessagesGroup,
+    idxRouteReportsExpiry,
   ];
 }
 
@@ -5170,6 +5886,343 @@ typedef $$CachedGroupMessagesTableProcessedTableManager =
       CachedGroupMessage,
       PrefetchHooks Function()
     >;
+typedef $$RouteReportsTableCreateCompanionBuilder =
+    RouteReportsCompanion Function({
+      required String id,
+      required String name,
+      required RouteCondition condition,
+      required RouteCause cause,
+      required double startLat,
+      required double startLng,
+      required double endLat,
+      required double endLng,
+      Value<String?> note,
+      Value<DateTime?> verifiedAt,
+      required DateTime expiresAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$RouteReportsTableUpdateCompanionBuilder =
+    RouteReportsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<RouteCondition> condition,
+      Value<RouteCause> cause,
+      Value<double> startLat,
+      Value<double> startLng,
+      Value<double> endLat,
+      Value<double> endLng,
+      Value<String?> note,
+      Value<DateTime?> verifiedAt,
+      Value<DateTime> expiresAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$RouteReportsTableFilterComposer
+    extends Composer<_$AppDatabase, $RouteReportsTable> {
+  $$RouteReportsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<RouteCondition, RouteCondition, String>
+  get condition => $composableBuilder(
+    column: $table.condition,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<RouteCause, RouteCause, String> get cause =>
+      $composableBuilder(
+        column: $table.cause,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<double> get startLat => $composableBuilder(
+    column: $table.startLat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get startLng => $composableBuilder(
+    column: $table.startLng,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get endLat => $composableBuilder(
+    column: $table.endLat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get endLng => $composableBuilder(
+    column: $table.endLng,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RouteReportsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RouteReportsTable> {
+  $$RouteReportsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get condition => $composableBuilder(
+    column: $table.condition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cause => $composableBuilder(
+    column: $table.cause,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startLat => $composableBuilder(
+    column: $table.startLat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get startLng => $composableBuilder(
+    column: $table.startLng,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get endLat => $composableBuilder(
+    column: $table.endLat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get endLng => $composableBuilder(
+    column: $table.endLng,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RouteReportsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RouteReportsTable> {
+  $$RouteReportsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<RouteCondition, String> get condition =>
+      $composableBuilder(column: $table.condition, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<RouteCause, String> get cause =>
+      $composableBuilder(column: $table.cause, builder: (column) => column);
+
+  GeneratedColumn<double> get startLat =>
+      $composableBuilder(column: $table.startLat, builder: (column) => column);
+
+  GeneratedColumn<double> get startLng =>
+      $composableBuilder(column: $table.startLng, builder: (column) => column);
+
+  GeneratedColumn<double> get endLat =>
+      $composableBuilder(column: $table.endLat, builder: (column) => column);
+
+  GeneratedColumn<double> get endLng =>
+      $composableBuilder(column: $table.endLng, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$RouteReportsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RouteReportsTable,
+          RouteReport,
+          $$RouteReportsTableFilterComposer,
+          $$RouteReportsTableOrderingComposer,
+          $$RouteReportsTableAnnotationComposer,
+          $$RouteReportsTableCreateCompanionBuilder,
+          $$RouteReportsTableUpdateCompanionBuilder,
+          (
+            RouteReport,
+            BaseReferences<_$AppDatabase, $RouteReportsTable, RouteReport>,
+          ),
+          RouteReport,
+          PrefetchHooks Function()
+        > {
+  $$RouteReportsTableTableManager(_$AppDatabase db, $RouteReportsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RouteReportsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RouteReportsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RouteReportsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<RouteCondition> condition = const Value.absent(),
+                Value<RouteCause> cause = const Value.absent(),
+                Value<double> startLat = const Value.absent(),
+                Value<double> startLng = const Value.absent(),
+                Value<double> endLat = const Value.absent(),
+                Value<double> endLng = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime?> verifiedAt = const Value.absent(),
+                Value<DateTime> expiresAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RouteReportsCompanion(
+                id: id,
+                name: name,
+                condition: condition,
+                cause: cause,
+                startLat: startLat,
+                startLng: startLng,
+                endLat: endLat,
+                endLng: endLng,
+                note: note,
+                verifiedAt: verifiedAt,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required RouteCondition condition,
+                required RouteCause cause,
+                required double startLat,
+                required double startLng,
+                required double endLat,
+                required double endLng,
+                Value<String?> note = const Value.absent(),
+                Value<DateTime?> verifiedAt = const Value.absent(),
+                required DateTime expiresAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => RouteReportsCompanion.insert(
+                id: id,
+                name: name,
+                condition: condition,
+                cause: cause,
+                startLat: startLat,
+                startLng: startLng,
+                endLat: endLat,
+                endLng: endLng,
+                note: note,
+                verifiedAt: verifiedAt,
+                expiresAt: expiresAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RouteReportsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RouteReportsTable,
+      RouteReport,
+      $$RouteReportsTableFilterComposer,
+      $$RouteReportsTableOrderingComposer,
+      $$RouteReportsTableAnnotationComposer,
+      $$RouteReportsTableCreateCompanionBuilder,
+      $$RouteReportsTableUpdateCompanionBuilder,
+      (
+        RouteReport,
+        BaseReferences<_$AppDatabase, $RouteReportsTable, RouteReport>,
+      ),
+      RouteReport,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5186,4 +6239,6 @@ class $AppDatabaseManager {
       $$SyncQueueEntriesTableTableManager(_db, _db.syncQueueEntries);
   $$CachedGroupMessagesTableTableManager get cachedGroupMessages =>
       $$CachedGroupMessagesTableTableManager(_db, _db.cachedGroupMessages);
+  $$RouteReportsTableTableManager get routeReports =>
+      $$RouteReportsTableTableManager(_db, _db.routeReports);
 }

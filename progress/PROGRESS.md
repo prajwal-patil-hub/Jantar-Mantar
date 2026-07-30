@@ -1,6 +1,19 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 23 — 2026-07-30 · Route hazards: edges, not points (ADR-31, schema v4)
+**Done:**
+- **Closed the largest model gap the disaster research found.** The map only ever held points. The Venezuela case — an aftershock collapsing a bridge and cutting a parish off mid-response — cannot be expressed by a pin. Drift **v4** adds `RouteReports`: two endpoints, a condition, a cause, a mandatory expiry; drawn as a line under the marker layer.
+- **There is no `open` condition, and a test locks the enum.** This is the whole design. Crowd data can report a hazard; it cannot certify a road is safe, and showing "open" to someone deciding whether to drive into floodwater is a life-safety claim the app has no basis for. `cleared` means "this was reported blocked and someone has since got through" — a retraction — and renders thin and dotted so it can never read as a safe-route highlight. While any hazard line is on screen the map says outright that an unmarked road has **not** been checked.
+- **Expiry is not nullable.** A stale blockage diverts people away from what may be the only viable road, so reports age out and must be re-asserted. The report screen explains that rather than silently enforcing it, and a test asserts nothing can be saved open-ended.
+- **A segment, not a polyline editor**: two taps, one-handed, no GPS — placement reuses the move-the-map-under-a-crosshair pattern.
+- **Honest about scope:** reports are local-only. The UI says "Saved on this device. Route reports do not sync yet" rather than "submitted for verification", which would be false until the server table exists.
+- **Followed the schema gate properly for once without being reminded**: dumped `drift_schema_v4.json` *before* wiring anything, regenerated the migration helpers, extended the sweep to cover v1→v4/v2→v4/v3→v4, and added a v3→v4 data-survival test. Then checked it bites — deleting the index creation turns it red, the same class of bug that was caught in v2.
+- Guwahati demo seed gains three route reports (impassable / difficult / reopened) so all three renderings are visible in Demo Mode.
+- **183 tests green (+10)**; analyze + custom_lint clean.
+
+**Next:** the server half of routes (table, RLS, verification path, corroboration), then read-only CAP ingest, then the Wi-Fi LAN transport.
+---
 ## Session 22 — 2026-07-30 · Disaster adaptation: research, threat-model inversion, and the number nobody had
 **Done:**
 - **Researched current reporting** (see `docs/research/disaster-response-adaptation.md`, sources inline): Assam floods July 2026 — 6.54 lakh affected, 274 camps; one camp of **15,000 people with 6 latrines and 3 hand pumps**, another **13,000 with 3 latrines**; ~20,000 diarrhoea cases. Venezuela earthquakes June 2026 — an aftershock collapsed a bridge and cut a parish off mid-response. Misinformation half-life under **two hours**, faster than any verification cycle. India's CAP alert system (SACHET) launched 2 May 2026 then was **temporarily suspended**.

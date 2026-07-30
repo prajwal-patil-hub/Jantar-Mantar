@@ -522,6 +522,75 @@ class AppL10nEn extends AppL10n {
   String get senderUnverified => 'Not verified as this sender';
 
   @override
+  String get reportRoute => 'Report a blocked route';
+
+  @override
+  String get routeImpassable => 'Impassable';
+
+  @override
+  String get routeDifficult => 'Hard to pass';
+
+  @override
+  String get routeCleared => 'Reopened';
+
+  @override
+  String get causeFlood => 'Flooded';
+
+  @override
+  String get causeCollapse => 'Collapsed';
+
+  @override
+  String get causeDebris => 'Debris';
+
+  @override
+  String get causeBlocked => 'Closed off';
+
+  @override
+  String get causeOther => 'Other';
+
+  @override
+  String get routeName => 'Which road or bridge?';
+
+  @override
+  String get routeUnnamed => 'Unnamed route';
+
+  @override
+  String get routePlaceStart =>
+      'Move the map to one end of the affected stretch.';
+
+  @override
+  String get routePlaceEnd => 'Now move to the other end.';
+
+  @override
+  String get routePlacedBoth => 'Both ends set. Tap again to start over.';
+
+  @override
+  String get routeSetStart => 'Set start';
+
+  @override
+  String get routeSetEnd => 'Set end';
+
+  @override
+  String get routeExpiryWhy =>
+      'Every report expires. A blockage left on the map after the water drops sends people the long way round — or away from the only road out.';
+
+  @override
+  String get routeSave => 'Save route report';
+
+  @override
+  String get routeSavedLocally =>
+      'Saved on this device. Route reports do not sync yet.';
+
+  @override
+  String get routeNoSafeClaim =>
+      'This shows hazards only. A road with no line on it has not been checked — it is not marked safe.';
+
+  @override
+  String ttlHours(int hours) {
+    return '$hours h';
+  }
+
+  @override
   String get washTitle => 'Against humanitarian minimums';
 
   @override

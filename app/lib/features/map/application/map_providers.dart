@@ -38,6 +38,11 @@ class MapCenterNotifier extends Notifier<LatLng> {
 }
 
 /// Capacity readings for one facility (detail sheet).
+/// Unexpired route hazards for the map (ADR-31).
+final activeRoutesProvider = StreamProvider<List<RouteReport>>(
+  (ref) => ref.watch(routeRepositoryProvider).watchActive(),
+);
+
 final capacityReadingsProvider =
     StreamProvider.family<List<CapacityReading>, String>(
       (ref, facilityId) =>

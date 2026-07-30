@@ -991,6 +991,132 @@ abstract class AppL10n {
   /// **'Not verified as this sender'**
   String get senderUnverified;
 
+  /// No description provided for @reportRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a blocked route'**
+  String get reportRoute;
+
+  /// No description provided for @routeImpassable.
+  ///
+  /// In en, this message translates to:
+  /// **'Impassable'**
+  String get routeImpassable;
+
+  /// No description provided for @routeDifficult.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard to pass'**
+  String get routeDifficult;
+
+  /// No description provided for @routeCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopened'**
+  String get routeCleared;
+
+  /// No description provided for @causeFlood.
+  ///
+  /// In en, this message translates to:
+  /// **'Flooded'**
+  String get causeFlood;
+
+  /// No description provided for @causeCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapsed'**
+  String get causeCollapse;
+
+  /// No description provided for @causeDebris.
+  ///
+  /// In en, this message translates to:
+  /// **'Debris'**
+  String get causeDebris;
+
+  /// No description provided for @causeBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed off'**
+  String get causeBlocked;
+
+  /// No description provided for @causeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get causeOther;
+
+  /// No description provided for @routeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Which road or bridge?'**
+  String get routeName;
+
+  /// No description provided for @routeUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed route'**
+  String get routeUnnamed;
+
+  /// No description provided for @routePlaceStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to one end of the affected stretch.'**
+  String get routePlaceStart;
+
+  /// No description provided for @routePlaceEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Now move to the other end.'**
+  String get routePlaceEnd;
+
+  /// No description provided for @routePlacedBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both ends set. Tap again to start over.'**
+  String get routePlacedBoth;
+
+  /// No description provided for @routeSetStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Set start'**
+  String get routeSetStart;
+
+  /// No description provided for @routeSetEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Set end'**
+  String get routeSetEnd;
+
+  /// No description provided for @routeExpiryWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Every report expires. A blockage left on the map after the water drops sends people the long way round — or away from the only road out.'**
+  String get routeExpiryWhy;
+
+  /// No description provided for @routeSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save route report'**
+  String get routeSave;
+
+  /// No description provided for @routeSavedLocally.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device. Route reports do not sync yet.'**
+  String get routeSavedLocally;
+
+  /// No description provided for @routeNoSafeClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'This shows hazards only. A road with no line on it has not been checked — it is not marked safe.'**
+  String get routeNoSafeClaim;
+
+  /// No description provided for @ttlHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String ttlHours(int hours);
+
   /// No description provided for @washTitle.
   ///
   /// In en, this message translates to:

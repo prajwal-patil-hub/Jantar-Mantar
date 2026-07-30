@@ -9,6 +9,7 @@ import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../groups/application/groups_providers.dart';
+import '../../routes/presentation/report_route_screen.dart';
 import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
@@ -18,6 +19,7 @@ import 'widgets/facility_marker.dart';
 import 'widgets/filter_chip_row.dart';
 import 'widgets/nearby_sheet.dart';
 import 'widgets/pending_marker.dart';
+import 'widgets/route_layer.dart';
 
 /// Home map (ui-ux-spec §1.4): offline-cached OSM tiles, clustered status
 /// pins, filter chips, Nearby sheet. Local-first throughout — everything on
@@ -147,6 +149,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               tileProvider: ref.watch(mapTileProviderProvider),
               maxZoom: MapConfig.maxZoom,
             ),
+            // Under the pins: a hazard line is context for the markers, not
+            // a competitor for the tap target.
+            RouteLayer(
+              routes:
+                  ref.watch(activeRoutesProvider).asData?.value ??
+                  const <RouteReport>[],
+            ),
             MarkerClusterLayerWidget(
               options: MarkerClusterLayerOptions(
                 markers: markers,
@@ -177,10 +186,32 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
-              CriticalAlertBanner(),
-              SizedBox(height: 4),
-              FilterChipRow(),
+            children: [
+              const CriticalAlertBanner(),
+              const SizedBox(height: 4),
+              const FilterChipRow(),
+              // Shown only while hazard lines are on the map — which is
+              // exactly when someone might read an unmarked road as checked.
+              if ((ref.watch(activeRoutesProvider).asData?.value ?? const [])
+                  .isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        l10n.routeNoSafeClaim,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -217,6 +248,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 tooltip: l10n.jumpToSite,
                 onPressed: _pickSite,
                 child: const Icon(Icons.travel_explore),
+              ),
+              const SizedBox(height: 12),
+              // Reporting a blocked route (ADR-31) is its own action, not a
+              // facility category: it places a line, not a pin.
+              FloatingActionButton.small(
+                heroTag: 'route',
+                tooltip: l10n.reportRoute,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ReportRouteScreen(),
+                  ),
+                ),
+                child: const Icon(Icons.edit_road),
               ),
               const SizedBox(height: 12),
               FloatingActionButton.extended(

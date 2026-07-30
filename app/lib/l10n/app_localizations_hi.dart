@@ -519,6 +519,75 @@ class AppL10nHi extends AppL10n {
   String get senderUnverified => 'इस भेजने वाले के रूप में सत्यापित नहीं';
 
   @override
+  String get reportRoute => 'अवरुद्ध मार्ग की रिपोर्ट करें';
+
+  @override
+  String get routeImpassable => 'अगम्य';
+
+  @override
+  String get routeDifficult => 'कठिन';
+
+  @override
+  String get routeCleared => 'फिर से खुला';
+
+  @override
+  String get causeFlood => 'जलमग्न';
+
+  @override
+  String get causeCollapse => 'ढह गया';
+
+  @override
+  String get causeDebris => 'मलबा';
+
+  @override
+  String get causeBlocked => 'बंद किया गया';
+
+  @override
+  String get causeOther => 'अन्य';
+
+  @override
+  String get routeName => 'कौन सी सड़क या पुल?';
+
+  @override
+  String get routeUnnamed => 'अनाम मार्ग';
+
+  @override
+  String get routePlaceStart => 'प्रभावित हिस्से के एक छोर पर नक्शा ले जाएँ।';
+
+  @override
+  String get routePlaceEnd => 'अब दूसरे छोर पर ले जाएँ।';
+
+  @override
+  String get routePlacedBoth =>
+      'दोनों छोर तय। फिर से शुरू करने के लिए दोबारा दबाएँ।';
+
+  @override
+  String get routeSetStart => 'शुरुआत तय करें';
+
+  @override
+  String get routeSetEnd => 'अंत तय करें';
+
+  @override
+  String get routeExpiryWhy =>
+      'हर रिपोर्ट समाप्त होती है। पानी उतरने के बाद छोड़ी गई रुकावट लोगों को लंबा रास्ता — या इकलौते बचे रास्ते से दूर — भेज देती है।';
+
+  @override
+  String get routeSave => 'मार्ग रिपोर्ट सहेजें';
+
+  @override
+  String get routeSavedLocally =>
+      'इस डिवाइस पर सहेजा गया। मार्ग रिपोर्ट अभी सिंक नहीं होतीं।';
+
+  @override
+  String get routeNoSafeClaim =>
+      'यह केवल खतरे दिखाता है। जिस सड़क पर रेखा नहीं है, वह जाँची नहीं गई है — सुरक्षित घोषित नहीं है।';
+
+  @override
+  String ttlHours(int hours) {
+    return '$hours घं.';
+  }
+
+  @override
   String get washTitle => 'मानवीय न्यूनतम मानकों के सामने';
 
   @override
