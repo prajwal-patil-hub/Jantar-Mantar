@@ -9,9 +9,15 @@ abstract final class MapConfig {
   static const urlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const attribution = '© OpenStreetMap contributors';
 
-  /// Sent as the User-Agent package per OSM tile policy. Tracks the Android
-  /// applicationId, which is still to be finalized before release.
-  static const userAgentPackageName = 'com.example.jantar_mantar_sahayata';
+  /// Sent as the User-Agent package per OSM's tile usage policy, which
+  /// requires a User-Agent that identifies the app well enough to contact its
+  /// author. This tracked the Flutter template's `com.example.…` long after
+  /// the real applicationId was set — and `com.example.*` is exactly the
+  /// shape OSM blocks, so the tiles would have stopped without warning.
+  ///
+  /// Must stay equal to the Android applicationId / iOS bundle id; a test
+  /// asserts it is not a placeholder.
+  static const userAgentPackageName = 'io.github.prajwalpatilhub.commonground';
 
   /// Jantar Mantar, New Delhi — the default site the map opens on.
   static final LatLng jantarMantar = LatLng(28.62710, 77.21660);
