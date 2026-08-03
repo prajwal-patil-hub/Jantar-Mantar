@@ -4,6 +4,12 @@
     <!-- Foreground only, and only for the explicit per-use "Share my
          location" action in SOS. ACCESS_BACKGROUND_LOCATION is deliberately
          NOT declared: this app must never be able to follow someone. -->
+    <!-- Flutter's template declares INTERNET only in the DEBUG manifest, for
+         hot reload. Without it here, a release APK has no network at all —
+         no tiles, no sync — and this app fails silently and plausibly when
+         that happens: the offline banner appears and everything looks like
+         it is working as designed. Pinned by test/android/manifest_test.dart. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
