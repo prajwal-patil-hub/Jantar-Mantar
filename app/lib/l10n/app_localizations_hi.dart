@@ -590,6 +590,18 @@ class AppL10nHi extends AppL10n {
       'इस डिवाइस पर सहेजा गया। मार्ग रिपोर्ट अभी सिंक नहीं होतीं।';
 
   @override
+  String get outsideCoverage => 'यहाँ नक्शा नहीं है';
+
+  @override
+  String get outsideCoverageBody =>
+      'इस ऐप में केवल सूचीबद्ध स्थानों का नक्शा है। पिन फिर भी काम करते हैं, पर यहाँ ज़मीन नहीं दिखाई जाती।';
+
+  @override
+  String backToSite(String site) {
+    return '$site पर लौटें';
+  }
+
+  @override
   String get routeNoSafeClaim =>
       'यह केवल खतरे दिखाता है। जिस सड़क पर रेखा नहीं है, वह जाँची नहीं गई है — सुरक्षित घोषित नहीं है।';
 

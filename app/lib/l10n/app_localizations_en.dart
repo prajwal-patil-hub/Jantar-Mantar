@@ -593,6 +593,18 @@ class AppL10nEn extends AppL10n {
       'Saved on this device. Route reports do not sync yet.';
 
   @override
+  String get outsideCoverage => 'No map here';
+
+  @override
+  String get outsideCoverageBody =>
+      'This app carries map detail for its listed sites only. Pins still work, but the ground under them is not drawn here.';
+
+  @override
+  String backToSite(String site) {
+    return 'Back to $site';
+  }
+
+  @override
   String get routeNoSafeClaim =>
       'This shows hazards only. A road with no line on it has not been checked — it is not marked safe.';
 

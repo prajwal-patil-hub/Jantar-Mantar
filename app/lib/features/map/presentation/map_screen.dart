@@ -18,6 +18,7 @@ import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
 import 'facility_detail_sheet.dart';
+import 'widgets/coverage_notice.dart';
 import 'widgets/critical_alert_banner.dart';
 import 'widgets/facility_marker.dart';
 import 'widgets/filter_chip_row.dart';
@@ -188,6 +189,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               const CriticalAlertBanner(),
               const SizedBox(height: 4),
               const FilterChipRow(),
+              // Ranked below the critical alert and above the route caveat:
+              // "move now" outranks "there is no map here", which outranks
+              // "an unmarked road is not a checked road".
+              CoverageNotice(
+                onReturn: (site) {
+                  setState(() => _site = site);
+                  _mapController.move(site.center, MapConfig.initialZoom);
+                },
+              ),
               // Shown only while hazard lines are on the map — which is
               // exactly when someone might read an unmarked road as checked.
               if ((ref.watch(activeRoutesProvider).asData?.value ?? const [])

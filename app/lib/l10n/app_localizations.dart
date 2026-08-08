@@ -1111,6 +1111,24 @@ abstract class AppL10n {
   /// **'Saved on this device. Route reports do not sync yet.'**
   String get routeSavedLocally;
 
+  /// No description provided for @outsideCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'No map here'**
+  String get outsideCoverage;
+
+  /// No description provided for @outsideCoverageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This app carries map detail for its listed sites only. Pins still work, but the ground under them is not drawn here.'**
+  String get outsideCoverageBody;
+
+  /// No description provided for @backToSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to {site}'**
+  String backToSite(String site);
+
   /// No description provided for @routeNoSafeClaim.
   ///
   /// In en, this message translates to:
