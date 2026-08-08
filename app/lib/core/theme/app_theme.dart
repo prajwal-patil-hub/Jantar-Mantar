@@ -15,7 +15,9 @@ abstract final class AppTheme {
       surface: AppTokens.surfaceLight,
       onSurface: AppTokens.ink,
       onSurfaceVariant: AppTokens.inkMuted,
-      surfaceContainerHighest: AppTokens.scaffoldLight,
+      surfaceContainerHighest: AppTokens.e2Light,
+      surfaceContainerHigh: AppTokens.e2Light,
+      surfaceContainerLow: AppTokens.e4Light,
       primary: AppTokens.clay,
       onPrimary: AppTokens.onClay,
     );
@@ -31,9 +33,11 @@ abstract final class AppTheme {
           surface: AppTokens.surfaceDark,
           onSurface: AppTokens.inkDark,
           onSurfaceVariant: AppTokens.inkMutedDark,
-          surfaceContainerHighest: AppTokens.scaffoldDark,
+          surfaceContainerHighest: AppTokens.e2Dark,
+          surfaceContainerHigh: AppTokens.e2Dark,
+          surfaceContainerLow: AppTokens.e4Dark,
           primary: AppTokens.clayDark,
-          onPrimary: AppTokens.onClay,
+          onPrimary: AppTokens.onClayDark,
         );
     return _base(scheme, AppTokens.scaffoldDark);
   }

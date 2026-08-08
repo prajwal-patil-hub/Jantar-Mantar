@@ -7,38 +7,85 @@ abstract final class AppTokens {
   /// warmth cannot be confused with the amber "Low" state.
   static const Color accent = Color(0xFFFF6D1F);
 
-  // Warm neutral base (ADR-32, "Soft Geometry"). Every value below was
-  // chosen by measuring status contrast against it, not by eye — see
-  // `test/core/theme/color_accessibility_test.dart`, which now reads these
-  // tokens rather than a hardcoded near-white the app never painted.
+  // ------------------------------------------------- elevation ramp (ADR-39)
+  // "Blush Depth". Five surfaces, sampled off the reference boards.
   //
-  // Light: sand is the scaffold, shell is the raised card/sheet.
-  static const Color surfaceLight = Color(0xFFFAF3EA); // shell
-  static const Color scaffoldLight = Color(0xFFEFE3D4); // sand
-  static const Color ink = Color(0xFF3B2A1E); // cocoa
-  static const Color inkMuted = Color(0xFF6E5744); // umber
+  // The critical measurement: every ADJACENT pair is ~1.06:1. Tone carries
+  // none of the layering — light carries all of it. That is why a single soft
+  // shadow reads as a sticker here and why [depth] composes four separate
+  // effects instead of one. Do not try to "fix" the flat ramp by darkening a
+  // layer; the flatness is the reference, and the shadows are the answer.
+  //
+  //   e0 ground · e1 base plate · e2 panel · e3 card · e4 floating
+  static const Color e0Light = Color(0xFFE8DED6);
+  static const Color e1Light = Color(0xFFEDE4DC);
+  static const Color e2Light = Color(0xFFF4ECE5);
+  static const Color e3Light = Color(0xFFFAF4EF);
+  static const Color e4Light = Color(0xFFFFFBF8);
 
-  // Dark: deliberately deeper than the old #111214. The warm ground actually
-  // *raises* the weakest status contrast (3.00 → 3.06) rather than costing it.
-  static const Color surfaceDark = Color(0xFF241A13);
-  static const Color scaffoldDark = Color(0xFF160F0A);
-  static const Color inkDark = Color(0xFFF5EADC);
-  static const Color inkMutedDark = Color(0xFFB39A83);
+  // The dark ramp is COMPRESSED, and that is forced, not a taste call.
+  //
+  // Status colours paint on the top surface, and the darkest of them (`out`
+  // #C62828) only clears 3:1 while that surface stays at or below luminance
+  // 0.0123 — which is #241A13, the old Soft Geometry card, right at its
+  // existing 3.03 pin. A five-layer dark ramp as tall as the light one puts
+  // `out` at 2.35 and every other status under 3:1 too.
+  //
+  // So in dark mode the ramp gives way, not the status. Steps here are
+  // ~1.03-1.04 rather than ~1.06, which means shadow carries even more of
+  // the depth than it does on light. Raising any of these lightens the
+  // surface markers paint on and breaks the contrast suite.
+  static const Color e0Dark = Color(0xFF0D0907);
+  static const Color e1Dark = Color(0xFF130D0A);
+  static const Color e2Dark = Color(0xFF1A120D);
+  static const Color e3Dark = Color(0xFF1F1610);
+  static const Color e4Dark = Color(0xFF241A13);
 
-  /// Filled-action tone. A desaturated member of the [accent] hue family, so
-  /// large filled surfaces read as warm rather than as six saffron blocks.
-  /// Never used for status.
-  /// #A5713F matched the reference more closely but put cream label text at
-  /// only 3.93:1 — under the 4.5 body bar, caught by the contrast test.
-  /// Darkened until the label reads properly; the hue is unchanged.
-  static const Color clay = Color(0xFF8C5A29);
-  static const Color clayDark = Color(0xFFC08A52);
-  static const Color onClay = Color(0xFFFFF7EE);
+  /// Scaffold + card aliases, kept so existing screens and the contrast suite
+  /// keep compiling. The card is e3, not e2: e2 is the panel a card sits on.
+  static const Color scaffoldLight = e0Light;
+  static const Color surfaceLight = e3Light;
+  static const Color scaffoldDark = e0Dark;
+  static const Color surfaceDark = e4Dark;
 
-  /// In dark mode the action tone is *lighter* than the ground, so its label
-  /// has to invert too. Using [onClay] on [clayDark] measures 2.83:1 — the
-  /// contrast test catches it, which is why this token exists.
-  static const Color onClayDark = Color(0xFF1A120C);
+  static const Color ink = Color(0xFF3A2E2A);
+  static const Color inkMuted = Color(0xFF6B5750);
+  static const Color inkDark = Color(0xFFF6EAE2);
+  static const Color inkMutedDark = Color(0xFFBFA79C);
+
+  /// Peach is a **FILL ONLY** tone — rings, bars, blob grounds, knob bodies.
+  /// It measures 1.41:1 against the deepest ground, so text on it, or it as
+  /// text, is not a close call. The reference boards use it for big numerals;
+  /// that is the one thing from them that cannot ship.
+  static const Color peach = Color(0xFFF0AE98);
+  static const Color peach2 = Color(0xFFF7D2C4);
+  static const Color peach3 = Color(0xFFFBE7DE);
+  static const Color peachDark = Color(0xFFC98872);
+  static const Color peach2Dark = Color(0xFF7A5344);
+  static const Color peach3Dark = Color(0xFF573A2F);
+
+  /// The text-bearing member of the same hue family. 4.69:1 against the
+  /// WORST of the five light surfaces — chosen by measuring all five, not
+  /// just the card, because a value that only clears the lightest layer
+  /// fails exactly where the app puts its deepest ground.
+  static const Color clay = Color(0xFF9C4830);
+  static const Color clayDark = Color(0xFFE8A98F);
+  static const Color onClay = Color(0xFFFFF7F3);
+  static const Color onClayDark = Color(0xFF20140F);
+
+  // ----------------------------------------------------------- depth parts
+  // Four ingredients per raised surface. Dropping any one is what made the
+  // first pass at this look flat:
+  //   lip     a 1px top highlight — the edge catching light
+  //   shade   an inset bottom darkening — the body of the object
+  //   cast    the wide soft shadow — how far above the ground it sits
+  //   contact the tight dark shadow — that it is resting on something
+  static const Color lipLight = Color(0xB8FFFFFF);
+  static const Color lipDark = Color(0x1AFFFFFF);
+  static const Color shadeLight = Color(0x428C5640);
+  static const Color shadeDark = Color(0x73000000);
+  static const Color castLight = Color(0x33543729);
+  static const Color castDark = Color(0x9E000000);
 
   // Glass surfaces (hero surfaces only — sheets, cards, nav, dialogs).
   static const double glassBlurSigma = 20;
@@ -68,15 +115,56 @@ abstract final class AppTokens {
   /// Hairline that reaches 3:1 against BOTH the card and the scaffold, so the
   /// boundary is perceptible without a shadow. Deliberately not the muted-ink
   /// tone: that reads as a divider, this reads as an edge.
-  static const Color hairline = Color(0xFF94794F); // 3.73 shell · 3.25 sand
-  static const Color hairlineDark = Color(0xFF8A7260); // 3.78 card · 4.21 grnd
+  /// Re-measured for the Blush Depth ramp: must clear 3:1 against ALL FIVE
+  /// surfaces, not just two. The old pair cleared 3.10 / 2.93 — the dark one
+  /// was already failing before the palette moved.
+  static const Color hairline = Color(0xFF836751); // worst 3.94 of e0..e4
+  static const Color hairlineDark = Color(0xFF9A8272); // worst 4.72 of e0..e4
 
-  /// Everyday raised surface: cards, sheets, the nav bar.
+  /// Compound elevation. Four ingredients, never one shadow — see the note
+  /// on the ramp above for why a single soft shadow reads as a sticker here.
+  ///
+  /// [level] 1..4 maps to the reference's rungs: 1 resting card, 2 panel,
+  /// 3 floating card, 4 overhanging element.
+  static List<BoxShadow> depth(int level, {required bool dark}) {
+    final cast = dark ? castDark : castLight;
+    final spread = switch (level) {
+      1 => (contact: 2.0, far: 5.0, dy: 2.0),
+      2 => (contact: 3.0, far: 18.0, dy: 8.0),
+      3 => (contact: 5.0, far: 32.0, dy: 16.0),
+      _ => (contact: 9.0, far: 56.0, dy: 28.0),
+    };
+    return [
+      // Contact: tight and dark, right under the edge. Without it the object
+      // floats in a vacuum instead of resting on something.
+      BoxShadow(
+        color: cast,
+        blurRadius: spread.contact,
+        offset: Offset(0, level.toDouble()),
+      ),
+      // Cast: wide and soft. Carries how far above the ground it sits.
+      BoxShadow(
+        color: cast,
+        blurRadius: spread.far,
+        spreadRadius: -spread.far / 3,
+        offset: Offset(0, spread.dy),
+      ),
+    ];
+  }
+
+  /// The top-edge highlight, applied as a 1px border rather than an inset
+  /// shadow because Flutter has no inset BoxShadow. Subtle on its own and the
+  /// single biggest contributor to "solid object" over "coloured rectangle".
+  static Border lipBorder({required bool dark}) => Border(
+    top: BorderSide(color: dark ? lipDark : lipLight, width: 1),
+  );
+
+  /// Kept as thin wrappers so existing call sites keep working while screens
+  /// migrate to [depth].
   static List<BoxShadow> lift(Color tint) => [
     BoxShadow(color: tint, blurRadius: 14, offset: const Offset(0, 4)),
   ];
 
-  /// Things that float over the map — FABs, the peek sheet.
   static List<BoxShadow> float(Color tint) => [
     BoxShadow(color: tint, blurRadius: 24, offset: const Offset(0, 10)),
   ];
@@ -90,9 +178,10 @@ abstract final class AppTokens {
 
   // Radii scale (ADR-32). One scale, applied through the theme, so the shape
   // language holds by construction instead of by per-screen discipline.
-  static const double radiusChip = 14;
-  static const double radiusCard = 22;
+  static const double radiusChip = 12;
+  static const double radiusCard = 20;
   static const double radiusPanel = 28;
+  static const double radiusPlate = 36;
   static const double radiusPill = 999;
 
   /// Chat bubbles are the one surface the card radius does not fit — at 22 a

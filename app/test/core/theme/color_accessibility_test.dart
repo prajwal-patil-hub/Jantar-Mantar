@@ -47,20 +47,26 @@ void main() {
     // Every ground the app actually paints a status colour onto — not just
     // the scaffold.
     //
-    // This used to measure the scaffold only, on the reasoning that it is
-    // "the darker of the two on light and therefore the worst case". That is
-    // true on light and **false on dark**, where the card is the *lighter*
-    // ground and therefore the harder one. A map pin paints its glyph on
-    // `colorScheme.surface` — the card — so the untested ground was the one
-    // carrying the most status colour in the app.
+    // ALL FIVE painted surfaces, per theme (ADR-39). The Blush Depth ramp
+    // separates layers by light, not tone, so there are now five grounds a
+    // status colour can land on rather than two — and the worst case is the
+    // TOP one in dark mode, because that is the lightest and it is where map
+    // markers paint.
     //
-    // Measuring it found `unverified` at 2.75:1 on the dark card while
-    // passing 3.06:1 on the dark scaffold. Two grounds were never enough.
+    // This is what forced the dark ramp to compress: at a full-height dark
+    // ramp `out` measured 2.35:1 on the top surface. Status does not yield to
+    // the palette, so the palette yielded.
     const grounds = <String, Color>{
-      'light scaffold': AppTokens.scaffoldLight,
-      'light card': AppTokens.surfaceLight,
-      'dark scaffold': AppTokens.scaffoldDark,
-      'dark card': AppTokens.surfaceDark,
+      'light e0 ground': AppTokens.e0Light,
+      'light e1 plate': AppTokens.e1Light,
+      'light e2 panel': AppTokens.e2Light,
+      'light e3 card': AppTokens.e3Light,
+      'light e4 floating': AppTokens.e4Light,
+      'dark e0 ground': AppTokens.e0Dark,
+      'dark e1 plate': AppTokens.e1Dark,
+      'dark e2 panel': AppTokens.e2Dark,
+      'dark e3 card': AppTokens.e3Dark,
+      'dark e4 floating': AppTokens.e4Dark,
     };
 
     for (final name in ['good', 'out', 'unverified', 'info']) {
@@ -82,25 +88,21 @@ void main() {
       // red "Out" under CVD (see the note in StatusColors). Pinned so the
       // trade-off stays visible and cannot drift further.
       //
-      // Was 1.92 against a near-white that the app never actually painted.
-      // Re-pinned at 1.56 against the real warm scaffold (ADR-32). The number
-      // got worse; the reasoning did not change, and the CVD separation this
-      // buys is asserted below and still passes. Amber on a warm ground is
-      // the weakest point of this palette and the icon + text rule is what
-      // carries it.
-      expect(_contrast(colors.low, lightSurface), closeTo(1.56, 0.05));
-      // The card is the kinder light ground and still nowhere near the bar,
-      // so the exemption is not an artefact of measuring the scaffold.
-      expect(
-        _contrast(colors.low, AppTokens.surfaceLight),
-        closeTo(1.79, 0.05),
-      );
-      for (final dark in [AppTokens.scaffoldDark, AppTokens.surfaceDark]) {
+      // Re-pinned twice now, for Soft Geometry and again for Blush Depth.
+      // Each time the number moved because the ground moved, never because
+      // the reasoning changed: amber on a warm ground is the weakest point of
+      // this palette, and the icon + text rule is what carries it.
+      expect(_contrast(colors.low, AppTokens.e0Light), closeTo(1.49, 0.06));
+      expect(_contrast(colors.low, AppTokens.e4Light), closeTo(1.92, 0.06));
+      for (final dark in [
+        AppTokens.e0Dark,
+        AppTokens.e2Dark,
+        AppTokens.e4Dark,
+      ]) {
         expect(
           _contrast(colors.low, dark),
           greaterThanOrEqualTo(bar),
-          reason:
-              'it must at least be strong on dark: '
+          reason: 'it must at least be strong on dark: '
               '${_ratio(colors.low, dark)}',
         );
       }
@@ -123,33 +125,47 @@ void main() {
       );
     });
 
-    test('the card boundary is carried by the hairline, not by tone', () {
-      // Soft Geometry is tone-on-tone, and tone-on-tone measures badly: a
-      // shell card on the sand scaffold is only 1.15:1 (dark 1.11:1), well
-      // under the 3:1 WCAG 1.4.11 asks of a UI component boundary. Pinned so
-      // nobody "cleans up" the shadow and hairline as decoration — they are
-      // the only thing making a card perceptible as a card.
-      expect(
-        _contrast(AppTokens.surfaceLight, AppTokens.scaffoldLight),
-        closeTo(1.15, 0.03),
-        reason: 'tone alone cannot carry this',
-      );
-      expect(
-        _contrast(AppTokens.surfaceDark, AppTokens.scaffoldDark),
-        closeTo(1.11, 0.03),
-      );
+    test('the card boundary is carried by light, not by tone', () {
+      // The whole premise of ADR-39, as a number. Every adjacent pair on the
+      // ramp is ~1.06:1 light / ~1.04:1 dark — far under the 3:1 WCAG 1.4.11
+      // wants of a component boundary. Pinned so nobody "fixes" the flat ramp
+      // by darkening a layer: the flatness IS the reference, and the compound
+      // shadow in AppTokens.depth is the answer.
+      const light = [
+        AppTokens.e0Light,
+        AppTokens.e1Light,
+        AppTokens.e2Light,
+        AppTokens.e3Light,
+        AppTokens.e4Light,
+      ];
+      const dark = [
+        AppTokens.e0Dark,
+        AppTokens.e1Dark,
+        AppTokens.e2Dark,
+        AppTokens.e3Dark,
+        AppTokens.e4Dark,
+      ];
+      for (var i = 0; i < 4; i++) {
+        expect(
+          _contrast(light[i], light[i + 1]),
+          lessThan(1.12),
+          reason: 'tone alone cannot carry this — that is the point',
+        );
+        expect(_contrast(dark[i], dark[i + 1]), lessThan(1.12));
+      }
 
-      // So the hairline has to. It must clear 3:1 against BOTH the card it
-      // outlines and the ground it sits on, or the edge disappears on one
-      // side of itself.
-      for (final ground in [AppTokens.surfaceLight, AppTokens.scaffoldLight]) {
+      // So the hairline has to, wherever a shadow is unavailable: outdoor
+      // mode, high contrast, direct sunlight. It must clear 3:1 against ALL
+      // FIVE surfaces, not just two — the old dark hairline cleared only
+      // 2.93 once the ramp changed.
+      for (final ground in light) {
         expect(
           _contrast(AppTokens.hairline, ground),
           greaterThanOrEqualTo(3.0),
           reason: _ratio(AppTokens.hairline, ground),
         );
       }
-      for (final ground in [AppTokens.surfaceDark, AppTokens.scaffoldDark]) {
+      for (final ground in dark) {
         expect(
           _contrast(AppTokens.hairlineDark, ground),
           greaterThanOrEqualTo(3.0),
@@ -158,16 +174,47 @@ void main() {
       }
     });
 
-    test('body ink clears 4.5:1 on both grounds', () {
-      // The warm palette is only safe if reading text on it is safe.
-      expect(_contrast(AppTokens.ink, lightSurface), greaterThanOrEqualTo(4.5));
+    test('body ink and the action tone clear 4.5:1 on every surface', () {
+      // The action tone is the one that moved: at #A64E34 it measured 4.21 on
+      // the deepest light ground — under the bar. Picking a value that only
+      // clears the lightest card is how a palette passes review and fails on
+      // the screen that matters.
+      for (final ground in [
+        AppTokens.e0Light,
+        AppTokens.e2Light,
+        AppTokens.e4Light,
+      ]) {
+        expect(_contrast(AppTokens.ink, ground), greaterThanOrEqualTo(4.5));
+        expect(
+          _contrast(AppTokens.inkMuted, ground),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          _contrast(AppTokens.clay, ground),
+          greaterThanOrEqualTo(4.5),
+          reason: 'clay on $ground: ${_ratio(AppTokens.clay, ground)}',
+        );
+      }
+      for (final ground in [
+        AppTokens.e0Dark,
+        AppTokens.e2Dark,
+        AppTokens.e4Dark,
+      ]) {
+        expect(_contrast(AppTokens.inkDark, ground), greaterThanOrEqualTo(4.5));
+        expect(
+          _contrast(AppTokens.clayDark, ground),
+          greaterThanOrEqualTo(4.5),
+        );
+      }
+    });
+
+    test('peach is a fill, and the test says so out loud', () {
+      // The reference boards use peach for big numerals. It measures 1.41:1.
+      // Pinned as a FAILURE so nobody "reuses the brand colour" for text.
       expect(
-        _contrast(AppTokens.inkMuted, lightSurface),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        _contrast(AppTokens.inkDark, darkSurface),
-        greaterThanOrEqualTo(4.5),
+        _contrast(AppTokens.peach, AppTokens.e0Light),
+        lessThan(2.0),
+        reason: 'peach is fill-only — if this ever passes, re-read ADR-39',
       );
     });
 
@@ -178,7 +225,7 @@ void main() {
       // for the warm scaffold (ADR-32) — saffron is not used as a foreground
       // on this ground anyway; filled actions use clay with light-on-dark
       // text, asserted separately below.
-      expect(_contrast(saffron, lightSurface), closeTo(2.23, 0.05));
+      expect(_contrast(saffron, lightSurface), closeTo(2.12, 0.05));
       expect(_contrast(saffron, darkSurface), greaterThanOrEqualTo(bar));
     });
   });

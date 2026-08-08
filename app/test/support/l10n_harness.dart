@@ -26,3 +26,9 @@ final testSupportedLocales = AppL10n.supportedLocales;
 /// Pass this wherever a test builds its own app, so the thing under test is
 /// the thing that ships.
 ThemeData testAppTheme() => AppTheme.light();
+
+/// The dark theme, for tests that need to check both grounds — the Blush
+/// Depth ramp behaves differently in dark (it is compressed, so status stays
+/// legible on the top surface), and a test that only ever sees light misses
+/// that entirely.
+ThemeData testAppThemeDark() => AppTheme.dark();
