@@ -80,20 +80,31 @@ class DonutGauge extends StatelessWidget {
             track: track,
             lip: dark ? AppTokens.lipDark : AppTokens.lipLight,
           ),
+          // The centre text has to fit INSIDE the ring, and the ring's hole
+          // is much smaller than the widget: the stroke is .17 of the width
+          // on each side, so the hole is .66 of it, and the usable square
+          // inside that circle is .66/sqrt(2) — under half the widget. A
+          // plain Center overflows it, which is how "12/20 approved" ended up
+          // painting straight across the ring.
           child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+            child: SizedBox.square(
+              dimension: size * .66 / math.sqrt2,
+              child: FittedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    if (caption != null)
+                      Text(caption!, style: theme.textTheme.labelSmall),
+                  ],
                 ),
-                if (caption != null)
-                  Text(caption!, style: theme.textTheme.labelSmall),
-              ],
+              ),
             ),
           ),
         ),
@@ -203,11 +214,16 @@ class ArcGauge extends StatelessWidget {
             track: dark ? AppTokens.peach3Dark : AppTokens.peach3,
           ),
           child: Center(
-            child: Text(
-              label,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            child: SizedBox.square(
+              dimension: size * .6 / math.sqrt2,
+              child: FittedBox(
+                child: Text(
+                  label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
               ),
             ),
           ),
@@ -567,11 +583,16 @@ class ConcentricDial extends StatelessWidget {
                   ),
                 ),
                 child: Center(
-                  child: Text(
-                    label,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                  child: SizedBox.square(
+                    dimension: size * .49 / math.sqrt2,
+                    child: FittedBox(
+                      child: Text(
+                        label,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -86,6 +86,84 @@ void main() {
     });
   });
 
+  group('the value fits inside the ring', () {
+    // The hole is far smaller than the widget: the donut stroke is .17 of the
+    // width on each side, so the hole is .66 of it and the usable square
+    // inside that circle is .66/sqrt(2) — under half the widget. A plain
+    // Center overflows it, and "12/20 approved" painted straight across the
+    // ring on the profile screen.
+    //
+    // These pump into a LOOSE parent on purpose. The shared helper gives its
+    // child a tight 300px width, which overrides the gauge's own SizedBox —
+    // the first version of this test measured a 300px ring with a 198px hole
+    // and passed with the constraint deleted, measuring nothing at all.
+    Future<void> pumpLoose(WidgetTester tester, Widget child) =>
+        tester.pumpWidget(
+          MaterialApp(
+            theme: testAppTheme(),
+            localizationsDelegates: testLocalizationsDelegates,
+            supportedLocales: testSupportedLocales,
+            home: Scaffold(
+              body: Align(alignment: Alignment.topLeft, child: child),
+            ),
+          ),
+        );
+
+    testWidgets('a long donut label does not overflow it', (tester) async {
+      const size = 88.0;
+      await pumpLoose(
+        tester,
+        const DonutGauge(
+          fraction: .6,
+          label: '12/20',
+          caption: 'approved',
+          size: size,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(DonutGauge)).width, size);
+
+      for (final t in ['12/20', 'approved']) {
+        // getRect, not getSize: FittedBox scales by transform, so the Text's
+        // own layout size stays at its natural width and only the PAINTED
+        // rect shrinks. getSize measures the wrong one and reports an
+        // overflow that is not on screen.
+        final painted =
+            tester.getBottomRight(find.text(t)).dx -
+            tester.getTopLeft(find.text(t)).dx;
+        expect(
+          painted,
+          lessThanOrEqualTo(size * .66),
+          reason:
+              '"$t" is painted at \${painted.toStringAsFixed(1)}px inside '
+              'a \${(size * .66).toStringAsFixed(1)}px hole',
+        );
+      }
+    });
+
+    testWidgets('and neither does a long arc or dial label', (tester) async {
+      await pumpLoose(
+        tester,
+        const ArcGauge(fraction: .5, label: '1,250 people', size: 104),
+      );
+      expect(
+        tester.getBottomRight(find.text('1,250 people')).dx -
+            tester.getTopLeft(find.text('1,250 people')).dx,
+        lessThanOrEqualTo(104 * .6),
+      );
+
+      await pumpLoose(
+        tester,
+        const ConcentricDial(label: '15,000', caption: 'in camp', size: 130),
+      );
+      expect(
+        tester.getBottomRight(find.text('15,000')).dx -
+            tester.getTopLeft(find.text('15,000')).dx,
+        lessThanOrEqualTo(130 * .49),
+      );
+    });
+  });
+
   group('numbers that came out of a division', () {
     // The first version of these two asserted `takeException() == null`, and
     // both passed with the coercion deleted — NaN does not throw. That is the

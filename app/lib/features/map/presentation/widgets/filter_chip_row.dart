@@ -28,6 +28,10 @@ class FilterChipRow extends ConsumerWidget {
       child: DepthSurface(
         elevation: Elevation.floating,
         radius: AppTokens.radiusPill,
+        // The row scrolls, so without this the chips paint straight over the
+        // plate's rounded ends and the last one looks broken rather than
+        // scrollable.
+        clip: true,
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: SizedBox(
           height: 48,
