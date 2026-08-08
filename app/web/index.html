@@ -57,8 +57,16 @@
     form-action 'none';
     object-src 'none'">
 
-  <!-- Referrer: never leak this app's URL to the tile server or anywhere else. -->
-  <meta name="referrer" content="no-referrer">
+  <!-- Referrer: origin only — scheme + host, never the path or query.
+       This was `no-referrer`, and that is what blocked the map. On the web
+       flutter_map cannot set a User-Agent (browsers forbid scripts from
+       setting it), so the Referer is the ONLY way a tile server can identify
+       the app — and OSM's usage policy requires one. Stripping it turned
+       every tile into an "Access blocked" image.
+       `origin` sends https://host/ and nothing more: no route, no facility
+       id, no group id. A stopgap either way — the real fix is not to be
+       asking someone else's server for tiles at all (see MapConfig). -->
+  <meta name="referrer" content="origin">
 
   <meta name="description"
         content="CommonGround — an offline-first map of water, food, shelter, medical and safety points, with crowdsourced updates verified before they are shown.">

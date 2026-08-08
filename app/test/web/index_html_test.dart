@@ -118,8 +118,22 @@ void main() {
     });
   });
 
-  test('no referrer is sent to the tile server or anywhere else', () {
-    expect(metaContent('referrer'), 'no-referrer');
+  test('the referrer is origin-only — present, but stripped of the path', () {
+    // This was `no-referrer` and it broke the map in production. On the web
+    // flutter_map cannot send a User-Agent (browsers forbid scripts from
+    // setting that header), so the Referer is the only identification a tile
+    // server gets, and OSM's usage policy requires one — every tile came
+    // back as an "Access blocked" image.
+    //
+    // `origin` is the narrow choice, not a rollback: it sends scheme + host
+    // and nothing else, so a tile request never carries a route, a facility
+    // id, or a group id. Do not widen this to `no-referrer-when-downgrade`
+    // or `unsafe-url`, which both send the full URL.
+    expect(
+      metaContent('referrer'),
+      'origin',
+      reason: 'no-referrer blocks the tiles; anything wider leaks the path',
+    );
   });
 
   test('the description is not still the Flutter template placeholder', () {
