@@ -235,6 +235,7 @@
   "@standingCounts": { "placeholders": { "approved": { "type": "int" }, "rejected": { "type": "int" } } },
   "standingRemaining": "{count} more approved reports to the next level",
   "@standingRemaining": { "placeholders": { "count": { "type": "int" } } },
+  "standingApprovedCaption": "approved",
   "standingTop": "Highest level reached.",
   "verifierCannotReject": "Rejecting is admin-only.",
   "verifierNeedsAdmin": "A new facility needs an admin.",

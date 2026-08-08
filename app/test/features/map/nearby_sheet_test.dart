@@ -27,7 +27,9 @@ void main() {
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
     for (var i = 0; i < 4; i++) {
-      await db.into(db.facilities).insert(
+      await db
+          .into(db.facilities)
+          .insert(
             FacilitiesCompanion.insert(
               id: 'f$i',
               name: 'Water point $i',

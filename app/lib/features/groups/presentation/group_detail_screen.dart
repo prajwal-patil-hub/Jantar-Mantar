@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/db/app_database.dart' show AlertSeverity;
 import '../../../core/l10n/l10n_labels.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
@@ -417,12 +418,9 @@ class _BroadcastCard extends StatelessWidget {
     final severity = message.broadcastSeverity!;
     final color = severity.colorOf(colors);
 
-    return Card(
+    return DepthSurface(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        side: BorderSide(color: color, width: 1.5),
-      ),
+      accentBorder: color,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

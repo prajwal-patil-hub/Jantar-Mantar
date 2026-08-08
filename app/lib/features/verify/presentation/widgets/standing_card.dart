@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/charts.dart';
+import '../../../../core/theme/depth.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/verify_providers.dart';
 import '../../domain/trust_standing.dart';
@@ -42,9 +44,25 @@ class StandingCard extends ConsumerWidget {
     };
     final remaining = standing.remaining;
 
-    return Card(
+    // The one place in this app where a gauge is honest: the denominator is
+    // real and server-supplied (`trust_thresholds()`), not a number invented
+    // to make a ring look full. Capacity readings deliberately get no gauge —
+    // "water for ~200" has no denominator — and neither does the WASH card,
+    // where 2,500 people per latrine and 51 would both clamp to a full ring
+    // and erase the only difference that matters.
+    //
+    // Not a leaderboard: this is your own standing on your own profile, and
+    // there is no comparison to anyone else anywhere in the app (the disaster
+    // research forbids it — trust tiers are a linkable pseudonym).
+    final target = switch (standing.tier) {
+      TrustTier.newcomer => standing.trustedAt,
+      TrustTier.trusted => standing.verifierAt,
+      TrustTier.verifier => null,
+    };
+
+    return DepthSurface(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -72,21 +90,34 @@ class StandingCard extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(body, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: standing.progress,
-              // The bar is decoration; the numbers below it carry the meaning.
-              semanticsLabel: l10n.yourStanding,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              standing.approved == 0 && standing.rejected == 0
-                  ? (remaining == null
-                        ? l10n.standingTop
-                        : l10n.standingRemaining(remaining))
-                  : '${l10n.standingCounts(standing.approved, standing.rejected)}'
-                        '\n'
-                        '${remaining == null ? l10n.standingTop : l10n.standingRemaining(remaining)}',
-              style: Theme.of(context).textTheme.bodySmall,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                DonutGauge(
+                  fraction: standing.progress,
+                  size: 88,
+                  // The ring is the shape; this is the value. Approved out of
+                  // the threshold, so the number is readable without
+                  // estimating an arc.
+                  label: target == null
+                      ? '${standing.approved}'
+                      : '${standing.approved}/$target',
+                  caption: l10n.standingApprovedCaption,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    standing.approved == 0 && standing.rejected == 0
+                        ? (remaining == null
+                              ? l10n.standingTop
+                              : l10n.standingRemaining(remaining))
+                        : '${l10n.standingCounts(standing.approved, standing.rejected)}'
+                              '\n'
+                              '${remaining == null ? l10n.standingTop : l10n.standingRemaining(remaining)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

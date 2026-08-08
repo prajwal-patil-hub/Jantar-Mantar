@@ -6,6 +6,7 @@ import '../../../../core/db/app_database.dart';
 import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/media/exif_stripper.dart';
 import '../../../../core/media/photo_picker.dart';
+import '../../../../core/theme/depth.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../map/presentation/widgets/facility_visuals.dart';
 import '../../domain/submission_draft.dart';
@@ -136,7 +137,7 @@ class _StatusStepState extends State<StatusStep> {
             ),
           ),
         ] else
-          Card(
+          DepthSurface(
             child: Column(
               children: [
                 ClipRRect(

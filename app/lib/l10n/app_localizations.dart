@@ -1267,6 +1267,12 @@ abstract class AppL10n {
   /// **'{count} more approved reports to the next level'**
   String standingRemaining(int count);
 
+  /// No description provided for @standingApprovedCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'approved'**
+  String get standingApprovedCaption;
+
   /// No description provided for @standingTop.
   ///
   /// In en, this message translates to:

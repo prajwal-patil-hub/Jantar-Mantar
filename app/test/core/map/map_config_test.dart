@@ -26,9 +26,7 @@ void main() {
 
   test('and it matches the Android applicationId', () {
     final gradle = File('android/app/build.gradle.kts').readAsStringSync();
-    final match = RegExp(
-      r'applicationId\s*=\s*"([^"]+)"',
-    ).firstMatch(gradle);
+    final match = RegExp(r'applicationId\s*=\s*"([^"]+)"').firstMatch(gradle);
 
     expect(match, isNotNull, reason: 'could not read the applicationId');
     expect(

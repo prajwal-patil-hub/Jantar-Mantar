@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jantar_mantar_sahayata/core/theme/app_theme.dart';
+import 'package:jantar_mantar_sahayata/core/theme/depth.dart';
 import 'package:jantar_mantar_sahayata/core/widgets/state_views.dart';
 
 /// Shared empty / loading / error views (ADR-33).
@@ -110,7 +111,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       // Three placeholder cards, not one spinner on a blank screen.
-      expect(find.byType(Card), findsNWidgets(3));
+      expect(find.byType(DepthSurface), findsNWidgets(3));
       // No pumpAndSettle: the pulse repeats forever by design.
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 100));

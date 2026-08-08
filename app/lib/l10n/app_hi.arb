@@ -235,6 +235,7 @@
   "@standingCounts": { "placeholders": { "approved": { "type": "int" }, "rejected": { "type": "int" } } },
   "standingRemaining": "अगले स्तर तक {count} और स्वीकृत रिपोर्ट",
   "@standingRemaining": { "placeholders": { "count": { "type": "int" } } },
+  "standingApprovedCaption": "स्वीकृत",
   "standingTop": "उच्चतम स्तर प्राप्त।",
   "verifierCannotReject": "अस्वीकृति केवल व्यवस्थापक कर सकते हैं।",
   "verifierNeedsAdmin": "नई सुविधा के लिए व्यवस्थापक चाहिए।",

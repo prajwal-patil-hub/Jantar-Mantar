@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/presentation/widgets/alert_visuals.dart';
@@ -143,7 +144,7 @@ class _EventCard extends StatelessWidget {
       ),
     };
 
-    return Card(
+    return DepthSurface(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(14),

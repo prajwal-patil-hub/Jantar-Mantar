@@ -691,6 +691,9 @@ class AppL10nHi extends AppL10n {
   }
 
   @override
+  String get standingApprovedCaption => 'स्वीकृत';
+
+  @override
   String get standingTop => 'उच्चतम स्तर प्राप्त।';
 
   @override

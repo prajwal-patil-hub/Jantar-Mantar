@@ -6,6 +6,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../l10n/app_localizations.dart';
 import 'widgets/alert_visuals.dart';
@@ -151,7 +152,7 @@ class _ComposeAlertScreenState extends ConsumerState<ComposeAlertScreen> {
         children: [
           // Public alerts are the opposite of group chat. Say it before they
           // type, not after they post.
-          Card(
+          DepthSurface(
             color: Theme.of(context).colorScheme.secondaryContainer,
             child: Padding(
               padding: const EdgeInsets.all(12),

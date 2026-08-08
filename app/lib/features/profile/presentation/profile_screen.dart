@@ -7,6 +7,7 @@ import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/locale_provider.dart';
 import '../../../core/providers.dart';
 import '../../../core/security/panic_wipe_provider.dart';
+import '../../../core/theme/depth.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/application/critical_alert_signal.dart';
 import '../../map/application/map_providers.dart';
@@ -39,7 +40,7 @@ class ProfileScreen extends ConsumerWidget {
           // permanently undecryptable. Say so where someone might otherwise
           // turn Demo Mode off and start using real E2E chat here.
           if (kIsWeb) ...[
-            Card(
+            DepthSurface(
               color: Theme.of(context).colorScheme.secondaryContainer,
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -69,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
           ],
-          Card(
+          DepthSurface(
             child: ListTile(
               leading: Badge(
                 isLabelVisible: pendingCount > 0,
@@ -87,7 +88,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           const StandingCard(),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -121,7 +122,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             child: SwitchListTile(
               secondary: const Icon(Icons.science_outlined),
               title: Text(l10n.demoMode),
@@ -136,7 +137,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             child: Column(
               children: [
                 ListTile(
@@ -163,7 +164,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             child: ListTile(
               leading: const Icon(Icons.verified_user_outlined),
               title: Text(l10n.volunteerAdmin),
@@ -183,7 +184,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             color: Theme.of(context).colorScheme.errorContainer,
             child: ListTile(
               leading: Icon(
@@ -196,7 +197,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Card(
+          DepthSurface(
             child: ListTile(
               enabled: false,
               leading: const Icon(Icons.settings_outlined),

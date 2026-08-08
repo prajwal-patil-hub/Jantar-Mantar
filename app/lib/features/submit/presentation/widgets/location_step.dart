@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/l10n/l10n_labels.dart';
 import '../../../../core/map/map_config.dart';
 import '../../../../core/map/tile_providers.dart';
+import '../../../../core/theme/depth.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../map/application/map_providers.dart';
@@ -131,7 +132,7 @@ class _LocationStepState extends ConsumerState<LocationStep> {
         ),
         if (duplicate != null) ...[
           const SizedBox(height: 12),
-          Card(
+          DepthSurface(
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(

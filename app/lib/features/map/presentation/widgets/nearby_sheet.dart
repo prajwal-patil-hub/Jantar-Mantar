@@ -202,7 +202,6 @@ class _NearbyHeader extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       // Tap only. A drag recognizer here would win the arena against the
       // scroll view and reintroduce exactly the bug this replaced.
@@ -219,24 +218,7 @@ class _NearbyHeader extends SliverPersistentHeaderDelegate {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Dished, not printed: the gradient runs shade-to-lip, the
-              // inverse of every raised object here, which is what reads as a
-              // groove pressed into the sheet rather than a grey bar on it.
-              Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppTokens.radiusPill),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      dark ? AppTokens.shadeDark : AppTokens.shadeLight,
-                      dark ? AppTokens.lipDark : AppTokens.lipLight,
-                    ],
-                  ),
-                ),
-              ),
+              const GrabHandle(),
               const SizedBox(height: 8),
               Text(label, style: Theme.of(context).textTheme.titleSmall),
             ],

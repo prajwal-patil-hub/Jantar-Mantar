@@ -65,6 +65,7 @@ class DepthSurface extends StatelessWidget {
     this.color,
     this.onTap,
     this.clip = false,
+    this.accentBorder,
     super.key,
   });
 
@@ -81,6 +82,15 @@ class DepthSurface extends StatelessWidget {
   /// Overrides the ramp tone. Use sparingly — the ramp is the system.
   final Color? color;
   final VoidCallback? onTap;
+
+  /// Replaces the lip with a full border in this colour, at 1.5px.
+  ///
+  /// Only for **status**: an alert card outlined in its severity colour. The
+  /// lip is a contrast contributor, so giving it up needs a reason, and a
+  /// status border is a better one — it clears 3:1 against every ground by
+  /// construction, which the lip does not, and status has to interrupt the
+  /// palette rather than join it. Never use this for brand tinting.
+  final Color? accentBorder;
 
   /// Clip the child to the surface's shape. Needed whenever the child paints
   /// to the edge — a sheet's pinned header, or a list scrolling under a
@@ -110,9 +120,11 @@ class DepthSurface extends StatelessWidget {
         borderRadius: shape,
         // Flutter has no inset BoxShadow, so the top lip is a border edge.
         // It is a real contributor, not a nicety — see the ADR.
-        border: elevation == Elevation.ground
-            ? null
-            : AppTokens.lipBorder(dark: dark),
+        border: switch ((accentBorder, elevation)) {
+          (final c?, _) => Border.all(color: c, width: 1.5),
+          (null, Elevation.ground) => null,
+          (null, _) => AppTokens.lipBorder(dark: dark),
+        },
         boxShadow: elevation == Elevation.ground
             ? null
             : AppTokens.depth(elevation.rung, dark: dark),
@@ -223,6 +235,43 @@ class GlassPanel extends StatelessWidget {
                 ? child
                 : Padding(padding: padding!, child: child),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The grab handle on a bottom sheet, dished rather than printed.
+///
+/// The gradient runs shade-to-lip — the inverse of every raised object in
+/// this system — which is what reads as a groove pressed into the sheet
+/// instead of a grey bar sitting on it. Shared because both sheets had their
+/// own copy and they had already drifted apart.
+///
+/// Not interactive on its own: the sheets attach their own gesture handling,
+/// and on the Nearby sheet that distinction is load-bearing (a drag
+/// recognizer here would win the gesture arena against the scroll view).
+class GrabHandle extends StatelessWidget {
+  const GrabHandle({this.width = 40, this.height = 5, super.key});
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTokens.radiusPill),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            dark ? AppTokens.shadeDark : AppTokens.shadeLight,
+            dark ? AppTokens.lipDark : AppTokens.lipLight,
+          ],
         ),
       ),
     );

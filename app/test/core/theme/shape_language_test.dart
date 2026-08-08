@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
+import 'package:jantar_mantar_sahayata/core/theme/depth.dart';
 import 'package:jantar_mantar_sahayata/core/theme/tokens.dart';
 import 'package:jantar_mantar_sahayata/features/alerts/presentation/alerts_screen.dart';
 
@@ -44,29 +45,41 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 
-    final cards = tester.widgetList<Card>(find.byType(Card));
-    expect(cards, isNotEmpty, reason: 'nothing to measure otherwise');
+    // Alert cards are DepthSurface now, not Card (ADR-39), and their
+    // severity outline comes through `accentBorder` rather than a shape side.
+    // The invariant is unchanged and is the reason this test exists: an
+    // explicit shape must still use the radii scale. Alert cards drifted to
+    // 12 once already.
+    final surfaces = tester.widgetList<DepthSurface>(find.byType(DepthSurface));
+    expect(surfaces, isNotEmpty, reason: 'nothing to measure otherwise');
 
-    for (final card in cards) {
-      final shape = card.shape;
-      if (shape == null) continue; // inherits the theme, which is the point
-      expect(
-        shape,
-        isA<RoundedRectangleBorder>(),
-        reason: 'the shape language is rounded rectangles, not stadiums',
-      );
-      final radius = (shape as RoundedRectangleBorder).borderRadius
-          .resolve(TextDirection.ltr)
-          .topLeft
-          .x;
-      expect(
-        radius,
-        AppTokens.radiusCard,
-        reason:
-            'an explicit shape must still use the scale — this is exactly '
-            'how alert cards drifted to 12',
-      );
+    var sawSeverityBorder = false;
+    for (final s in surfaces) {
+      final shape = s.borderRadius;
+      if (shape != null) {
+        expect(
+          shape.topLeft.x,
+          AppTokens.radiusCard,
+          reason: 'an explicit radius must still use the scale',
+        );
+      } else {
+        // No explicit radius: it takes the elevation's default, which for a
+        // card IS the scale. Pin that rather than skipping.
+        expect(
+          s.radius ?? AppTokens.radiusCard,
+          AppTokens.radiusCard,
+          reason: 'the default for a card rung is the card radius',
+        );
+      }
+      if (s.accentBorder != null) sawSeverityBorder = true;
     }
+    expect(
+      sawSeverityBorder,
+      isTrue,
+      reason:
+          'the severity outline is the thing under test — if no alert '
+          'card carried one, this test stopped covering anything',
+    );
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 120));

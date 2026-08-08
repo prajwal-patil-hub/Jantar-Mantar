@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../theme/depth.dart';
 import '../theme/tokens.dart';
 
 /// The three states every async screen has and almost none of them had
@@ -159,7 +160,7 @@ class _SkeletonRowState extends State<_SkeletonRow>
         opacity: still ? 0.16 : 0.10 + 0.10 * _pulse.value,
         child: child,
       ),
-      child: Card(
+      child: DepthSurface(
         child: Padding(
           padding: const EdgeInsets.all(13),
           child: Row(

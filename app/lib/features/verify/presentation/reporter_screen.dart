@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/verify_providers.dart';
@@ -154,7 +155,7 @@ class _ReporterScreenState extends ConsumerState<ReporterScreen> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              Card(
+              DepthSurface(
                 child: ListTile(
                   leading: Icon(
                     held ? Icons.pause_circle_outline : Icons.shield_outlined,
@@ -169,7 +170,7 @@ class _ReporterScreenState extends ConsumerState<ReporterScreen> {
               ),
               if (held) ...[
                 const SizedBox(height: 8),
-                Card(
+                DepthSurface(
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: ListTile(
                     leading: const Icon(Icons.gpp_bad_outlined),

@@ -16,9 +16,7 @@ void main() {
   Future<void> pump(WidgetTester tester, {required bool demo}) =>
       tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            if (!demo) demoModeProvider.overrideWith(_DemoOff.new),
-          ],
+          overrides: [if (!demo) demoModeProvider.overrideWith(_DemoOff.new)],
           child: MaterialApp(
             theme: testAppTheme(),
             localizationsDelegates: testLocalizationsDelegates,

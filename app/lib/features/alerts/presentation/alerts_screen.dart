@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/l10n/l10n_labels.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
-import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../groups/application/groups_providers.dart';
 import '../application/alerts_providers.dart';
@@ -79,12 +79,9 @@ class _GroupBroadcastCard extends StatelessWidget {
     final severity = broadcast.message.broadcastSeverity!;
     final color = severity.colorOf(colors);
 
-    return Card(
+    return DepthSurface(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        side: BorderSide(color: color, width: 1.5),
-      ),
+      accentBorder: color,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -144,12 +141,9 @@ class _AlertCard extends StatelessWidget {
     final colors = Theme.of(context).extension<StatusColors>()!;
     final color = alert.severity.colorOf(colors);
 
-    return Card(
+    return DepthSurface(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        side: BorderSide(color: color, width: 1.5),
-      ),
+      accentBorder: color,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

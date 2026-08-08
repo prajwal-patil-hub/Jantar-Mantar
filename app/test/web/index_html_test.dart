@@ -124,6 +124,9 @@ void main() {
 
   test('the description is not still the Flutter template placeholder', () {
     expect(metaContent('description'), isNotNull);
-    expect(metaContent('description'), isNot(contains('A new Flutter project')));
+    expect(
+      metaContent('description'),
+      isNot(contains('A new Flutter project')),
+    );
   });
 }

@@ -74,16 +74,7 @@ class _FacilityDetailSheet extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(AppTokens.radiusPill),
-                  ),
-                ),
-              ),
+              const Center(child: GrabHandle()),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -346,28 +337,37 @@ class _CapacityTile extends StatelessWidget {
       ResourceType.shelter => Icons.night_shelter,
     };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(width: 4),
-            Text(
-              AppL10n.of(context).capacityFor(reading.forPeople),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(color: color),
-            ),
-          ],
-        ),
-        if (expired)
-          Text(
-            AppL10n.of(context).expiredRecheck,
-            style: TextStyle(color: colors.unverified, fontSize: 12),
+    return DepthSurface(
+      elevation: Elevation.panel,
+      radius: AppTokens.radiusCard,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(width: 6),
+              Text(
+                AppL10n.of(context).capacityFor(reading.forPeople),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: color,
+                  // Tabular, so a row of these does not jitter as the numbers
+                  // change under a sync.
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
           ),
-      ],
+          if (expired)
+            Text(
+              AppL10n.of(context).expiredRecheck,
+              style: TextStyle(color: colors.unverified, fontSize: 12),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -393,58 +393,60 @@ class _WashAdequacyCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: Container(
+      // Full width deliberately: the Container this replaced carried
+      // width: double.infinity, and DepthSurface shrink-wraps, so without
+      // this the card collapses to its text inside a start-aligned Column.
+      child: SizedBox(
         width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.rule, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.washTitle,
-                    style: Theme.of(context).textTheme.titleSmall,
+        child: DepthSurface(
+          elevation: Elevation.panel,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.rule, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.washTitle,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _WashRow(
+                ratio: adequacy.latrines,
+                label: l10n.washLatrines,
+                standard: l10n.washLatrineStandard(latrineEmergencyMax),
+                value: (n) => l10n.washPerLatrine(n),
+                none: l10n.washNoLatrines,
+                colors: colors,
+              ),
+              const SizedBox(height: 6),
+              _WashRow(
+                ratio: adequacy.water,
+                label: l10n.washWater,
+                standard: l10n.washWaterStandard(
+                  waterPointTapStandard,
+                  waterPointPumpStandard,
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _WashRow(
-              ratio: adequacy.latrines,
-              label: l10n.washLatrines,
-              standard: l10n.washLatrineStandard(latrineEmergencyMax),
-              value: (n) => l10n.washPerLatrine(n),
-              none: l10n.washNoLatrines,
-              colors: colors,
-            ),
-            const SizedBox(height: 6),
-            _WashRow(
-              ratio: adequacy.water,
-              label: l10n.washWater,
-              standard: l10n.washWaterStandard(
-                waterPointTapStandard,
-                waterPointPumpStandard,
+                value: (n) => l10n.washPerWaterPoint(n),
+                none: l10n.washNoWater,
+                colors: colors,
               ),
-              value: (n) => l10n.washPerWaterPoint(n),
-              none: l10n.washNoWater,
-              colors: colors,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.washCoverage(
-                adequacy.latrines.points + adequacy.water.points,
-                adequacy.radiusMeters.round(),
+              const SizedBox(height: 8),
+              Text(
+                l10n.washCoverage(
+                  adequacy.latrines.points + adequacy.water.points,
+                  adequacy.radiusMeters.round(),
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

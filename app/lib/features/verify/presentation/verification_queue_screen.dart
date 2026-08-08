@@ -5,6 +5,7 @@ import '../../../core/db/app_database.dart';
 import '../../../core/demo/demo_mode.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../l10n/app_localizations.dart';
@@ -344,7 +345,7 @@ class _SubmissionCard extends StatelessWidget {
       row['created_at'] as String? ?? '',
     )?.toLocal();
 
-    return Card(
+    return DepthSurface(
       margin: const EdgeInsets.only(bottom: 12),
       // In select mode the whole card is the target — a bare checkbox is
       // under 48dp and this list gets used one-handed under pressure.

@@ -24,7 +24,9 @@ void main() {
           theme: dark ? testAppThemeDark() : testAppTheme(),
           localizationsDelegates: testLocalizationsDelegates,
           supportedLocales: testSupportedLocales,
-          home: Scaffold(body: Center(child: SizedBox(width: 300, child: child))),
+          home: Scaffold(
+            body: Center(child: SizedBox(width: 300, child: child)),
+          ),
         ),
       );
 
