@@ -59,16 +59,22 @@ class DepthSurface extends StatelessWidget {
     required this.child,
     this.elevation = Elevation.card,
     this.radius,
+    this.borderRadius,
     this.padding,
     this.margin,
     this.color,
     this.onTap,
+    this.clip = false,
     super.key,
   });
 
   final Widget child;
   final Elevation elevation;
   final double? radius;
+
+  /// For surfaces that are not uniformly rounded — a bottom sheet rounds its
+  /// top corners only. Takes precedence over [radius].
+  final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
 
@@ -76,11 +82,27 @@ class DepthSurface extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
 
+  /// Clip the child to the surface's shape. Needed whenever the child paints
+  /// to the edge — a sheet's pinned header, or a list scrolling under a
+  /// rounded top — because a `DecoratedBox` rounds its own paint and nothing
+  /// else, so square corners punch straight through the curve.
+  final bool clip;
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final r = radius ?? _defaultRadius;
-    final shape = BorderRadius.circular(r);
+    final shape =
+        borderRadius ?? BorderRadius.circular(radius ?? _defaultRadius);
+
+    final inner = switch ((clip, padding)) {
+      (false, null) => child,
+      (false, final p?) => Padding(padding: p, child: child),
+      (true, null) => ClipRRect(borderRadius: shape, child: child),
+      (true, final p?) => ClipRRect(
+        borderRadius: shape,
+        child: Padding(padding: p, child: child),
+      ),
+    };
 
     final surface = DecoratedBox(
       decoration: BoxDecoration(
@@ -95,21 +117,26 @@ class DepthSurface extends StatelessWidget {
             ? null
             : AppTokens.depth(elevation.rung, dark: dark),
       ),
-      child: padding == null ? child : Padding(padding: padding!, child: child),
+      // A transparency Material for the children, ALWAYS — not only when this
+      // surface is itself tappable. ListTile and InkWell paint their
+      // background and ink on the nearest Material ancestor, so without one a
+      // DecoratedBox in between swallows every splash: rows in a list go
+      // dead-feeling, and in debug Flutter asserts outright. This costs no
+      // paint (transparency draws nothing) and it is what the old
+      // GlassSurface did; dropping it was a regression, not a simplification.
+      child: Material(type: MaterialType.transparency, child: inner),
     );
 
     final tappable = onTap == null
         ? surface
         : Material(
             color: Colors.transparent,
-            child: InkWell(
-              borderRadius: shape,
-              onTap: onTap,
-              child: surface,
-            ),
+            child: InkWell(borderRadius: shape, onTap: onTap, child: surface),
           );
 
-    return margin == null ? tappable : Padding(padding: margin!, child: tappable);
+    return margin == null
+        ? tappable
+        : Padding(padding: margin!, child: tappable);
   }
 
   double get _defaultRadius => switch (elevation) {
@@ -135,6 +162,7 @@ class GlassPanel extends StatelessWidget {
     this.blur = false,
     this.elevation = Elevation.card,
     this.radius,
+    this.borderRadius,
     this.padding,
     super.key,
   });
@@ -146,6 +174,9 @@ class GlassPanel extends StatelessWidget {
   final bool blur;
   final Elevation elevation;
   final double? radius;
+
+  /// See [DepthSurface.borderRadius].
+  final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? padding;
 
   @override
@@ -160,22 +191,24 @@ class GlassPanel extends StatelessWidget {
       return DepthSurface(
         elevation: elevation,
         radius: radius,
+        borderRadius: borderRadius,
         padding: padding,
         child: child,
       );
     }
 
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final r = radius ?? AppTokens.radiusCard;
+    final shape =
+        borderRadius ?? BorderRadius.circular(radius ?? AppTokens.radiusCard);
     final base = elevation.color(Theme.of(context).brightness);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(r),
+        borderRadius: shape,
         boxShadow: AppTokens.depth(elevation.rung, dark: dark),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(r),
+        borderRadius: shape,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: DecoratedBox(

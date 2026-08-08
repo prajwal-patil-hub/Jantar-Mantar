@@ -102,10 +102,71 @@ void main() {
         expect(
           _contrast(colors.low, dark),
           greaterThanOrEqualTo(bar),
-          reason: 'it must at least be strong on dark: '
+          reason:
+              'it must at least be strong on dark: '
               '${_ratio(colors.low, dark)}',
         );
       }
+    });
+
+    test(
+      'an extruded control keeps its glyph on the flat part of the face',
+      () {
+        // The knob and pill run lip -> body -> shade top to bottom. The first
+        // version ran that ramp edge to edge, so the highlight and the shade
+        // washed across the middle of the face — exactly where the icon or
+        // label sits. Composited over the glyph band that measured 3.66:1 on
+        // the light action knob and 2.36:1 on the dark quiet one, on the app's
+        // primary map controls.
+        //
+        // The stops now hold the extrusion at the rim (_faceStops in
+        // extruded_knob.dart), so the glyph sits on the body tone alone. This
+        // test measures the body tone, which is only the honest number BECAUSE
+        // of that: widen the ramp back across the face and these figures stop
+        // describing what is painted. The mechanism is pinned in depth_test.
+        const cases = <String, List<Color>>{
+          'light quiet: ink on peach': [AppTokens.ink, AppTokens.peach],
+          'light action: onClay on clay': [AppTokens.onClay, AppTokens.clay],
+          'dark quiet: onClayDark on peachDark': [
+            AppTokens.onClayDark,
+            AppTokens.peachDark,
+          ],
+          'dark action: onClayDark on clayDark': [
+            AppTokens.onClayDark,
+            AppTokens.clayDark,
+          ],
+        };
+        for (final c in cases.entries) {
+          expect(
+            _contrast(c.value[0], c.value[1]),
+            greaterThanOrEqualTo(4.5),
+            reason: '${c.key}: ${_ratio(c.value[0], c.value[1])}',
+          );
+        }
+      },
+    );
+
+    test('both dark control bodies are LIGHTER than the dark ground', () {
+      // This is the trap that produced the 2.36:1 above. clayDark already had
+      // a documented separate on-colour for it; peachDark has exactly the
+      // same property and was given inkDark, the light-on-dark TEXT tone,
+      // which is the wrong end of the scale entirely.
+      //
+      // Pinned as a property, not a colour: any future dark body tone that is
+      // lighter than the ground needs the dark on-colour, and if one is ever
+      // added that is darker, this test is where that shows up.
+      for (final body in [AppTokens.peachDark, AppTokens.clayDark]) {
+        expect(
+          _luminance(body),
+          greaterThan(_luminance(AppTokens.e4Dark)),
+          reason: 'so its on-colour must be dark ink, never inkDark',
+        );
+      }
+      expect(
+        _contrast(AppTokens.inkDark, AppTokens.peachDark),
+        lessThan(3.0),
+        reason: 'the wrong choice, kept measured so nobody re-tries it',
+      );
     });
 
     test('the filled-action tone is readable in both themes', () {

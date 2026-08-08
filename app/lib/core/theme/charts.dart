@@ -118,7 +118,12 @@ class _DonutPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final stroke = size.width * .17;
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height).deflate(stroke / 2);
+    final rect = Rect.fromLTWH(
+      0,
+      0,
+      size.width,
+      size.height,
+    ).deflate(stroke / 2);
     final base = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
@@ -228,7 +233,12 @@ class _ArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final stroke = size.width * .2;
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height).deflate(stroke / 2);
+    final rect = Rect.fromLTWH(
+      0,
+      0,
+      size.width,
+      size.height,
+    ).deflate(stroke / 2);
     // Centred on the bottom gap, so the open ends sit symmetrically.
     final start = math.pi / 2 + (math.pi * 2 - sweep) / 2;
     final p = Paint()
@@ -412,8 +422,9 @@ class WaveArea extends StatelessWidget {
           child: CustomPaint(
             painter: _WavePainter(
               values: values,
-              fill: (dark ? AppTokens.peachDark : AppTokens.peach)
-                  .withValues(alpha: .8),
+              fill: (dark ? AppTokens.peachDark : AppTokens.peach).withValues(
+                alpha: .8,
+              ),
               line: dark ? AppTokens.clayDark : AppTokens.clay,
               well: dark ? AppTokens.e2Dark : AppTokens.e2Light,
             ),
@@ -451,7 +462,8 @@ class _WavePainter extends CustomPainter {
     final span = (max - min).abs() < 1e-9 ? 1.0 : max - min;
     final dx = size.width / (values.length - 1);
     // Inset the top so the peak is not clipped by the well's own edge.
-    double y(double v) => size.height - 6 - ((v - min) / span) * (size.height - 16);
+    double y(double v) =>
+        size.height - 6 - ((v - min) / span) * (size.height - 16);
 
     final path = Path()..moveTo(0, y(values.first));
     for (var i = 0; i < values.length - 1; i++) {
@@ -527,8 +539,9 @@ class ConcentricDial extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: ring(dark ? AppTokens.peach2Dark : AppTokens.peach2)
-            .copyWith(boxShadow: AppTokens.depth(3, dark: dark)),
+        decoration: ring(
+          dark ? AppTokens.peach2Dark : AppTokens.peach2,
+        ).copyWith(boxShadow: AppTokens.depth(3, dark: dark)),
         child: Center(
           child: Container(
             width: size * .75,
@@ -546,7 +559,10 @@ class ConcentricDial extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [shade, dark ? AppTokens.e4Dark : AppTokens.e4Light],
+                    colors: [
+                      shade,
+                      dark ? AppTokens.e4Dark : AppTokens.e4Light,
+                    ],
                     stops: const [0, .55],
                   ),
                 ),

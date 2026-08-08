@@ -72,6 +72,17 @@ class AppL10nEn extends AppL10n {
   String get nearby => 'Nearby';
 
   @override
+  String clusterOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count facilities here',
+      one: '1 facility here',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get beFirstToReport =>
       'No facilities here yet — be the first to report one.';
 

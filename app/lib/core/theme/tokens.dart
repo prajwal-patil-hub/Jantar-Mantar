@@ -155,9 +155,8 @@ abstract final class AppTokens {
   /// The top-edge highlight, applied as a 1px border rather than an inset
   /// shadow because Flutter has no inset BoxShadow. Subtle on its own and the
   /// single biggest contributor to "solid object" over "coloured rectangle".
-  static Border lipBorder({required bool dark}) => Border(
-    top: BorderSide(color: dark ? lipDark : lipLight, width: 1),
-  );
+  static Border lipBorder({required bool dark}) =>
+      Border(top: BorderSide(color: dark ? lipDark : lipLight, width: 1));
 
   /// Kept as thin wrappers so existing call sites keep working while screens
   /// migrate to [depth].

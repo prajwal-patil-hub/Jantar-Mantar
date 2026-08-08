@@ -72,6 +72,17 @@ class AppL10nHi extends AppL10n {
   String get nearby => 'आस-पास';
 
   @override
+  String clusterOf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'यहाँ $count सुविधाएँ',
+      one: 'यहाँ 1 सुविधा',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get beFirstToReport =>
       'यहाँ अभी कोई सुविधा नहीं है — सबसे पहले रिपोर्ट करें।';
 

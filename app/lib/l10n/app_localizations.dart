@@ -223,6 +223,12 @@ abstract class AppL10n {
   /// **'Nearby'**
   String get nearby;
 
+  /// No description provided for @clusterOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 facility here} other{{count} facilities here}}'**
+  String clusterOf(int count);
+
   /// No description provided for @beFirstToReport.
   ///
   /// In en, this message translates to:

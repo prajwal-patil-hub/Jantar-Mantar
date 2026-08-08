@@ -12,9 +12,9 @@ import '../../../core/domain/freshness.dart';
 import '../../../core/domain/sphere_standards.dart';
 import '../../../core/l10n/l10n_labels.dart';
 import '../../../core/providers.dart';
+import '../../../core/theme/depth.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../core/theme/tokens.dart';
-import '../../../core/widgets/glass_surface.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
@@ -61,8 +61,12 @@ class _FacilityDetailSheet extends ConsumerWidget {
     final isStale =
         verifiedAt == null || freshnessAt(verifiedAt, now) == Freshness.stale;
 
-    return GlassSurface(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+    return DepthSurface(
+      elevation: Elevation.floating,
+      clip: true,
+      borderRadius: const BorderRadius.vertical(
+        top: Radius.circular(AppTokens.radiusPanel),
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),

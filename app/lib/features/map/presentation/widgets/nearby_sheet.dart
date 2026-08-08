@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/l10n_labels.dart';
+import '../../../../core/theme/depth.dart';
 import '../../../../core/theme/status_colors.dart';
 import '../../../../core/theme/tokens.dart';
-import '../../../../core/widgets/glass_surface.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../application/map_providers.dart';
 import 'facility_visuals.dart';
 import 'freshness_badge.dart';
 
 /// Non-modal "Nearby" sheet (ui-ux-spec §1.4): nearest facilities to the map
-/// center as cards. Glass hero surface with the standard fallback.
+/// center as cards.
+///
+/// Opaque, not frosted (ADR-39). This sheet *is* a scroll view, and a
+/// `BackdropFilter` on a scroll view re-samples what is behind it on every
+/// pixel of travel — the worst case for the sub-2GB Android target, and over
+/// live map tiles at that. Depth here comes from the ramp and the compound
+/// shadow, which cost nothing to scroll.
 ///
 /// The header is BOTH draggable and tappable: tapping toggles collapsed ⇄
 /// expanded via the controller, so it works even where flutter_map's own pan
@@ -78,8 +84,15 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
       snap: true,
       snapSizes: const [_collapsed, _half, _full],
       builder: (context, scrollController) {
-        return GlassSurface(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        return DepthSurface(
+          elevation: Elevation.floating,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppTokens.radiusPanel),
+          ),
+          // The pinned header paints an opaque strip to both edges, so
+          // without the clip its square corners cut straight through the
+          // sheet's rounded top.
+          clip: true,
           // ONE scrollable, header included.
           //
           // The header used to sit outside the scroll view in a
@@ -184,25 +197,44 @@ class _NearbyHeader extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       // Tap only. A drag recognizer here would win the arena against the
       // scroll view and reintroduce exactly the bug this replaced.
       onTap: onTap,
       child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.01),
+        // Opaque, and the same tone as the sheet. It used to be surface at
+        // alpha 0.01 — a hit-test trick from when the sheet behind it was
+        // frosted. Pinned over an opaque sheet that lets list rows scroll
+        // visibly through the title.
+        color: Elevation.floating.color(Theme.of(context).brightness),
         child: Semantics(
           button: true,
           label: label,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Dished, not printed: the gradient runs shade-to-lip, the
+              // inverse of every raised object here, which is what reads as a
+              // groove pressed into the sheet rather than a grey bar on it.
               Container(
-                width: 36,
-                height: 4,
+                width: 40,
+                height: 5,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(AppTokens.radiusPill),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      dark ? AppTokens.shadeDark : AppTokens.shadeLight,
+                      dark ? AppTokens.lipDark : AppTokens.lipLight,
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 8),

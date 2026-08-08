@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/demo/demo_mode.dart';
 import '../../core/l10n/locale_provider.dart';
 import '../../core/providers.dart';
+import '../../core/theme/depth.dart';
+import '../../core/theme/tokens.dart';
 import '../../core/widgets/demo_banner.dart';
 import '../../core/widgets/glass_surface.dart';
 import '../../core/widgets/offline_banner.dart';
@@ -18,9 +20,14 @@ import '../map/presentation/map_screen.dart';
 import '../profile/presentation/profile_screen.dart';
 
 /// Bottom-navigation shell: Map · Events · Alerts · Profile (ui-ux-spec
-/// §Global design shell). Docked M3 bar rendered as a glass hero surface
-/// (ADR-13); GlassSurface degrades to the opaque fallback on weak devices
-/// and in high-contrast mode.
+/// §Global design shell). Docked M3 bar rendered as a glass panel (ADR-13).
+///
+/// This is the **only** blurred surface in the app (ADR-39). It is fixed, not
+/// scrollable, so its `BackdropFilter` repaints once per frame rather than
+/// once per pixel of scroll travel; the sheets that used to share the old
+/// GlassSurface are scroll views and now take the opaque path. Blur still
+/// drops out on weak devices via [glassEnabledProvider], and in high-contrast
+/// or reduced-motion inside [GlassPanel] itself.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
@@ -83,7 +90,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
           Expanded(child: _screens[_index]),
         ],
       ),
-      bottomNavigationBar: GlassSurface(
+      bottomNavigationBar: GlassPanel(
+        blur: ref.watch(glassEnabledProvider),
+        elevation: Elevation.floating,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppTokens.radiusPanel),
+        ),
         child: NavigationBar(
           backgroundColor: Colors.transparent,
           selectedIndex: _index,

@@ -1,70 +1,21 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../theme/tokens.dart';
-
 /// Whether glass (BackdropFilter blur) is allowed on this device. Stays a
-/// provider so the Phase 2 device-tier/frame-time probe can flip it without
-/// touching call sites (DESIGN.md performance rule).
+/// provider so a device-tier / frame-time probe can flip it without touching
+/// call sites (DESIGN.md performance rule).
+///
+/// The `GlassSurface` widget that used to live here is gone (ADR-39). It
+/// blurred **by default** and every caller got the expensive path unless it
+/// opted out — which is backwards for a sub-2GB Android target, and directly
+/// contradicts Blush Depth's rule that the opaque surface is the design and
+/// blur is the enhancement. `GlassPanel` in `core/theme/depth.dart` replaces
+/// it with the defaults the other way round.
+///
+/// Blur is now a per-site decision, and there is one rule behind the three
+/// answers in the app: **never blur a surface that is itself the scroll
+/// view.** `BackdropFilter` re-samples what is behind it every frame, so
+/// inside a scrolling sheet it repaints on every pixel of travel. The docked
+/// nav bar is fixed and painted once per frame regardless, so it is the one
+/// place the cost is bounded — and it is the surface ADR-13 specified as
+/// glass.
 final glassEnabledProvider = Provider<bool>((ref) => true);
-
-/// Frosted hero surface with the mandatory cheap fallback: weak devices,
-/// high-contrast mode, and (later) battery saver get a semi-opaque solid
-/// with identical layout — no blur, same geometry.
-class GlassSurface extends ConsumerWidget {
-  const GlassSurface({
-    required this.child,
-    this.borderRadius = BorderRadius.zero,
-    super.key,
-  });
-
-  final Widget child;
-  final BorderRadius borderRadius;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final highContrast = MediaQuery.of(context).highContrast;
-    final useGlass = ref.watch(glassEnabledProvider) && !highContrast;
-
-    // Material.transparency keeps ink splashes visible for interactive
-    // children (ListTile etc.) without covering the glass decoration.
-    final surfaceChild = Material(
-      type: MaterialType.transparency,
-      child: child,
-    );
-
-    if (!useGlass) {
-      return Container(
-        decoration: BoxDecoration(
-          color: dark
-              ? AppTokens.glassFallbackDark
-              : AppTokens.glassFallbackLight,
-          borderRadius: borderRadius,
-          border: Border.all(color: AppTokens.glassBorder),
-        ),
-        child: surfaceChild,
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: AppTokens.glassBlurSigma,
-          sigmaY: AppTokens.glassBlurSigma,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: dark ? AppTokens.glassTintDark : AppTokens.glassTintLight,
-            borderRadius: borderRadius,
-            border: Border.all(color: AppTokens.glassBorder),
-          ),
-          child: surfaceChild,
-        ),
-      ),
-    );
-  }
-}

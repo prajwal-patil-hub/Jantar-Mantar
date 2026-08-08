@@ -25,6 +25,8 @@
   "recenter": "नक्शा फिर केंद्रित करें",
   "sos": "SOS",
   "nearby": "आस-पास",
+  "clusterOf": "{count, plural, =1{यहाँ 1 सुविधा} other{यहाँ {count} सुविधाएँ}}",
+  "@clusterOf": { "placeholders": { "count": { "type": "int" } } },
   "beFirstToReport": "यहाँ अभी कोई सुविधा नहीं है — सबसे पहले रिपोर्ट करें।",
 
   "notYetVerified": "अभी सत्यापित नहीं",

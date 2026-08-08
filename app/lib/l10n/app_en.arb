@@ -25,6 +25,8 @@
   "recenter": "Recentre the map",
   "sos": "SOS",
   "nearby": "Nearby",
+  "clusterOf": "{count, plural, =1{1 facility here} other{{count} facilities here}}",
+  "@clusterOf": { "placeholders": { "count": { "type": "int" } } },
   "beFirstToReport": "No facilities here yet — be the first to report one.",
 
   "notYetVerified": "Not yet verified",

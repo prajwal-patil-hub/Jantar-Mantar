@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/map/map_config.dart';
 import '../../../core/map/tile_providers.dart';
+import '../../../core/theme/depth.dart';
+import '../../../core/theme/extruded_knob.dart';
 import '../../../core/theme/status_colors.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
@@ -162,21 +164,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               options: MarkerClusterLayerOptions(
                 markers: markers,
                 maxClusterRadius: 60,
-                size: const Size(44, 44),
-                builder: (context, clustered) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${clustered.length}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                size: Size(KnobSize.small.px, KnobSize.small.px),
+                // The cluster is the one map object that is a control rather
+                // than a status, so it takes the extrusion. Status pins never
+                // do — they have to interrupt the palette, not join it.
+                builder: (context, clustered) => ExtrudedKnob(
+                  size: KnobSize.small,
+                  selected: true,
+                  semanticLabel: l10n.clusterOf(clustered.length),
+                  child: Text('${clustered.length}'),
                 ),
               ),
             ),
@@ -198,19 +194,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   .isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(AppTokens.radiusChip),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        l10n.routeNoSafeClaim,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                  // Opaque, not translucent. This one says the map does NOT
+                  // certify a road is safe, and a caveat you can read map
+                  // tiles through is a caveat people skip.
+                  child: DepthSurface(
+                    elevation: Elevation.floating,
+                    radius: AppTokens.radiusChip,
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                      l10n.routeNoSafeClaim,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
                 ),
@@ -223,59 +216,52 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              FloatingActionButton.small(
-                heroTag: 'grouplayer',
+              // The reference's knob rail. These replaced FABs: a Material
+              // FAB is a flat disc with a drop shadow, which on this ramp
+              // (adjacent surfaces ~1.06:1) reads as a sticker on the map.
+              _MapKnob(
                 tooltip: l10n.showGroupPins,
-                backgroundColor: showGroupPins
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : null,
-                onPressed: () =>
-                    ref.read(showGroupPinsProvider.notifier).toggle(),
-                child: Icon(
-                  showGroupPins ? Icons.layers : Icons.layers_outlined,
-                ),
+                icon: showGroupPins ? Icons.layers : Icons.layers_outlined,
+                selected: showGroupPins,
+                onTap: () => ref.read(showGroupPinsProvider.notifier).toggle(),
               ),
               const SizedBox(height: 12),
-              FloatingActionButton.small(
-                heroTag: 'recenter',
+              _MapKnob(
                 tooltip: l10n.recenter,
+                icon: Icons.my_location,
                 // Recentres on whichever site is currently selected.
-                onPressed: () =>
+                onTap: () =>
                     _mapController.move(_site.center, MapConfig.initialZoom),
-                child: const Icon(Icons.my_location),
               ),
               const SizedBox(height: 12),
-              FloatingActionButton.small(
-                heroTag: 'sites',
+              _MapKnob(
                 tooltip: l10n.jumpToSite,
-                onPressed: _pickSite,
-                child: const Icon(Icons.travel_explore),
+                icon: Icons.travel_explore,
+                onTap: _pickSite,
               ),
               const SizedBox(height: 12),
               // Reporting a blocked route (ADR-31) is its own action, not a
               // facility category: it places a line, not a pin.
-              FloatingActionButton.small(
-                heroTag: 'route',
+              _MapKnob(
                 tooltip: l10n.reportRoute,
-                onPressed: () => Navigator.of(context).push(
+                icon: Icons.edit_road,
+                onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const ReportRouteScreen(),
                   ),
                 ),
-                child: const Icon(Icons.edit_road),
               ),
               const SizedBox(height: 12),
-              FloatingActionButton.extended(
-                heroTag: 'report',
-                onPressed: () => Navigator.of(context).push(
+              ExtrudedPill(
+                label: l10n.report,
+                icon: Icons.add_location_alt,
+                onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => SubmitFlowScreen(
                       initialLocation: ref.read(mapCenterProvider),
                     ),
                   ),
                 ),
-                icon: const Icon(Icons.add_location_alt),
-                label: Text(l10n.report),
               ),
             ],
           ),
@@ -299,6 +285,36 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           },
         ),
       ],
+    );
+  }
+}
+
+/// A knob on the map's control rail: the extrusion plus the tooltip and the
+/// screen-reader label that [ExtrudedKnob] leaves to its caller.
+class _MapKnob extends StatelessWidget {
+  const _MapKnob({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.selected = false,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: ExtrudedKnob(
+        size: KnobSize.small,
+        selected: selected,
+        semanticLabel: tooltip,
+        onTap: onTap,
+        child: Icon(icon),
+      ),
     );
   }
 }
@@ -372,7 +388,12 @@ class _GroupPinMarker extends StatelessWidget {
             color: scheme.surface,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: scheme.primary, width: 3),
-            boxShadow: const [BoxShadow(blurRadius: 4, color: Colors.black26)],
+            // The ramp's warm cast, not a generic black26 — a neutral shadow
+            // on a warm ground is the tell that something was pasted in.
+            boxShadow: AppTokens.depth(
+              2,
+              dark: Theme.of(context).brightness == Brightness.dark,
+            ),
           ),
           child: Icon(icon, size: 22, color: scheme.primary),
         ),
