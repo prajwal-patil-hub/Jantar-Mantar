@@ -34,6 +34,9 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
   // sheet obviously dismissible and preserves context.
   static const _full = 0.94;
 
+  /// Grab handle + title. Fixed so the pinned sliver has a stable extent.
+  static const _headerHeight = 56.0;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -77,95 +80,76 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
       builder: (context, scrollController) {
         return GlassSurface(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: Column(
-            children: [
-              // Tappable + draggable header.
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _toggle,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                          borderRadius: BorderRadius.circular(
-                            AppTokens.radiusPill,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        nearby.isEmpty
-                            ? l10n.nearby
-                            : '${l10n.nearby} · ${nearby.length}',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
+          // ONE scrollable, header included.
+          //
+          // The header used to sit outside the scroll view in a
+          // GestureDetector. Tapping worked; dragging did nothing at all —
+          // measured at exactly 0 px — because DraggableScrollableSheet drags
+          // via the scrollable it hands you, and the header was not part of
+          // it. So the sheet opened and then could not be pulled back down by
+          // the only affordance that looks draggable: the grab handle.
+          //
+          // As a pinned sliver the header is inside the scrollable, so the
+          // framework's own drag, fling and snap handling applies to it. No
+          // hand-rolled drag physics.
+          child: CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _NearbyHeader(
+                  height: _headerHeight,
+                  onTap: _toggle,
+                  label: nearby.isEmpty
+                      ? l10n.nearby
+                      : '${l10n.nearby} · ${nearby.length}',
                 ),
               ),
-              Expanded(
-                child: nearby.isEmpty
-                    ? ListView(
-                        controller: scrollController,
+              if (nearby.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      l10n.beFirstToReport,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+              else
+                SliverList.builder(
+                  itemCount: nearby.length,
+                  itemBuilder: (context, i) {
+                    final item = nearby[i];
+                    final f = item.facility;
+                    final statusColor = f.status.colorOf(colors);
+                    return ListTile(
+                      minTileHeight: 56,
+                      onTap: () => widget.onFacilityTap(item),
+                      leading: Icon(f.type.icon, color: statusColor, size: 28),
+                      title: Text(f.name),
+                      subtitle: FreshnessBadge(verifiedAt: f.verifiedAt),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Text(
-                              l10n.beFirstToReport,
-                              textAlign: TextAlign.center,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(f.status.icon, size: 16, color: statusColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                f.status.label(l10n),
+                                style: TextStyle(color: statusColor),
+                              ),
+                            ],
                           ),
+                          Text(_distanceText(item.distanceMeters)),
                         ],
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        padding: EdgeInsets.only(bottom: bottomInset),
-                        itemCount: nearby.length,
-                        itemBuilder: (context, i) {
-                          final item = nearby[i];
-                          final f = item.facility;
-                          final statusColor = f.status.colorOf(colors);
-                          return ListTile(
-                            minTileHeight: 56,
-                            onTap: () => widget.onFacilityTap(item),
-                            leading: Icon(
-                              f.type.icon,
-                              color: statusColor,
-                              size: 28,
-                            ),
-                            title: Text(f.name),
-                            subtitle: FreshnessBadge(verifiedAt: f.verifiedAt),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      f.status.icon,
-                                      size: 16,
-                                      color: statusColor,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      f.status.label(l10n),
-                                      style: TextStyle(color: statusColor),
-                                    ),
-                                  ],
-                                ),
-                                Text(_distanceText(item.distanceMeters)),
-                              ],
-                            ),
-                          );
-                        },
                       ),
-              ),
+                    );
+                  },
+                ),
+              SliverToBoxAdapter(child: SizedBox(height: bottomInset)),
             ],
           ),
         );
@@ -177,4 +161,60 @@ class _NearbySheetState extends ConsumerState<NearbySheet> {
     if (meters < 1000) return '${meters.round()} m';
     return '${(meters / 1000).toStringAsFixed(1)} km';
   }
+}
+
+/// Pinned grab handle. Lives inside the scroll view so the sheet's own drag
+/// handling covers it; the tap is a convenience for when flutter_map's pan
+/// gestures would otherwise compete with a drag started over the map.
+class _NearbyHeader extends SliverPersistentHeaderDelegate {
+  const _NearbyHeader({
+    required this.height,
+    required this.onTap,
+    required this.label,
+  });
+
+  final double height;
+  final VoidCallback onTap;
+  final String label;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return GestureDetector(
+      // Tap only. A drag recognizer here would win the arena against the
+      // scroll view and reintroduce exactly the bug this replaced.
+      onTap: onTap,
+      child: ColoredBox(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.01),
+        child: Semantics(
+          button: true,
+          label: label,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusPill),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(label, style: Theme.of(context).textTheme.titleSmall),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_NearbyHeader old) =>
+      old.label != label || old.height != height;
 }
