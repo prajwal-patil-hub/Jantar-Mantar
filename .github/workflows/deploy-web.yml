@@ -31,6 +31,13 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Pinned, not floating. A floating `stable` meant CI ran a
+          # different analyzer than the one this project is developed
+          # against, so `flutter analyze` passed locally and failed in CI —
+          # which is a bad surprise in a job whose output is a release APK.
+          # Upgrading is a deliberate change, not something a release picks
+          # up by being run on a Tuesday.
+          flutter-version: 3.44.8
           cache: true
 
       # NOTE: Pages must be enabled ONCE by hand before this works —

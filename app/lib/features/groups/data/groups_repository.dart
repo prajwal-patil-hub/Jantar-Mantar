@@ -467,7 +467,13 @@ class GroupsRepository implements GroupsRepo {
         groupKey: from,
         packed: ciphertext,
       );
-      return _crypto.encryptMessage(
+      // `return await`, not `return`: without the await this Future escapes
+      // the try block before it completes, so `on Object` never runs and the
+      // failure propagates instead of becoming the documented null. The
+      // caller invokes _reseal OUTSIDE any try, so that escaping exception
+      // aborts the whole pending flush rather than letting this one message
+      // go out under its old epoch.
+      return await _crypto.encryptMessage(
         groupKey: to,
         plaintext: clear,
         signingKey: await _identity.signingKey(),
