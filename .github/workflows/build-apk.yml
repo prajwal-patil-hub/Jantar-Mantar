@@ -17,6 +17,10 @@ on:
         description: 'Split by CPU (smaller downloads; arm64-v8a suits almost every modern phone)'
         type: boolean
         default: true
+      release_tag:
+        description: 'Tag to publish a Release under, e.g. v0.1.0. Leave blank to only upload a workflow artifact.'
+        type: string
+        default: ''
   push:
     tags: ['v*']
 
@@ -127,11 +131,33 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      # Artifacts expire and require a GitHub login to download. A Release
-      # asset is a plain link you can open on a phone.
-      - name: Attach to the release
-        if: startsWith(github.ref, 'refs/tags/v')
+      # Artifacts expire in 30 days and require a GitHub login to download,
+      # so they are no use as "here is the app". A Release asset is a plain
+      # public URL that opens on a phone, which is the only form of this that
+      # actually reaches someone standing at a protest.
+      #
+      # Two ways in: push a v* tag, or run this by hand with release_tag set.
+      # The second exists because tag pushes are not always available (a
+      # restricted git proxy will accept branch refs and refuse tag refs);
+      # action-gh-release creates the tag from this commit in that case.
+      - name: Publish a Release with the APKs
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          name: CommonGround ${{ inputs.release_tag || github.ref_name }}
           files: app/build/app/outputs/flutter-apk/*.apk
           generate_release_notes: true
+          body: |
+            Sideload build. Install the **arm64-v8a** APK unless you know your
+            phone is older 32-bit ARM.
+
+            Android will warn about installing outside the Play Store; you
+            have to allow your browser or file manager to install unknown
+            apps. That warning is correct and you should be suspicious of any
+            APK link — this one is built in the open by the workflow in this
+            repository, from the commit named below.
+
+            Demo Mode ships ON, so every screen has sample data and no login
+            or backend is needed. The banner across the top says so; nothing
+            you see in that mode is real.
