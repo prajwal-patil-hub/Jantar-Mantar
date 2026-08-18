@@ -23,6 +23,11 @@ on:
         default: ''
   push:
     tags: ['v*']
+    # Third way in, for when neither of the other two is available: a tag
+    # push needs a git proxy that forwards tag refs, and workflow_dispatch
+    # needs a token with actions:write. A branch push needs neither, and
+    # `release/v0.1.0` is unambiguous about intent.
+    branches: ['release/v*']
 
 permissions:
   contents: write
@@ -140,12 +145,25 @@ jobs:
       # The second exists because tag pushes are not always available (a
       # restricted git proxy will accept branch refs and refuse tag refs);
       # action-gh-release creates the tag from this commit in that case.
+      # One place decides the tag, so the three triggers cannot disagree.
+      - name: Work out the release tag
+        id: tag
+        run: |
+          REF_NAME="${{ github.ref_name }}"
+          case "${{ github.ref }}" in
+            refs/tags/*)   TAG="$REF_NAME" ;;
+            refs/heads/release/*) TAG="${REF_NAME#release/}" ;;
+            *)             TAG="${{ inputs.release_tag }}" ;;
+          esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Release tag: ${TAG:-<none, artifact only>}"
+
       - name: Publish a Release with the APKs
-        if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
+        if: steps.tag.outputs.tag != ''
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.release_tag || github.ref_name }}
-          name: CommonGround ${{ inputs.release_tag || github.ref_name }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: CommonGround ${{ steps.tag.outputs.tag }}
           files: app/build/app/outputs/flutter-apk/*.apk
           generate_release_notes: true
           body: |
