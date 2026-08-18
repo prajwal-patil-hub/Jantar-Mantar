@@ -1,6 +1,18 @@
 # PROGRESS.md — Build Log
 _Newest entry first. One entry per working session._
 
+## Session 29 — 2026-08-18 · The map came back, the first APK shipped, and the release path found two real bugs (ADR-40/41)
+**Done:**
+- **Fixed the map, and the cause was mine.** The web hardening in session 28 added `<meta name="referrer" content="no-referrer">`. On the web flutter_map **cannot** send a User-Agent — browsers forbid scripts from setting that header — so `MapConfig.userAgentPackageName` does nothing in a browser and the Referer was the only identification left. OSM answered "Referer is required". Now `origin`: sends the site origin and never a path, so no route, facility id or group id leaks. Pinned in `index_html_test.dart` so it cannot regress to `no-referrer` again. **Not observed working** — `github.io` and `tile.openstreetmap.org` are both unreachable from the build sandbox, so this is verified at the source and deploy level only.
+- **Taught the map where its coverage ends** (ADR-40). Whatever replaces OSM has finite coverage, and blank ground on this map reads as "no water here" rather than "no basemap here". `MapConfig.isMapped` + `CoverageNotice`, square boxes with `cos(latitude)` scaling, both mutation-tested.
+- **Shipped v0.1.0 as a sideloadable APK** — arm64-v8a / armeabi-v7a / x86_64 on the GitHub Release. Debug-signed (no `ANDROID_KEYSTORE_*` secrets), so it installs but **cannot be upgraded in place** by a properly signed build later. Version bumped 1.0.0 → 0.1.0: the template's 1.0.0 was never a decision, and it would claim the tile source is settled, TLS pinning is active and demo-default-on is intentional.
+- **The release path found two real bugs that `flutter test` could not** (ADR-41): an unawaited Future escaping its own catch in the key-rotation re-seal, and an AGP compileSdk floor from FMTC's ObjectBox dependency. Toolchain now pinned in all three workflows.
+- 316 Dart tests (+11); analyze + custom_lint clean.
+
+**Open, and blocking a real launch:** the tile source itself. Three options costed in ADR-40; the raster recommendation was corrected on supply (free planet builds are vector, not raster). Nothing here changes the need to move off OSM before real users.
+
+**Next:** decide the tile source, then the server half of route reports.
+---
 ## Session 28 — 2026-07-30 · Security pass + the map-disappears bug, both traced to things nobody had measured (ADR-36/37/38)
 **Done:**
 - **Found and closed a critical privilege escalation.** `members_self_join` checked `user_id` and nothing else. `role` and `state` have safe defaults, but **a default only applies to an OMITTED column** — so `POST /rest/v1/group_members {group_id, user_id: self, role:"admin", state:"active"}` made the caller an active admin of any group whose id they knew, and `groups_read` makes every public group id enumerable. Anyone could do it: the publishable key is in the bundle by design, the app signs in anonymously on its own, and an **anonymous session holds the `authenticated` role** — `to authenticated` is not a barrier. E2E held (message bodies stayed unreadable); the member roster, the group's real-world pin coordinates and live invite codes did not. In this threat model the roster *is* the sensitive data.
