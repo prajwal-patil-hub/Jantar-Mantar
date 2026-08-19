@@ -77,7 +77,8 @@ void main() {
         expect(
           MapConfig.isMapped(outside),
           isFalse,
-          reason: 'a constant degrees-to-metres conversion passes this at the '
+          reason:
+              'a constant degrees-to-metres conversion passes this at the '
               'equator and fails at London — which is exactly the bug',
         );
       });

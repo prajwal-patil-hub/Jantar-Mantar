@@ -1129,6 +1129,60 @@ abstract class AppL10n {
   /// **'Back to {site}'**
   String backToSite(String site);
 
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search water, food, shelter…'**
+  String get searchHint;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches in saved data'**
+  String get searchNoResults;
+
+  /// No description provided for @searchLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Searches data already saved on this device, so it works offline. Places not yet downloaded will not appear.'**
+  String get searchLocalOnly;
+
+  /// No description provided for @searchGroupFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Facilities'**
+  String get searchGroupFacilities;
+
+  /// No description provided for @searchGroupAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Areas'**
+  String get searchGroupAreas;
+
+  /// No description provided for @searchOffMap.
+  ///
+  /// In en, this message translates to:
+  /// **'off map'**
+  String get searchOffMap;
+
+  /// No description provided for @searchSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get searchSuggested;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
   /// No description provided for @routeNoSafeClaim.
   ///
   /// In en, this message translates to:

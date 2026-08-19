@@ -29,10 +29,11 @@ void main() {
     };
 
     final offenders = <String>[];
-    for (final file in Directory('lib')
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.dart'))) {
+    for (final file
+        in Directory('lib')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.dart'))) {
       final path = file.path.replaceAll(r'\', '/');
       if (allowed.contains(path)) continue;
       if (path.endsWith('.g.dart') || path.contains('/l10n/')) continue;

@@ -602,6 +602,34 @@ class AppL10nHi extends AppL10n {
   }
 
   @override
+  String get searchHint => 'पानी, भोजन, आश्रय खोजें…';
+
+  @override
+  String get searchNoResults => 'सहेजे गए डेटा में कुछ नहीं मिला';
+
+  @override
+  String get searchLocalOnly =>
+      'यह इस डिवाइस पर पहले से सहेजे गए डेटा में खोजता है, इसलिए ऑफ़लाइन भी काम करता है। जो जगहें डाउनलोड नहीं हुईं, वे नहीं दिखेंगी।';
+
+  @override
+  String get searchGroupFacilities => 'सुविधाएँ';
+
+  @override
+  String get searchGroupAreas => 'क्षेत्र';
+
+  @override
+  String get searchOffMap => 'नक्शे से बाहर';
+
+  @override
+  String get searchSuggested => 'सुझाए गए';
+
+  @override
+  String get clear => 'साफ़ करें';
+
+  @override
+  String get search => 'खोजें';
+
+  @override
   String get routeNoSafeClaim =>
       'यह केवल खतरे दिखाता है। जिस सड़क पर रेखा नहीं है, वह जाँची नहीं गई है — सुरक्षित घोषित नहीं है।';
 

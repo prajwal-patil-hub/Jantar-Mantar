@@ -14,6 +14,7 @@ import '../../../core/theme/tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../groups/application/groups_providers.dart';
 import '../../routes/presentation/report_route_screen.dart';
+import '../../search/presentation/search_screen.dart';
 import '../../sos/presentation/sos_screen.dart';
 import '../../submit/presentation/submit_flow_screen.dart';
 import '../application/map_providers.dart';
@@ -234,6 +235,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 icon: showGroupPins ? Icons.layers : Icons.layers_outlined,
                 selected: showGroupPins,
                 onTap: () => ref.read(showGroupPinsProvider.notifier).toggle(),
+              ),
+              const SizedBox(height: 12),
+              // Search sits above recenter: it is the only control that can
+              // reach something currently off screen.
+              _MapKnob(
+                tooltip: l10n.search,
+                icon: Icons.search,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => SearchScreen(
+                      onGoTo: (point) =>
+                          _mapController.move(point, MapConfig.initialZoom),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               _MapKnob(

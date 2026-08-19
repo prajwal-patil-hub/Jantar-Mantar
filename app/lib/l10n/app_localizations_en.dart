@@ -605,6 +605,34 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get searchHint => 'Search water, food, shelter…';
+
+  @override
+  String get searchNoResults => 'No matches in saved data';
+
+  @override
+  String get searchLocalOnly =>
+      'Searches data already saved on this device, so it works offline. Places not yet downloaded will not appear.';
+
+  @override
+  String get searchGroupFacilities => 'Facilities';
+
+  @override
+  String get searchGroupAreas => 'Areas';
+
+  @override
+  String get searchOffMap => 'off map';
+
+  @override
+  String get searchSuggested => 'Suggested';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get search => 'Search';
+
+  @override
   String get routeNoSafeClaim =>
       'This shows hazards only. A road with no line on it has not been checked — it is not marked safe.';
 
