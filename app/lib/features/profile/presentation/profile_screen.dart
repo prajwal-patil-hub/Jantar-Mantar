@@ -10,6 +10,8 @@ import '../../../core/security/panic_wipe_provider.dart';
 import '../../../core/theme/depth.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../alerts/application/critical_alert_signal.dart';
+import '../../auth/application/auth_providers.dart';
+import '../../auth/presentation/phone_verify_screen.dart';
 import '../../map/application/map_providers.dart';
 import '../../verify/application/verify_providers.dart';
 import '../../verify/presentation/admin_login_screen.dart';
@@ -161,6 +163,36 @@ class ProfileScreen extends ConsumerWidget {
                       ref.read(alertSoundProvider.notifier).set(v),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Optional phone verification (ADR-4): an upgrade you can take, never
+          // a gate. Shown as "verified" or "add", never as something missing —
+          // a red state here would imply the anonymous account is incomplete,
+          // and it is the recommended one.
+          DepthSurface(
+            child: ListTile(
+              leading: Icon(
+                ref.watch(hasVerifiedPhoneProvider)
+                    ? Icons.verified_outlined
+                    : Icons.sms_outlined,
+              ),
+              title: Text(l10n.verifyWithPhone),
+              subtitle: Text(
+                ref.watch(hasVerifiedPhoneProvider)
+                    ? l10n.otpVerified
+                    : l10n.phoneWhyBody,
+              ),
+              trailing: ref.watch(hasVerifiedPhoneProvider)
+                  ? null
+                  : const Icon(Icons.chevron_right),
+              onTap: ref.watch(hasVerifiedPhoneProvider)
+                  ? null
+                  : () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const PhoneVerifyScreen(),
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 8),

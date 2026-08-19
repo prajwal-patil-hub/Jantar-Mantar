@@ -630,6 +630,153 @@ class AppL10nHi extends AppL10n {
   String get search => 'खोजें';
 
   @override
+  String get authNoPersonalDetails =>
+      'आप बिना निजी जानकारी साझा किए इस ऐप का उपयोग कर सकते हैं।';
+
+  @override
+  String get continueAnonymously => 'गुमनाम रूप से जारी रखें';
+
+  @override
+  String get verifyWithPhone => 'फ़ोन नंबर से सत्यापित करें';
+
+  @override
+  String get whichShouldIChoose => 'मुझे क्या चुनना चाहिए?';
+
+  @override
+  String get authPrivacySummary =>
+      'दोनों ही स्थिति में, आपका स्थान हमारे सर्वर पर कभी नहीं भेजा जाता और आपका नंबर दूसरों को कभी नहीं दिखता।';
+
+  @override
+  String get tradeoffAspect => '';
+
+  @override
+  String get anonymous => 'गुमनाम';
+
+  @override
+  String get phoneOtp => 'फ़ोन कोड';
+
+  @override
+  String get tradeoffPrivacy => 'निजता';
+
+  @override
+  String get tradeoffPrivacyAnon => 'सर्वाधिक — कोई निजी डेटा नहीं';
+
+  @override
+  String get tradeoffPrivacyOtp =>
+      'नंबर सहेजा जाता है; SMS आपके ऑपरेटर को दिखता है';
+
+  @override
+  String get tradeoffTrust => 'रिपोर्ट का महत्व';
+
+  @override
+  String get tradeoffTrustAnon => 'सामान्य';
+
+  @override
+  String get tradeoffTrustOtp => 'अधिक';
+
+  @override
+  String get tradeoffAbuse => 'दुरुपयोग से बचाव';
+
+  @override
+  String get tradeoffAbuseAnon => 'कमज़ोर';
+
+  @override
+  String get tradeoffAbuseOtp => 'मज़बूत';
+
+  @override
+  String get tradeoffJamming => 'अगर SMS बंद हो';
+
+  @override
+  String get tradeoffJammingAnon => 'फिर भी काम करता है';
+
+  @override
+  String get tradeoffJammingOtp => 'काम नहीं करता';
+
+  @override
+  String get tradeoffRecommendation =>
+      'हम गुमनाम रहने की सलाह देते हैं। नेटवर्क बंद होने पर — यानी ठीक उसी स्थिति में जिसके लिए यह ऐप बना है — फ़ोन कोड नहीं आ सकता, और SMS कोड सबसे आसानी से पकड़े जा सकते हैं। सत्यापन से केवल आपकी रिपोर्ट का महत्व बढ़ता है।';
+
+  @override
+  String get phoneWhyBody =>
+      'वैकल्पिक। नंबर सत्यापित करने से समीक्षा के समय आपकी रिपोर्ट को अधिक महत्व मिलता है। इसके बिना भी ऐप पूरी तरह काम करता है।';
+
+  @override
+  String get phoneNumber => 'फ़ोन नंबर';
+
+  @override
+  String get phoneHint => '10 अंकों का मोबाइल, या + के साथ पूरा नंबर';
+
+  @override
+  String get phoneInvalid =>
+      'यह मान्य नंबर नहीं लगता। 10 अंकों का भारतीय मोबाइल, या + से शुरू होने वाला पूरा नंबर डालें।';
+
+  @override
+  String get otpCode => '6 अंकों का कोड';
+
+  @override
+  String get sendCode => 'कोड भेजें';
+
+  @override
+  String get confirmCode => 'कोड की पुष्टि करें';
+
+  @override
+  String get continueWithoutPhone => 'फ़ोन नंबर के बिना जारी रखें';
+
+  @override
+  String get phoneNeverShown => 'आपका नंबर दूसरों को कभी नहीं दिखाया जाता।';
+
+  @override
+  String get otpSent => 'कोड भेजा गया। आने में एक मिनट लग सकता है।';
+
+  @override
+  String get otpVerified => 'फ़ोन सत्यापित।';
+
+  @override
+  String get otpWrong => 'यह कोड सही नहीं था। अंक जाँचकर फिर कोशिश करें।';
+
+  @override
+  String get otpExpired => 'यह कोड समाप्त हो चुका है। नया कोड मँगाएँ।';
+
+  @override
+  String get otpRateLimited =>
+      'बहुत बार कोशिश हुई। कुछ मिनट रुककर फिर प्रयास करें।';
+
+  @override
+  String get otpUndeliverable =>
+      'कोड नहीं भेजा जा सका। नेटवर्क बंद हो सकता है — इसके बजाय गुमनाम रूप से जारी रखें।';
+
+  @override
+  String get otpNotConfigured =>
+      'इस बिल्ड में फ़ोन सत्यापन उपलब्ध नहीं है। आप गुमनाम रूप से ऐप चलाते रह सकते हैं।';
+
+  @override
+  String get otpFailed => 'सत्यापन पूरा नहीं हुआ।';
+
+  @override
+  String get onboardFindTitle => 'जो चाहिए वह खोजें';
+
+  @override
+  String get onboardFindBody =>
+      'पानी, भोजन, आश्रय, चिकित्सा सहायता और सुरक्षित क्षेत्र — एक ही नक्शे पर।';
+
+  @override
+  String get onboardVerifiedTitle => 'दिखने से पहले जाँचा जाता है';
+
+  @override
+  String get onboardVerifiedBody =>
+      'मौके पर मौजूद लोग अपडेट भेजते हैं। सार्वजनिक नक्शे पर दिखने से पहले उनकी समीक्षा होती है।';
+
+  @override
+  String get onboardOfflineTitle => 'बिना सिग्नल भी चलता है';
+
+  @override
+  String get onboardOfflineBody =>
+      'जो पहले लोड हो चुका है वह ऑफ़लाइन भी उपलब्ध रहता है। नई रिपोर्ट कतार में रहती हैं और नेटवर्क आते ही अपने आप भेज दी जाती हैं।';
+
+  @override
+  String get getStarted => 'शुरू करें';
+
+  @override
   String get routeNoSafeClaim =>
       'यह केवल खतरे दिखाता है। जिस सड़क पर रेखा नहीं है, वह जाँची नहीं गई है — सुरक्षित घोषित नहीं है।';
 

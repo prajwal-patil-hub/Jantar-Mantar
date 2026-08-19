@@ -633,6 +633,153 @@ class AppL10nEn extends AppL10n {
   String get search => 'Search';
 
   @override
+  String get authNoPersonalDetails =>
+      'You can use this app without sharing personal details.';
+
+  @override
+  String get continueAnonymously => 'Continue anonymously';
+
+  @override
+  String get verifyWithPhone => 'Verify with phone number';
+
+  @override
+  String get whichShouldIChoose => 'Which should I choose?';
+
+  @override
+  String get authPrivacySummary =>
+      'Either way, your location is never sent to our server and your number is never shown to other people.';
+
+  @override
+  String get tradeoffAspect => '';
+
+  @override
+  String get anonymous => 'Anonymous';
+
+  @override
+  String get phoneOtp => 'Phone code';
+
+  @override
+  String get tradeoffPrivacy => 'Privacy';
+
+  @override
+  String get tradeoffPrivacyAnon => 'Highest — no personal data';
+
+  @override
+  String get tradeoffPrivacyOtp => 'Number stored; your carrier sees the SMS';
+
+  @override
+  String get tradeoffTrust => 'Report weight';
+
+  @override
+  String get tradeoffTrustAnon => 'Baseline';
+
+  @override
+  String get tradeoffTrustOtp => 'Higher';
+
+  @override
+  String get tradeoffAbuse => 'Abuse resistance';
+
+  @override
+  String get tradeoffAbuseAnon => 'Weaker';
+
+  @override
+  String get tradeoffAbuseOtp => 'Stronger';
+
+  @override
+  String get tradeoffJamming => 'If SMS is blocked';
+
+  @override
+  String get tradeoffJammingAnon => 'Still works';
+
+  @override
+  String get tradeoffJammingOtp => 'Does not work';
+
+  @override
+  String get tradeoffRecommendation =>
+      'We recommend anonymous. A phone code cannot arrive during a network shutdown — the situation this app is built for — and SMS codes are the easiest kind to intercept. Verifying only raises how much weight your reports carry.';
+
+  @override
+  String get phoneWhyBody =>
+      'Optional. Verifying a number makes your reports count for more when they are reviewed. Everything in the app works without it.';
+
+  @override
+  String get phoneNumber => 'Phone number';
+
+  @override
+  String get phoneHint => '10-digit mobile, or +country number';
+
+  @override
+  String get phoneInvalid =>
+      'That does not look like a valid number. Enter a 10-digit Indian mobile, or a full number starting with +.';
+
+  @override
+  String get otpCode => '6-digit code';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get confirmCode => 'Confirm code';
+
+  @override
+  String get continueWithoutPhone => 'Continue without a phone number';
+
+  @override
+  String get phoneNeverShown => 'Your number is never shown to other people.';
+
+  @override
+  String get otpSent => 'Code sent. It can take a minute to arrive.';
+
+  @override
+  String get otpVerified => 'Phone verified.';
+
+  @override
+  String get otpWrong =>
+      'That code was not right. Check the digits and try again.';
+
+  @override
+  String get otpExpired => 'That code has expired. Ask for a new one.';
+
+  @override
+  String get otpRateLimited =>
+      'Too many attempts. Wait a few minutes before trying again.';
+
+  @override
+  String get otpUndeliverable =>
+      'The code could not be sent. The network may be blocked — continue anonymously instead.';
+
+  @override
+  String get otpNotConfigured =>
+      'Phone verification is not available in this build. You can keep using the app anonymously.';
+
+  @override
+  String get otpFailed => 'Verification did not complete.';
+
+  @override
+  String get onboardFindTitle => 'Find what you need';
+
+  @override
+  String get onboardFindBody =>
+      'Water, food, shelter, medical help and safe areas on one map.';
+
+  @override
+  String get onboardVerifiedTitle => 'Checked before it appears';
+
+  @override
+  String get onboardVerifiedBody =>
+      'People on the ground submit updates. They are reviewed before they show on the public map.';
+
+  @override
+  String get onboardOfflineTitle => 'Works without signal';
+
+  @override
+  String get onboardOfflineBody =>
+      'What you have already loaded stays available offline. New reports queue up and send themselves when the network returns.';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
   String get routeNoSafeClaim =>
       'This shows hazards only. A road with no line on it has not been checked — it is not marked safe.';
 

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/l10n/locale_provider.dart';
 import 'core/theme/app_theme.dart';
-import 'features/shell/home_shell.dart';
+import 'features/auth/presentation/first_run_gate.dart';
 import 'l10n/app_localizations.dart';
 
 /// Root widget. Theme follows the system light/dark setting (ADR-10); a
@@ -30,7 +30,7 @@ class CommonGroundApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const HomeShell(),
+      home: const FirstRunGate(),
     );
   }
 }

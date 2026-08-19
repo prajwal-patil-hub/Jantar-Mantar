@@ -7,6 +7,7 @@ import 'package:jantar_mantar_sahayata/app.dart';
 import 'package:jantar_mantar_sahayata/core/db/app_database.dart';
 import 'package:jantar_mantar_sahayata/core/map/tile_providers.dart';
 import 'package:jantar_mantar_sahayata/core/providers.dart';
+import 'package:jantar_mantar_sahayata/features/auth/application/auth_providers.dart';
 
 import '../../support/stub_tile_provider.dart';
 
@@ -41,6 +42,10 @@ void main() {
   Widget app() {
     return ProviderScope(
       overrides: [
+        // These exercise the shell, not first-run. Without this override a
+        // fresh test profile has no saved flag, so the app correctly opens on
+        // onboarding and the shell is never built.
+        firstRunProvider.overrideWith(() => _FirstRunDone()),
         appDatabaseProvider.overrideWithValue(db),
         mapTileProviderProvider.overrideWith((ref) => StubTileProvider()),
       ],
@@ -85,4 +90,10 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 100));
   });
+}
+
+/// first-run already completed, so the app opens on the shell.
+class _FirstRunDone extends FirstRunNotifier {
+  @override
+  Future<bool> build() async => true;
 }

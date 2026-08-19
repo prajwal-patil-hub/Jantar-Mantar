@@ -1183,6 +1183,276 @@ abstract class AppL10n {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @authNoPersonalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'You can use this app without sharing personal details.'**
+  String get authNoPersonalDetails;
+
+  /// No description provided for @continueAnonymously.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue anonymously'**
+  String get continueAnonymously;
+
+  /// No description provided for @verifyWithPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify with phone number'**
+  String get verifyWithPhone;
+
+  /// No description provided for @whichShouldIChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Which should I choose?'**
+  String get whichShouldIChoose;
+
+  /// No description provided for @authPrivacySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Either way, your location is never sent to our server and your number is never shown to other people.'**
+  String get authPrivacySummary;
+
+  /// No description provided for @tradeoffAspect.
+  ///
+  /// In en, this message translates to:
+  /// **''**
+  String get tradeoffAspect;
+
+  /// No description provided for @anonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymous;
+
+  /// No description provided for @phoneOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone code'**
+  String get phoneOtp;
+
+  /// No description provided for @tradeoffPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get tradeoffPrivacy;
+
+  /// No description provided for @tradeoffPrivacyAnon.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest — no personal data'**
+  String get tradeoffPrivacyAnon;
+
+  /// No description provided for @tradeoffPrivacyOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Number stored; your carrier sees the SMS'**
+  String get tradeoffPrivacyOtp;
+
+  /// No description provided for @tradeoffTrust.
+  ///
+  /// In en, this message translates to:
+  /// **'Report weight'**
+  String get tradeoffTrust;
+
+  /// No description provided for @tradeoffTrustAnon.
+  ///
+  /// In en, this message translates to:
+  /// **'Baseline'**
+  String get tradeoffTrustAnon;
+
+  /// No description provided for @tradeoffTrustOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher'**
+  String get tradeoffTrustOtp;
+
+  /// No description provided for @tradeoffAbuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse resistance'**
+  String get tradeoffAbuse;
+
+  /// No description provided for @tradeoffAbuseAnon.
+  ///
+  /// In en, this message translates to:
+  /// **'Weaker'**
+  String get tradeoffAbuseAnon;
+
+  /// No description provided for @tradeoffAbuseOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger'**
+  String get tradeoffAbuseOtp;
+
+  /// No description provided for @tradeoffJamming.
+  ///
+  /// In en, this message translates to:
+  /// **'If SMS is blocked'**
+  String get tradeoffJamming;
+
+  /// No description provided for @tradeoffJammingAnon.
+  ///
+  /// In en, this message translates to:
+  /// **'Still works'**
+  String get tradeoffJammingAnon;
+
+  /// No description provided for @tradeoffJammingOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Does not work'**
+  String get tradeoffJammingOtp;
+
+  /// No description provided for @tradeoffRecommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'We recommend anonymous. A phone code cannot arrive during a network shutdown — the situation this app is built for — and SMS codes are the easiest kind to intercept. Verifying only raises how much weight your reports carry.'**
+  String get tradeoffRecommendation;
+
+  /// No description provided for @phoneWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Verifying a number makes your reports count for more when they are reviewed. Everything in the app works without it.'**
+  String get phoneWhyBody;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get phoneNumber;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'10-digit mobile, or +country number'**
+  String get phoneHint;
+
+  /// No description provided for @phoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That does not look like a valid number. Enter a 10-digit Indian mobile, or a full number starting with +.'**
+  String get phoneInvalid;
+
+  /// No description provided for @otpCode.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get otpCode;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @confirmCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm code'**
+  String get confirmCode;
+
+  /// No description provided for @continueWithoutPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without a phone number'**
+  String get continueWithoutPhone;
+
+  /// No description provided for @phoneNeverShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Your number is never shown to other people.'**
+  String get phoneNeverShown;
+
+  /// No description provided for @otpSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent. It can take a minute to arrive.'**
+  String get otpSent;
+
+  /// No description provided for @otpVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone verified.'**
+  String get otpVerified;
+
+  /// No description provided for @otpWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That code was not right. Check the digits and try again.'**
+  String get otpWrong;
+
+  /// No description provided for @otpExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'That code has expired. Ask for a new one.'**
+  String get otpExpired;
+
+  /// No description provided for @otpRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a few minutes before trying again.'**
+  String get otpRateLimited;
+
+  /// No description provided for @otpUndeliverable.
+  ///
+  /// In en, this message translates to:
+  /// **'The code could not be sent. The network may be blocked — continue anonymously instead.'**
+  String get otpUndeliverable;
+
+  /// No description provided for @otpNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone verification is not available in this build. You can keep using the app anonymously.'**
+  String get otpNotConfigured;
+
+  /// No description provided for @otpFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification did not complete.'**
+  String get otpFailed;
+
+  /// No description provided for @onboardFindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find what you need'**
+  String get onboardFindTitle;
+
+  /// No description provided for @onboardFindBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Water, food, shelter, medical help and safe areas on one map.'**
+  String get onboardFindBody;
+
+  /// No description provided for @onboardVerifiedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked before it appears'**
+  String get onboardVerifiedTitle;
+
+  /// No description provided for @onboardVerifiedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'People on the ground submit updates. They are reviewed before they show on the public map.'**
+  String get onboardVerifiedBody;
+
+  /// No description provided for @onboardOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Works without signal'**
+  String get onboardOfflineTitle;
+
+  /// No description provided for @onboardOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What you have already loaded stays available offline. New reports queue up and send themselves when the network returns.'**
+  String get onboardOfflineBody;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
   /// No description provided for @routeNoSafeClaim.
   ///
   /// In en, this message translates to:
