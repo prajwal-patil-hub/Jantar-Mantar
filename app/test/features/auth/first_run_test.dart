@@ -32,7 +32,7 @@ void main() {
   ) async {
     // The rule this pins: someone opening the app because they need water in
     // ten minutes must never be held inside an intro carousel.
-    await tester.pumpWidget(host(OnboardingScreen(onDone: () {})));
+    await tester.pumpWidget(host(OnboardingScreen(onDone: () async {})));
     await tester.pumpAndSettle();
 
     expect(find.text('Skip'), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
   ) async {
     var continued = false;
     await tester.pumpWidget(
-      host(AuthChoiceScreen(onContinue: () => continued = true)),
+      host(AuthChoiceScreen(onContinue: () async => continued = true)),
     );
     await tester.pumpAndSettle();
 
@@ -83,7 +83,7 @@ void main() {
   testWidgets('the trade-off sheet says SMS fails when it matters', (
     tester,
   ) async {
-    await tester.pumpWidget(host(AuthChoiceScreen(onContinue: () {})));
+    await tester.pumpWidget(host(AuthChoiceScreen(onContinue: () async {})));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Which should I choose?'));

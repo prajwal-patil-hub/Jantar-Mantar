@@ -20,7 +20,9 @@ import 'auth_choice_screen.dart';
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({required this.onDone, super.key});
 
-  final VoidCallback onDone;
+  /// Completes first-run. Returns when the flag is set, so the caller can
+  /// pop back to the gate only once it will rebuild into the app.
+  final Future<void> Function() onDone;
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -36,7 +38,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  void _toAuth() => Navigator.of(context).pushReplacement(
+  /// `push`, deliberately NOT `pushReplacement`.
+  ///
+  /// FirstRunGate is `MaterialApp.home`, so this screen sits in the root
+  /// route. Replacing it tears the gate out of the tree, and the gate is the
+  /// thing that swaps in the app once first-run completes. Pushing keeps it
+  /// alive underneath, so finishing simply pops back down onto the app.
+  void _toAuth() => Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => AuthChoiceScreen(onContinue: widget.onDone),
     ),

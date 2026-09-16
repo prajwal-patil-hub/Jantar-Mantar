@@ -23,7 +23,9 @@ import 'phone_verify_screen.dart';
 class AuthChoiceScreen extends ConsumerWidget {
   const AuthChoiceScreen({required this.onContinue, super.key});
 
-  final VoidCallback onContinue;
+  /// Completes first-run. Awaited before this screen pops, so the gate below
+  /// has already rebuilt into the app by the time it becomes visible.
+  final Future<void> Function() onContinue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +51,7 @@ class AuthChoiceScreen extends ConsumerWidget {
               const Spacer(),
 
               FilledButton.icon(
-                onPressed: onContinue,
+                onPressed: () => _finish(context),
                 icon: const Icon(Icons.arrow_forward),
                 label: Text(l10n.continueAnonymously),
                 style: FilledButton.styleFrom(
@@ -67,7 +69,9 @@ class AuthChoiceScreen extends ConsumerWidget {
                   // Verifying does not change where you land: the phone only
                   // raises trust weighting, so either way the next screen is
                   // the map.
-                  if (verified ?? false) onContinue();
+                  if ((verified ?? false) && context.mounted) {
+                    await _finish(context);
+                  }
                 },
                 icon: const Icon(Icons.sms_outlined),
                 label: Text(l10n.verifyWithPhone),
@@ -91,6 +95,24 @@ class AuthChoiceScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Complete first-run, then leave the intro behind.
+  ///
+  /// The order matters. `onContinue` flips the provider that [FirstRunGate]
+  /// watches, so by the time these routes pop, the root route underneath has
+  /// already rebuilt into the app. Popping first would briefly reveal the
+  /// onboarding screen again.
+  ///
+  /// `popUntil(isFirst)` rather than a push: the gate is the root route and is
+  /// still mounted (onboarding used `push`, not `pushReplacement`), so there
+  /// is nothing to build — only the intro routes to discard. That also leaves
+  /// a single route on the stack, so a back press exits the app instead of
+  /// reopening the intro.
+  Future<void> _finish(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    await onContinue();
+    navigator.popUntil((route) => route.isFirst);
   }
 
   /// The comparison from the spec, verbatim in substance: it exists so the

@@ -19,6 +19,19 @@ import 'onboarding_screen.dart';
 /// through to the map. Failing towards the map is the only correct direction:
 /// nobody should be stuck on an intro carousel because a preferences file is
 /// unreadable.
+///
+/// **This widget navigates nowhere, and that is the fix for a real bug.** It
+/// previously handed the intro an `onDone` callback that pushed the app using
+/// *this* widget's `BuildContext`. But `FirstRunGate` is `MaterialApp.home`,
+/// so it is the root route's widget — and the intro reached the sign-in screen
+/// with `pushReplacement`, which replaced that very route and unmounted the
+/// gate. By the time the callback ran, its captured context was dead, the
+/// `context.mounted` guard returned early, and "Continue anonymously" did
+/// nothing at all.
+///
+/// So the transition is declarative instead: finishing first-run only flips
+/// [firstRunProvider], this rebuilds into [HomeShell], and the intro routes
+/// pop themselves off the top. No callback outlives the widget that made it.
 class FirstRunGate extends ConsumerWidget {
   const FirstRunGate({super.key});
 
@@ -34,16 +47,7 @@ class FirstRunGate extends ConsumerWidget {
       data: (done) => done
           ? const HomeShell()
           : OnboardingScreen(
-              onDone: () async {
-                await ref.read(firstRunProvider.notifier).complete();
-                if (!context.mounted) return;
-                // pushAndRemoveUntil, not push: the intro must not be
-                // reachable with the back button once it is finished.
-                await Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute<void>(builder: (_) => const HomeShell()),
-                  (route) => false,
-                );
-              },
+              onDone: () => ref.read(firstRunProvider.notifier).complete(),
             ),
     );
   }
